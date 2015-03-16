@@ -7,9 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		2B8092F21AB34C7F0059F89D /* Multihop.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 2B8092F11AB34C7F0059F89D /* Multihop.h */; };
-		2B8092F41AB34C7F0059F89D /* Multihop.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B8092F31AB34C7F0059F89D /* Multihop.m */; };
 		2B8092FA1AB34C7F0059F89D /* libMultihop.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B8092EE1AB34C7F0059F89D /* libMultihop.a */; };
+		2B8093101AB71A750059F89D /* MHPeer.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B80930F1AB71A750059F89D /* MHPeer.m */; };
+		2B8093131AB726170059F89D /* MHMultipeerWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B8093121AB726170059F89D /* MHMultipeerWrapper.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -29,7 +29,6 @@
 			dstPath = "include/$(PRODUCT_NAME)";
 			dstSubfolderSpec = 16;
 			files = (
-				2B8092F21AB34C7F0059F89D /* Multihop.h in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -37,10 +36,12 @@
 
 /* Begin PBXFileReference section */
 		2B8092EE1AB34C7F0059F89D /* libMultihop.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libMultihop.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		2B8092F11AB34C7F0059F89D /* Multihop.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Multihop.h; sourceTree = "<group>"; };
-		2B8092F31AB34C7F0059F89D /* Multihop.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Multihop.m; sourceTree = "<group>"; };
 		2B8092F91AB34C7F0059F89D /* MultihopTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MultihopTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		2B8092FF1AB34C7F0059F89D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		2B80930E1AB71A580059F89D /* MHPeer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MHPeer.h; sourceTree = "<group>"; };
+		2B80930F1AB71A750059F89D /* MHPeer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MHPeer.m; sourceTree = "<group>"; };
+		2B8093111AB725FF0059F89D /* MHMultipeerWrapper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MHMultipeerWrapper.h; sourceTree = "<group>"; };
+		2B8093121AB726170059F89D /* MHMultipeerWrapper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MHMultipeerWrapper.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -83,8 +84,9 @@
 		2B8092F01AB34C7F0059F89D /* Multihop */ = {
 			isa = PBXGroup;
 			children = (
-				2B8092F11AB34C7F0059F89D /* Multihop.h */,
-				2B8092F31AB34C7F0059F89D /* Multihop.m */,
+				2B80930A1AB718510059F89D /* Interface */,
+				2B8093091AB717790059F89D /* Routing */,
+				2B8093081AB7174B0059F89D /* Communication */,
 			);
 			path = Multihop;
 			sourceTree = "<group>";
@@ -103,6 +105,47 @@
 				2B8092FF1AB34C7F0059F89D /* Info.plist */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		2B8093081AB7174B0059F89D /* Communication */ = {
+			isa = PBXGroup;
+			children = (
+				2B80930C1AB718C40059F89D /* Peers */,
+				2B80930B1AB718B80059F89D /* Messages */,
+				2B8093111AB725FF0059F89D /* MHMultipeerWrapper.h */,
+				2B8093121AB726170059F89D /* MHMultipeerWrapper.m */,
+			);
+			name = Communication;
+			sourceTree = "<group>";
+		};
+		2B8093091AB717790059F89D /* Routing */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Routing;
+			sourceTree = "<group>";
+		};
+		2B80930A1AB718510059F89D /* Interface */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Interface;
+			sourceTree = "<group>";
+		};
+		2B80930B1AB718B80059F89D /* Messages */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Messages;
+			sourceTree = "<group>";
+		};
+		2B80930C1AB718C40059F89D /* Peers */ = {
+			isa = PBXGroup;
+			children = (
+				2B80930E1AB71A580059F89D /* MHPeer.h */,
+				2B80930F1AB71A750059F89D /* MHPeer.m */,
+			);
+			name = Peers;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -193,7 +236,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2B8092F41AB34C7F0059F89D /* Multihop.m in Sources */,
+				2B8093131AB726170059F89D /* MHMultipeerWrapper.m in Sources */,
+				2B8093101AB71A750059F89D /* MHPeer.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -360,6 +404,7 @@
 				2B8093041AB34C800059F89D /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		2B8093051AB34C800059F89D /* Build configuration list for PBXNativeTarget "MultihopTests" */ = {
 			isa = XCConfigurationList;
@@ -368,6 +413,7 @@
 				2B8093071AB34C800059F89D /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
