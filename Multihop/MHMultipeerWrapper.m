@@ -19,6 +19,7 @@
 @property (nonatomic, strong) MHPeer *mhPeer;
 @property (nonatomic, strong) MCNearbyServiceAdvertiser *advertiser;
 @property (nonatomic, strong) MCNearbyServiceBrowser *browser;
+@property (nonatomic, strong) NSDictionary *dictInfo;
 
 @end
 
@@ -38,8 +39,8 @@
     self = [super init];
     if (self)
     {
-        self.serviceType = serviceType;
-        self.displayName = displayName;
+        self.serviceType = [NSString stringWithFormat:@"multihop_%@", serviceType];
+        self.mhPeer = [MHPeer getOwnMHPeerWithDisplayName:displayName];
     }
     return self;
 }
@@ -47,12 +48,12 @@
 - (void)dealloc
 {
     // Will clean up the session and browsers properly
-    [self leaveParty];
+    [self disconnectFromAll];
 }
 
 #pragma mark - Membership
 
-- (void)joinParty
+- (void)connectToAll
 {
     // If we're already joined, then don't try again. This causes crashes.
     
@@ -67,7 +68,7 @@
     }
 }
 
-- (void)stopAcceptingGuests
+- (void)stopAcceptingConnections
 {
     if (self.acceptingGuests)
     {
@@ -77,14 +78,13 @@
     }
 }
 
-- (void)leaveParty
+- (void)disconnectFromAll
 {
-    [self stopAcceptingGuests];
-    [self.session disconnect];
+    [self stopAcceptingConnections];
+    
     // Must nil out these because if we try to reconnect, we need to recreate them
     // Else it fails to connect
-    self.session = nil;
-    self.peerID = nil;
+// TODO: peer?
     self.advertiser = nil;
     self.browser = nil;
     self.connected = NO;
@@ -92,75 +92,52 @@
 
 #pragma mark - Communicate
 
-- (BOOL)sendData:(NSData *)data
+- (void)sendData:(NSData *)data
         withMode:(MCSessionSendDataMode)mode
            error:(NSError **)error
 {
-    return [self.session sendData:data
-                          toPeers:self.session.connectedPeers
-                         withMode:mode
-                            error:error];
+    for (id peerObj in self.connectedPeers)
+    {
+        MHPeer *peer = (MHPeer *)peerObj;
+        
+        [peer.session sendData:data
+                       toPeers:peer.session.connectedPeers
+                      withMode:mode
+                         error:error];
+    }
 }
 
-- (BOOL)sendData:(NSData *)data
-         toPeers:(NSArray *)peerIDs
+- (void)sendData:(NSData *)data
+         toPeers:(NSArray *)peers
         withMode:(MCSessionSendDataMode)mode
            error:(NSError **)error
 {
-    return [self.session sendData:data
-                          toPeers:peerIDs
-                         withMode:mode
-                            error:error];
+    for (id peerObj in peers)
+    {
+        MHPeer *peer = [self getMHPeerFromId:(NSString *)peerObj];
+        
+        [peer.session sendData:data
+                       toPeers:peer.session.connectedPeers
+                      withMode:mode
+                         error:error];
+    }
 }
 
-- (NSOutputStream *)startStreamWithName:(NSString *)streamName
-                                 toPeer:(MCPeerID *)peerID
-                                  error:(NSError *__autoreleasing *)error
-{
-    return [self.session startStreamWithName:streamName
-                                      toPeer:peerID
-                                       error:error];
-}
 
-- (NSProgress *)sendResourceAtURL:(NSURL *)resourceURL
-                         withName:(NSString *)resourceName
-                           toPeer:(MCPeerID *)peerID
-            withCompletionHandler:(void (^)(NSError *error))completionHandler
-{
-    return [self.session sendResourceAtURL:resourceURL
-                                  withName:resourceName
-                                    toPeer:peerID
-                     withCompletionHandler:completionHandler];
-}
 
 #pragma mark - Properties
 
-- (NSArray *)connectedPeers
+- (NSDictionary *)dictInfo
 {
-    return self.session.connectedPeers;
-}
-
-- (MCSession *)session
-{
-    if (!_session)
+    if (!_dictInfo)
     {
-        NSLog(@"create a session");
-        _session = [[MCSession alloc] initWithPeer:self.peerID
-                                  securityIdentity:nil
-                              encryptionPreference:MCEncryptionRequired];
-        _session.delegate = self;
+        NSAssert(self.serviceType, @"No service type. You must initialize this class using the custom intializers.");
+        
+        _dictInfo = [[NSDictionary alloc] init];
+        [_dictInfo setValue:self.mhPeer.mhPeerID forUndefinedKey:@"MultihopID"];
+        [_dictInfo setValue:self.mhPeer.displayName forUndefinedKey:@"MultihopDisplayName"];
     }
-    return _session;
-}
-
-- (MCPeerID *)peerID
-{
-    if (!_peerID)
-    {
-        NSAssert(self.displayName, @"No display name. You must initialize this class using the custom intializers.");
-        _peerID = [[MCPeerID alloc] initWithDisplayName:self.displayName];
-    }
-    return _peerID;
+    return _dictInfo;
 }
 
 - (MCNearbyServiceAdvertiser *)advertiser
@@ -168,52 +145,48 @@
     if (!_advertiser)
     {
         NSAssert(self.serviceType, @"No service type. You must initialize this class using the custom intializers.");
-        _advertiser = [[MCNearbyServiceAdvertiser alloc] initWithPeer:self.peerID
-                                                        discoveryInfo:nil
+        
+        _advertiser = [[MCNearbyServiceAdvertiser alloc] initWithPeer:self.mhPeer.mcPeerID
+                                                        discoveryInfo:self.dictInfo
                                                           serviceType:self.serviceType];
         _advertiser.delegate = self;
     }
     return _advertiser;
 }
 
+
 - (MCNearbyServiceBrowser *)browser
 {
     if (!_browser)
     {
         NSAssert(self.serviceType, @"No service type. You must initialize this class using the custom intializers.");
-        _browser = [[MCNearbyServiceBrowser alloc] initWithPeer:self.peerID
+        _browser = [[MCNearbyServiceBrowser alloc] initWithPeer:self.mhPeer.mcPeerID
                                                     serviceType:self.serviceType];
         _browser.delegate = self;
     }
     return _browser;
 }
 
-#pragma mark - Session Delegate
+#pragma mark - MHPeer Delegate
 
-- (void)session:(MCSession *)session peer:(MCPeerID *)peerID didChangeState:(MCSessionState)state
+- (void)mhPeer:(MHPeer *)mhPeer changedState:(MCSessionState)state
 {
-    NSLog(@"Peer [%@] changed state to %@ numbers of connected %lu", peerID.displayName, [self stringForPeerConnectionState:state], (unsigned long)self.connectedPeers.count);
+ /*   NSLog(@"Peer [%@] changed state to %@ numbers of connected %lu", peerID.displayName, [self stringForPeerConnectionState:state], (unsigned long)self.connectedPeers.count);
     dispatch_async(dispatch_get_main_queue(), ^{
         [self.delegate partyTime:self peer:peerID changedState:state currentPeers:self.session.connectedPeers];
-    });
+    });*/
 }
 
-- (void)session:(MCSession *)session didReceiveData:(NSData *)data fromPeer:(MCPeerID *)peerID
+- (void)mhPeer:(MHPeer *)mhPeer didReceiveData:(NSData *)data
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        if ([self.delegate respondsToSelector:@selector(partyTime:didReceiveData:fromPeer:)])
+        if ([self.delegate respondsToSelector:@selector(mcWrapper:didReceiveData:fromPeer:)])
         {
-            [self.delegate partyTime:self didReceiveData:data fromPeer:peerID];
+            [self.delegate mcWrapper:self didReceiveData:data fromPeer:mhPeer.mhPeerID];
         }
     });
 }
 
-
-// Required because of an apple bug
-- (void)session:(MCSession *)session didReceiveCertificate:(NSArray *)certificate fromPeer:(MCPeerID *)peerID certificateHandler:(void(^)(BOOL accept))certificateHandler
-{
-    certificateHandler(YES);
-}
 
 #pragma mark - Advertiser Delegate
 
@@ -225,15 +198,21 @@ didReceiveInvitationFromPeer:(MCPeerID *)peerID
     // Only accept invitations with IDs lower than the current host
     // If both people accept invitations, then connections are lost
     // However, this should always be the case since we only send invites in one direction
-    if ([peerID.displayName compare:self.peerID.displayName] == NSOrderedDescending)
+    NSDictionary *info = (NSDictionary*) [NSKeyedUnarchiver unarchiveObjectWithData:context];
+    
+    if ([self.mhPeer.mhPeerID compare:[info valueForKey:@"MultihopID"]] == NSOrderedDescending)
     {
-        invitationHandler(YES, self.session);
+        MHPeer *peer = [[MHPeer alloc] initWithDisplayName:[info valueForKey:@"MultihopDisplayName"] withOwnMCPeerID:self.mhPeer.mcPeerID withMCPeerID:peerID withMHPeerID:[info valueForKey:@"MultihopID"]];
+        
+        [self.connectedPeers setValue:peer forUndefinedKey:peer.mhPeerID];
+        
+        invitationHandler(YES, peer.session);
     }
 }
 
 - (void)advertiser:(MCNearbyServiceAdvertiser *)advertiser didNotStartAdvertisingPeer:(NSError *)error
 {
-    [self.delegate partyTime:self failedToJoinParty:error];
+    [self.delegate mcWrapper:self failedToConnect:error];
 }
 
 #pragma mark - Browser Delegate
@@ -242,14 +221,21 @@ didReceiveInvitationFromPeer:(MCPeerID *)peerID
 {
     // Whenever we find a peer, let's just send them an invitation
     // But only send invites one way
-    // TODO: What if display names are the same?
+    // TODO: check if peer already connected
     // TODO: Make timeout configurable
-    if ([peerID.displayName compare:self.peerID.displayName] == NSOrderedAscending)
+    if ([self.mhPeer.mhPeerID compare:[info valueForKey:@"MultihopID"]] == NSOrderedAscending)
     {
-        NSLog(@"Sending invite: Self: %@", self.peerID.displayName);
+        MHPeer *peer = [[MHPeer alloc] initWithDisplayName:[info valueForKey:@"MultihopDisplayName"] withOwnMCPeerID:self.mhPeer.mcPeerID withMCPeerID:peerID withMHPeerID:[info valueForKey:@"MultihopID"]];
+        
+        [self.connectedPeers setValue:peer forUndefinedKey:peer.mhPeerID];
+        
+        
+        NSData *context = [NSKeyedArchiver archivedDataWithRootObject:self.dictInfo];
+        
+        NSLog(@"Sending invite: Self: %@", self.mhPeer.displayName);
         [browser invitePeer:peerID
-                  toSession:self.session
-                withContext:nil
+                  toSession:peer.session
+                withContext:context
                     timeout:10];
     }
 }
@@ -262,23 +248,15 @@ didReceiveInvitationFromPeer:(MCPeerID *)peerID
 
 - (void)browser:(MCNearbyServiceBrowser *)browser didNotStartBrowsingForPeers:(NSError *)error
 {
-    [self.delegate partyTime:self failedToJoinParty:error];
+    [self.delegate mcWrapper:self failedToConnect:error];
 }
 
-
-// Helper method for human readable printing of MCSessionState.  This state is per peer.
-- (NSString *)stringForPeerConnectionState:(MCSessionState)state
+         
+#pragma mark - Helper methods
+- (MHPeer *)getMHPeerFromId:(NSString *)peerID
 {
-    switch (state) {
-        case MCSessionStateConnected:
-            return @"Connected";
-            
-        case MCSessionStateConnecting:
-            return @"Connecting";
-            
-        case MCSessionStateNotConnected:
-            return @"Not Connected";
-    }
+    return [self.connectedPeers valueForKey:peerID];
 }
+
 
 @end

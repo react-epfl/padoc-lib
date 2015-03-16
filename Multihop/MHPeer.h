@@ -35,14 +35,18 @@
 /// If no display name was specified, it defaults to [UIDevice currentDevice].name]
 @property (nonatomic, readonly, strong) NSString *displayName;
 
+@property (nonatomic, readonly, strong) MCSession *session;
 
 #pragma mark - Initialization
 
 
-- (instancetype)init:(NSString *)displayName
+- (instancetype)initWithDisplayName:(NSString *)displayName
      withOwnMCPeerID:(MCPeerID *)ownMCPeerID
         withMCPeerID:(MCPeerID *)mcPeerID
         withMHPeerID:(NSString *)mhPeerID;
+
++ (MHPeer *)getOwnMHPeerWithDisplayName:(NSString *)displayName;
++ (NSString *)stringForPeerConnectionState:(MCSessionState)state;
 
 @end
 
@@ -52,39 +56,15 @@
  The delegate for the MHPeer class.
  */
 @protocol MHPeerDelegate <NSObject>
-/*
-@required
-- (void)partyTime:(PLPartyTime *)partyTime
-             peer:(MCPeerID *)peer
-     changedState:(MCSessionState)state
-     currentPeers:(NSArray *)currentPeers;
 
-- (void)partyTime:(PLPartyTime *)partyTime
-failedToJoinParty:(NSError *)error;
+@required
+- (void)mhPeer:(MHPeer *)mhPeer
+  changedState:(NSString *)state;
 
 @optional
-- (void)partyTime:(PLPartyTime *)partyTime
-   didReceiveData:(NSData *)data
-         fromPeer:(MCPeerID *)peerID;
+- (void)mhPeer:(MHPeer *)mhPeer
+didReceiveData:(NSData *)data;
 
-- (void)partyTime:(PLPartyTime *)partyTime
- didReceiveStream:(NSInputStream *)stream
-         withName:(NSString *)streamName
-         fromPeer:(MCPeerID *)peerID;
-
-- (void)partyTime:(PLPartyTime *)partyTime
-didStartReceivingResourceWithName:(NSString *)resourceName
-         fromPeer:(MCPeerID *)peerID
-     withProgress:(NSProgress *)progress;
-
-- (void)partyTime:(PLPartyTime *)partyTime
-didFinishReceivingResourceWithName:(NSString *)resourceName
-         fromPeer:(MCPeerID *)peerID
-            atURL:(NSURL *)localURL
-        withError:(NSError *)error;
-*/
 @end
 
 #endif
-
-@end

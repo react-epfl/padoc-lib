@@ -77,25 +77,25 @@
                         displayName:(NSString *)displayName;
 
 /**
- Call this method to join the party. It will automatically start searching for peers.
+ Call this method to connect to all peers. It will automatically start searching for peers.
  
- When you sucessfully connect to another peer, you will receive a delegate callback to:
+ When you successfully connect to another peer, you will receive a delegate callback to:
  
  - (void)partyTime:(PLPartyTime *)partyTime peer:(MCPeerID *)peer changedState:(MCSessionState)state currentPeers:(NSArray *)currentPeers;
  */
-- (void)joinParty;
+- (void)connectToAll;
 
 /**
  Call this method stop accepting invitations from peers. You will not disconnect from the party, but will not allow incoming connections.
  
- To start searching for peers again, call the joinParty method again.
+ To start searching for peers again, call the connectToAll method again.
  */
-- (void)stopAcceptingGuests;
+- (void)stopAcceptingConnections;
 
 /**
- Call this method to disconnect from the party. You can reconnect at any time using the joinParty method.
+ Call this method to disconnect from everyone. You can reconnect at any time using the connectToAll method.
  */
-- (void)leaveParty;
+- (void)disconnectFromAll;
 
 /**
  Sends data to select peers.
@@ -110,7 +110,7 @@
  @return Returns YES if the message was successfully enqueued for delivery, or NO if an error occurred.
  
  */
-- (BOOL)sendData:(NSData *)data
+- (void)sendData:(NSData *)data
         withMode:(MCSessionSendDataMode)mode
            error:(NSError **)error;
 
@@ -128,8 +128,8 @@
  @return Returns YES if the message was successfully enqueued for delivery, or NO if an error occurred.
  
  */
-- (BOOL)sendData:(NSData *)data
-         toPeers:(NSArray *)peerIDs
+- (void)sendData:(NSData *)data
+         toPeers:(NSArray *)peers
         withMode:(MCSessionSendDataMode)mode
            error:(NSError **)error;
 
@@ -141,18 +141,18 @@
 @protocol MHMultipeerWrapperDelegate <NSObject>
 
 @required
-- (void)partyTime:(PLPartyTime *)partyTime
-             peer:(MCPeerID *)peer
-     changedState:(MCSessionState)state
+- (void)mcWrapper:(MHMultipeerWrapper *)mcWrapper
+             peer:(MHPeer *)peer
+     changedState:(NSString *)state
      currentPeers:(NSArray *)currentPeers;
 
-- (void)partyTime:(PLPartyTime *)partyTime
-failedToJoinParty:(NSError *)error;
+- (void)mcWrapper:(MHMultipeerWrapper *)mcWrapper
+  failedToConnect:(NSError *)error;
 
 @optional
-- (void)partyTime:(PLPartyTime *)partyTime
+- (void)mcWrapper:(MHMultipeerWrapper *)mcWrapper
    didReceiveData:(NSData *)data
-         fromPeer:(MCPeerID *)peerID;
+         fromPeer:(NSString *)peer;
 @end
 
 

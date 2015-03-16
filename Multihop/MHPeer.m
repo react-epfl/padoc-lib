@@ -23,9 +23,10 @@
 
 @implementation MHPeer
 
+
 #pragma mark - Life Cycle
 
-- (instancetype)init:(NSString *)displayName
+- (instancetype)initWithDisplayName:(NSString *)displayName
      withOwnMCPeerID:(MCPeerID *)ownMCPeerID
         withMCPeerID:(MCPeerID *)mcPeerID
         withMHPeerID:(NSString *)mhPeerID
@@ -48,6 +49,7 @@
 - (void)dealloc
 {
     // Will clean up the session properly
+    [self.session disconnect];
     self.session = nil;
     self.mcPeerID = nil;
 }
@@ -58,27 +60,68 @@
 
 - (void)session:(MCSession *)session peer:(MCPeerID *)peerID didChangeState:(MCSessionState)state
 {
-    NSLog(@"Peer [%@] changed state to %@ numbers of connected %lu", peerID.displayName, [self stringForPeerConnectionState:state], (unsigned long)self.connectedPeers.count);
     dispatch_async(dispatch_get_main_queue(), ^{
-        [self.delegate partyTime:self peer:peerID changedState:state currentPeers:self.session.connectedPeers];
+        [self.delegate mhPeer:self changedState:[MHPeer stringForPeerConnectionState:state]];
     });
 }
 
 - (void)session:(MCSession *)session didReceiveData:(NSData *)data fromPeer:(MCPeerID *)peerID
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        if ([self.delegate respondsToSelector:@selector(partyTime:didReceiveData:fromPeer:)])
+        if ([self.delegate respondsToSelector:@selector(mhPeer:didReceiveData:)])
         {
-            [self.delegate partyTime:self didReceiveData:data fromPeer:peerID];
+            [self.delegate mhPeer:self didReceiveData:data];
         }
     });
 }
 
+
+- (void)session:(MCSession *)session didReceiveStream:(NSInputStream *)stream withName:(NSString *)streamName fromPeer:(MCPeerID *)peerID
+{
+   // Unsupported: Nothing to do
+}
+
+- (void)session:(MCSession *)session didStartReceivingResourceWithName:(NSString *)resourceName fromPeer:(MCPeerID *)peerID withProgress:(NSProgress *)progress
+{
+    // Unsupported: Nothing to do
+}
+
+- (void)session:(MCSession *)session didFinishReceivingResourceWithName:(NSString *)resourceName fromPeer:(MCPeerID *)peerID atURL:(NSURL *)localURL withError:(NSError *)error
+{
+   // Unsupported: Nothing to do
+}
 
 // Required because of an apple bug
 - (void)session:(MCSession *)session didReceiveCertificate:(NSArray *)certificate fromPeer:(MCPeerID *)peerID certificateHandler:(void(^)(BOOL accept))certificateHandler
 {
     certificateHandler(YES);
 }
+
+
+
+# pragma mark - Static methods
+
++ (MHPeer *)getOwnMHPeerWithDisplayName:(NSString *)displayName
+{
+    NSString *mhPeerID = @"1234"; // TODO: retrieve or create a new one
+    MCPeerID *mcPeerID = [[MCPeerID alloc] initWithDisplayName:displayName];
+    return [[MHPeer alloc] initWithDisplayName:displayName withOwnMCPeerID:mcPeerID withMCPeerID:mcPeerID withMHPeerID:mhPeerID];
+}
+
+// Helper method for human readable printing of MCSessionState.  This state is per peer.
++ (NSString *)stringForPeerConnectionState:(MCSessionState)state
+{
+    switch (state) {
+        case MCSessionStateConnected:
+            return @"Connected";
+            
+        case MCSessionStateConnecting:
+            return @"Connecting";
+            
+        case MCSessionStateNotConnected:
+            return @"Not Connected";
+    }
+}
+
 
 @end
