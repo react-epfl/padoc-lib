@@ -19,8 +19,9 @@
 @property (nonatomic, strong) MHPeer *mhPeer;
 @property (nonatomic, strong) MCNearbyServiceAdvertiser *advertiser;
 @property (nonatomic, strong) MCNearbyServiceBrowser *browser;
-@property (nonatomic, strong) NSDictionary *dictInfo;
+@property (nonatomic, strong) NSMutableDictionary *dictInfo;
 
+@property (nonatomic, strong) NSMutableArray *connectedPeers;
 @end
 
 @implementation MHMultipeerWrapper
@@ -39,8 +40,9 @@
     self = [super init];
     if (self)
     {
-        self.serviceType = [NSString stringWithFormat:@"multihop_%@", serviceType];
+        self.serviceType = [NSString stringWithFormat:@"multihop-%@", serviceType];
         self.mhPeer = [MHPeer getOwnMHPeerWithDisplayName:displayName];
+        self.connectedPeers = [[NSMutableArray alloc] init];
     }
     return self;
 }
@@ -125,6 +127,10 @@
     }
 }
 
+- (NSString *)getPeer
+{
+    return self.mhPeer.mhPeerID;
+}
 
 
 #pragma mark - Properties
@@ -135,9 +141,9 @@
     {
         NSAssert(self.serviceType, @"No service type. You must initialize this class using the custom intializers.");
         
-        _dictInfo = [[NSDictionary alloc] init];
-        [_dictInfo setValue:self.mhPeer.mhPeerID forKey:@"MultihopID"];
-        [_dictInfo setValue:self.mhPeer.displayName forKey:@"MultihopDisplayName"];
+        _dictInfo = [[NSMutableDictionary alloc] init];
+        [_dictInfo setObject:self.mhPeer.mhPeerID forKey:@"MultihopID"];
+        [_dictInfo setObject:self.mhPeer.displayName forKey:@"MultihopDisplayName"];
     }
     return _dictInfo;
 }

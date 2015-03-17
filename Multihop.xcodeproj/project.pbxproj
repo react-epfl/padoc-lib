@@ -10,6 +10,8 @@
 		2B8092FA1AB34C7F0059F89D /* libMultihop.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B8092EE1AB34C7F0059F89D /* libMultihop.a */; };
 		2B8093101AB71A750059F89D /* MHPeer.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B80930F1AB71A750059F89D /* MHPeer.m */; };
 		2B8093131AB726170059F89D /* MHMultipeerWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B8093121AB726170059F89D /* MHMultipeerWrapper.m */; };
+		2B8093361AB87CE50059F89D /* MHMultipeerWrapper.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B8093111AB725FF0059F89D /* MHMultipeerWrapper.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		2B8093441AB8802E0059F89D /* MHPeer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B80930E1AB71A580059F89D /* MHPeer.h */; settings = {ATTRIBUTES = (Private, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -150,6 +152,18 @@
 		};
 /* End PBXGroup section */
 
+/* Begin PBXHeadersBuildPhase section */
+		2B8093351AB87CD70059F89D /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2B8093361AB87CE50059F89D /* MHMultipeerWrapper.h in Headers */,
+				2B8093441AB8802E0059F89D /* MHPeer.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
 /* Begin PBXNativeTarget section */
 		2B8092ED1AB34C7F0059F89D /* Multihop */ = {
 			isa = PBXNativeTarget;
@@ -158,6 +172,7 @@
 				2B8092EA1AB34C7F0059F89D /* Sources */,
 				2B8092EB1AB34C7F0059F89D /* Frameworks */,
 				2B8092EC1AB34C7F0059F89D /* CopyFiles */,
+				2B8093351AB87CD70059F89D /* Headers */,
 			);
 			buildRules = (
 			);

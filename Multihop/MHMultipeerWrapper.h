@@ -26,9 +26,6 @@
 /// Query whether the client has joined the party
 @property (nonatomic, readonly) BOOL connected;
 /// Returns the current client's MHPeer
-@property (nonatomic, readonly, strong) MHPeer *mhPeer;
-/// Returns an array of MHPeers which represents the connected peers. Doesn't include the current client's peer.
-@property (nonatomic, readonly) NSMutableArray *connectedPeers;
 /// Returns the serviceType which was passed in when the object was initialized.
 @property (nonatomic, readonly, strong) NSString *serviceType;
 
@@ -132,6 +129,8 @@
          toPeers:(NSArray *)peers
         withMode:(MCSessionSendDataMode)mode
            error:(NSError **)error;
+
+- (NSString *)getPeer;
 
 @end
 
