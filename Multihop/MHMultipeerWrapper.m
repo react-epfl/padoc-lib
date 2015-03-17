@@ -47,7 +47,7 @@
 
 - (void)dealloc
 {
-    // Will clean up the session and browsers properly
+    // Will clean up the sessions and browsers properly
     [self disconnectFromAll];
 }
 
@@ -169,7 +169,7 @@
 
 #pragma mark - MHPeer Delegate
 
-- (void)mhPeer:(MHPeer *)mhPeer changedState:(MCSessionState)state
+- (void)mhPeer:(MHPeer *)mhPeer hasDisconnected:(NSString *)info
 {
  /*   NSLog(@"Peer [%@] changed state to %@ numbers of connected %lu", peerID.displayName, [self stringForPeerConnectionState:state], (unsigned long)self.connectedPeers.count);
     dispatch_async(dispatch_get_main_queue(), ^{
@@ -203,6 +203,7 @@ didReceiveInvitationFromPeer:(MCPeerID *)peerID
     if ([self.mhPeer.mhPeerID compare:[info valueForKey:@"MultihopID"]] == NSOrderedDescending)
     {
         MHPeer *peer = [[MHPeer alloc] initWithDisplayName:[info valueForKey:@"MultihopDisplayName"] withOwnMCPeerID:self.mhPeer.mcPeerID withMCPeerID:peerID withMHPeerID:[info valueForKey:@"MultihopID"]];
+        peer.delegate = self;
         
         [self.connectedPeers setValue:peer forUndefinedKey:peer.mhPeerID];
         
@@ -226,6 +227,7 @@ didReceiveInvitationFromPeer:(MCPeerID *)peerID
     if ([self.mhPeer.mhPeerID compare:[info valueForKey:@"MultihopID"]] == NSOrderedAscending)
     {
         MHPeer *peer = [[MHPeer alloc] initWithDisplayName:[info valueForKey:@"MultihopDisplayName"] withOwnMCPeerID:self.mhPeer.mcPeerID withMCPeerID:peerID withMHPeerID:[info valueForKey:@"MultihopID"]];
+        peer.delegate = self;
         
         [self.connectedPeers setValue:peer forUndefinedKey:peer.mhPeerID];
         

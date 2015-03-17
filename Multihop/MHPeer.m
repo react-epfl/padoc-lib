@@ -18,8 +18,15 @@
 @property (nonatomic, strong) MCSession *session;
 @property (nonatomic, strong) MCPeerID *mcPeerID;
 @property (nonatomic, strong) NSString *mhPeerID;
+@property (nonatomic) int nbHeartbeatFails;
+
+@property (nonatomic, strong) NSString *HeartbeatMsg;
+@property (nonatomic, strong) NSString *AckMsg;
+
+@property (copy) void (^sendHeartbeat)(void);
 
 @end
+
 
 @implementation MHPeer
 
@@ -34,6 +41,10 @@
     self = [super init];
     if (self)
     {
+        self.nbHeartbeatFails = 0;
+        self.HeartbeatMsg = @"[{_-heartbeat-_}]";
+        self.AckMsg = @"[{_-ack-_}]";
+        
         self.displayName = displayName;
         self.mcPeerID = mcPeerID;
         self.mhPeerID = mhPeerID;
@@ -42,6 +53,35 @@
                                       securityIdentity:nil
                                   encryptionPreference:MCEncryptionRequired];
         self.session.delegate = self;
+        
+        
+        MHPeer * __weak weakSelf = self;
+        
+        self.sendHeartbeat = ^{
+            weakSelf.nbHeartbeatFails++;
+            
+            // The heartbeat fails for 3 times, then disconnect
+            if (weakSelf.nbHeartbeatFails > 3)
+            {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [weakSelf.delegate mhPeer:weakSelf hasDisconnected:@"Disconnected"];
+                });
+            }
+            else
+            {
+                NSError *error;
+                
+                [weakSelf.session sendData:[weakSelf.HeartbeatMsg dataUsingEncoding:NSUTF8StringEncoding] toPeers:weakSelf.session.connectedPeers withMode:MCSessionSendDataReliable error:&error];
+                
+                
+                // Dispatch after 1-3 seconds
+                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)((arc4random_uniform(2) + 1) * NSEC_PER_SEC)), dispatch_get_main_queue(), weakSelf.sendHeartbeat);
+            }
+        };
+        
+        
+        // Dispatch after 1-3 seconds
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)((arc4random_uniform(2) + 1) * NSEC_PER_SEC)), dispatch_get_main_queue(), self.sendHeartbeat);
     }
     return self;
 }
@@ -60,19 +100,38 @@
 
 - (void)session:(MCSession *)session peer:(MCPeerID *)peerID didChangeState:(MCSessionState)state
 {
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [self.delegate mhPeer:self changedState:[MHPeer stringForPeerConnectionState:state]];
-    });
+    if(state == MCSessionStateNotConnected) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.delegate mhPeer:self hasDisconnected:@"Disconnected"];
+        });
+    }
 }
 
 - (void)session:(MCSession *)session didReceiveData:(NSData *)data fromPeer:(MCPeerID *)peerID
 {
-    dispatch_async(dispatch_get_main_queue(), ^{
-        if ([self.delegate respondsToSelector:@selector(mhPeer:didReceiveData:)])
-        {
-            [self.delegate mhPeer:self didReceiveData:data];
-        }
-    });
+    // TODO: find a faster way to check if it is the heartbeat msg
+    NSString *dataStr = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+    
+    if ([dataStr isEqualToString:self.HeartbeatMsg])
+    {
+        self.nbHeartbeatFails = 0;
+        NSError *error;
+        
+        [self.session sendData:[self.AckMsg dataUsingEncoding:NSUTF8StringEncoding] toPeers:self.session.connectedPeers withMode:MCSessionSendDataReliable error:&error];
+    }
+    else if ([dataStr isEqualToString:self.AckMsg])
+    {
+        self.nbHeartbeatFails = 0;
+    }
+    else
+    {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if ([self.delegate respondsToSelector:@selector(mhPeer:didReceiveData:)])
+            {
+                [self.delegate mhPeer:self didReceiveData:data];
+            }
+        });
+    }
 }
 
 
@@ -106,21 +165,6 @@
     NSString *mhPeerID = @"1234"; // TODO: retrieve or create a new one
     MCPeerID *mcPeerID = [[MCPeerID alloc] initWithDisplayName:displayName];
     return [[MHPeer alloc] initWithDisplayName:displayName withOwnMCPeerID:mcPeerID withMCPeerID:mcPeerID withMHPeerID:mhPeerID];
-}
-
-// Helper method for human readable printing of MCSessionState.  This state is per peer.
-+ (NSString *)stringForPeerConnectionState:(MCSessionState)state
-{
-    switch (state) {
-        case MCSessionStateConnected:
-            return @"Connected";
-            
-        case MCSessionStateConnecting:
-            return @"Connecting";
-            
-        case MCSessionStateNotConnected:
-            return @"Not Connected";
-    }
 }
 
 

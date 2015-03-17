@@ -11,6 +11,7 @@
 
 #import <Foundation/Foundation.h>
 #import <MultipeerConnectivity/MultipeerConnectivity.h>
+#include <stdlib.h>
 
 @protocol MHPeerDelegate;
 
@@ -46,7 +47,6 @@
         withMHPeerID:(NSString *)mhPeerID;
 
 + (MHPeer *)getOwnMHPeerWithDisplayName:(NSString *)displayName;
-+ (NSString *)stringForPeerConnectionState:(MCSessionState)state;
 
 @end
 
@@ -59,7 +59,7 @@
 
 @required
 - (void)mhPeer:(MHPeer *)mhPeer
-  changedState:(NSString *)state;
+hasDisconnected:(NSString *)info;
 
 @optional
 - (void)mhPeer:(MHPeer *)mhPeer

@@ -98,11 +98,11 @@
 - (void)disconnectFromAll;
 
 /**
- Sends data to select peers.
+ Broadcast data to all connected peers.
  
  They will receive the data with the delegate callback:
  
- - (void)partyTime:(PLPartyTime *)partyTime didReceiveData:(NSData *)data fromPeer:(MCPeerID *)peerID;
+ - (void)partyTime:(MHMultipeerWrapper *)partyTime didReceiveData:(NSData *)data fromPeer:(MCPeerID *)peerID;
  
  @param data Data to send.
  @param mode The transmission mode to use (reliable or unreliable delivery).
@@ -115,7 +115,7 @@
            error:(NSError **)error;
 
 /**
- Sends data to select peers.
+ Sends data to selected peers.
  
  They will receive the data with the delegate callback:
  
