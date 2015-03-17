@@ -86,6 +86,7 @@
     return self;
 }
 
+
 - (void)dealloc
 {
     // Will clean up the session properly
@@ -94,7 +95,6 @@
     self.mcPeerID = nil;
 }
 
-#pragma mark - Membership
 
 #pragma mark - Session Delegate
 
@@ -162,7 +162,16 @@
 
 + (MHPeer *)getOwnMHPeerWithDisplayName:(NSString *)displayName
 {
-    NSString *mhPeerID = @"1234"; // TODO: retrieve or create a new one
+    NSString *mhPeerID = [[NSUserDefaults standardUserDefaults] valueForKey:@"MultihopID"];
+    
+    if(mhPeerID == nil)
+    {
+        mhPeerID = [[NSUUID UUID] UUIDString];
+        [[NSUserDefaults standardUserDefaults] setValue:mhPeerID forKey:@"MultihopID"];
+        [[NSUserDefaults standardUserDefaults] synchronize];
+    }
+    
+    
     MCPeerID *mcPeerID = [[MCPeerID alloc] initWithDisplayName:displayName];
     return [[MHPeer alloc] initWithDisplayName:displayName withOwnMCPeerID:mcPeerID withMCPeerID:mcPeerID withMHPeerID:mhPeerID];
 }

@@ -84,7 +84,9 @@
     
     // Must nil out these because if we try to reconnect, we need to recreate them
     // Else it fails to connect
-// TODO: peer?
+
+    [self.connectedPeers removeAllObjects];
+    
     self.advertiser = nil;
     self.browser = nil;
     self.connected = NO;
@@ -134,8 +136,8 @@
         NSAssert(self.serviceType, @"No service type. You must initialize this class using the custom intializers.");
         
         _dictInfo = [[NSDictionary alloc] init];
-        [_dictInfo setValue:self.mhPeer.mhPeerID forUndefinedKey:@"MultihopID"];
-        [_dictInfo setValue:self.mhPeer.displayName forUndefinedKey:@"MultihopDisplayName"];
+        [_dictInfo setValue:self.mhPeer.mhPeerID forKey:@"MultihopID"];
+        [_dictInfo setValue:self.mhPeer.displayName forKey:@"MultihopDisplayName"];
     }
     return _dictInfo;
 }
@@ -171,10 +173,18 @@
 
 - (void)mhPeer:(MHPeer *)mhPeer hasDisconnected:(NSString *)info
 {
- /*   NSLog(@"Peer [%@] changed state to %@ numbers of connected %lu", peerID.displayName, [self stringForPeerConnectionState:state], (unsigned long)self.connectedPeers.count);
+    NSString *mhPeerID = mhPeer.mhPeerID;
+    
+    [self.connectedPeers removeObject:mhPeer];
+    
+    [self stopAcceptingConnections];
+    self.advertiser = nil;
+    self.browser = nil;
+    [self connectToAll];
+    
     dispatch_async(dispatch_get_main_queue(), ^{
-        [self.delegate partyTime:self peer:peerID changedState:state currentPeers:self.session.connectedPeers];
-    });*/
+        [self.delegate mcWrapper:self hasDisconnected:info peer:mhPeerID];
+    });
 }
 
 - (void)mhPeer:(MHPeer *)mhPeer didReceiveData:(NSData *)data
@@ -200,12 +210,12 @@ didReceiveInvitationFromPeer:(MCPeerID *)peerID
     // However, this should always be the case since we only send invites in one direction
     NSDictionary *info = (NSDictionary*) [NSKeyedUnarchiver unarchiveObjectWithData:context];
     
-    if ([self.mhPeer.mhPeerID compare:[info valueForKey:@"MultihopID"]] == NSOrderedDescending)
+    if (![self peerConnected:[info valueForKey:@"MultihopID"]] && [self.mhPeer.mhPeerID compare:[info valueForKey:@"MultihopID"]] == NSOrderedDescending)
     {
         MHPeer *peer = [[MHPeer alloc] initWithDisplayName:[info valueForKey:@"MultihopDisplayName"] withOwnMCPeerID:self.mhPeer.mcPeerID withMCPeerID:peerID withMHPeerID:[info valueForKey:@"MultihopID"]];
         peer.delegate = self;
         
-        [self.connectedPeers setValue:peer forUndefinedKey:peer.mhPeerID];
+        [self.connectedPeers setValue:peer forKey:peer.mhPeerID];
         
         invitationHandler(YES, peer.session);
     }
@@ -213,7 +223,9 @@ didReceiveInvitationFromPeer:(MCPeerID *)peerID
 
 - (void)advertiser:(MCNearbyServiceAdvertiser *)advertiser didNotStartAdvertisingPeer:(NSError *)error
 {
-    [self.delegate mcWrapper:self failedToConnect:error];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.delegate mcWrapper:self failedToConnect:error];
+    });
 }
 
 #pragma mark - Browser Delegate
@@ -222,14 +234,13 @@ didReceiveInvitationFromPeer:(MCPeerID *)peerID
 {
     // Whenever we find a peer, let's just send them an invitation
     // But only send invites one way
-    // TODO: check if peer already connected
-    // TODO: Make timeout configurable
-    if ([self.mhPeer.mhPeerID compare:[info valueForKey:@"MultihopID"]] == NSOrderedAscending)
+    
+    if (![self peerConnected:[info valueForKey:@"MultihopID"]] && [self.mhPeer.mhPeerID compare:[info valueForKey:@"MultihopID"]] == NSOrderedAscending)
     {
         MHPeer *peer = [[MHPeer alloc] initWithDisplayName:[info valueForKey:@"MultihopDisplayName"] withOwnMCPeerID:self.mhPeer.mcPeerID withMCPeerID:peerID withMHPeerID:[info valueForKey:@"MultihopID"]];
         peer.delegate = self;
         
-        [self.connectedPeers setValue:peer forUndefinedKey:peer.mhPeerID];
+        [self.connectedPeers setValue:peer forKey:peer.mhPeerID];
         
         
         NSData *context = [NSKeyedArchiver archivedDataWithRootObject:self.dictInfo];
@@ -250,15 +261,28 @@ didReceiveInvitationFromPeer:(MCPeerID *)peerID
 
 - (void)browser:(MCNearbyServiceBrowser *)browser didNotStartBrowsingForPeers:(NSError *)error
 {
-    [self.delegate mcWrapper:self failedToConnect:error];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.delegate mcWrapper:self failedToConnect:error];
+    });
 }
 
          
 #pragma mark - Helper methods
 - (MHPeer *)getMHPeerFromId:(NSString *)peerID
 {
-    return [self.connectedPeers valueForKey:peerID];
+    MHPeer *peer = [self.connectedPeers valueForKey:peerID];
+    
+    if (peer == nil)
+    {
+        [NSException raise:@"Cannot find peer having the specified id" format:@"%@", peerID];
+    }
+    
+    return peer;
 }
 
+- (BOOL)peerConnected:(NSString *)peer
+{
+    return [self.connectedPeers valueForKey:peer] != nil;
+}
 
 @end

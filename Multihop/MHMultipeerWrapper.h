@@ -28,7 +28,7 @@
 /// Returns the current client's MHPeer
 @property (nonatomic, readonly, strong) MHPeer *mhPeer;
 /// Returns an array of MHPeers which represents the connected peers. Doesn't include the current client's peer.
-@property (nonatomic, readonly) NSArray *connectedPeers;
+@property (nonatomic, readonly) NSMutableArray *connectedPeers;
 /// Returns the serviceType which was passed in when the object was initialized.
 @property (nonatomic, readonly, strong) NSString *serviceType;
 
@@ -142,9 +142,8 @@
 
 @required
 - (void)mcWrapper:(MHMultipeerWrapper *)mcWrapper
-             peer:(MHPeer *)peer
-     changedState:(NSString *)state
-     currentPeers:(NSArray *)currentPeers;
+  hasDisconnected:(NSString *)info
+             peer:(NSString *)peer;
 
 - (void)mcWrapper:(MHMultipeerWrapper *)mcWrapper
   failedToConnect:(NSError *)error;

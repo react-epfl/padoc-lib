@@ -1,3 +1,4 @@
 *.DS_Store
-Multihop.xcodeproj/xcuserdata/quarta.xcuserdatad/xcdebugger/*
+Multihop.xcodeproj/xcuserdata/*
+Multihop.xcodeproj/project.xcworkspace/xcuserdata/*
 *.xcuserstate
