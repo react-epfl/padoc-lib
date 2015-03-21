@@ -48,7 +48,7 @@
         withMHPeerID:(NSString *)mhPeerID;
 
 - (void)sendData:(NSData *)data
-        withMode:(MCSessionSendDataMode)mode
+        reliable:(BOOL)reliable
            error:(NSError **)error;
 
 - (void)disconnect;
@@ -67,6 +67,9 @@
 @required
 - (void)mhPeer:(MHPeer *)mhPeer
 hasDisconnected:(NSString *)info;
+
+- (void)mhPeer:(MHPeer *)mhPeer
+hasConnected:(NSString *)info;
 
 @optional
 - (void)mhPeer:(MHPeer *)mhPeer

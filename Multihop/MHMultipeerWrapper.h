@@ -57,7 +57,7 @@
  
  You must initialize this method with this method or:
  
- - (instancetype)initWithServiceType:(NSString *)serviceType displayName:(NSString *)displayName;
+ - (instancetype)initWithServiceType:(NSString *)serviceType;
  
  @param serviceType The type of service to advertise. This should be a short text string that describes the app's networking protocol, in the same format as a Bonjour service type:
  
@@ -66,7 +66,7 @@
  
  This name should be easily distinguished from unrelated services. For example, a text chat app made by ABC company could use the service type abc-txtchat. For more details, read “Domain Naming Conventions”.
  
- @param displayName The display name which is sent to other clients in the party.
+ @param displayName The display name which is sent to other peers.
  */
 - (instancetype)initWithServiceType:(NSString *)serviceType
                         displayName:(NSString *)displayName;
@@ -76,16 +76,10 @@
  
  When you successfully connect to another peer, you will receive a delegate callback to:
  
- - (void)partyTime:(PLPartyTime *)partyTime peer:(MCPeerID *)peer changedState:(MCSessionState)state currentPeers:(NSArray *)currentPeers;
+ - (void)mcWrapper:(MHMultipeerWrapper *)mcWrapper hasConnected:(NSString *)info peer:(NSString *)peer displayName:(NSString *)displayName;
  */
 - (void)connectToAll;
 
-/**
- Call this method stop accepting invitations from peers. You will not disconnect from the party, but will not allow incoming connections.
- 
- To start searching for peers again, call the connectToAll method again.
- */
-- (void)stopAcceptingConnections;
 
 /**
  Call this method to disconnect from everyone. You can reconnect at any time using the connectToAll method.
@@ -100,13 +94,12 @@
  - (void)partyTime:(MHMultipeerWrapper *)partyTime didReceiveData:(NSData *)data fromPeer:(MCPeerID *)peerID;
  
  @param data Data to send.
- @param mode The transmission mode to use (reliable or unreliable delivery).
+ @param reliable Boolean defining the transmission mode to use (reliable or unreliable delivery).
  @param error The address of an NSError pointer where an error object should be stored upon error.
- @return Returns YES if the message was successfully enqueued for delivery, or NO if an error occurred.
  
  */
 - (void)sendData:(NSData *)data
-        withMode:(MCSessionSendDataMode)mode
+        reliable:(BOOL)reliable
            error:(NSError **)error;
 
 /**
@@ -114,21 +107,20 @@
  
  They will receive the data with the delegate callback:
  
- - (void)partyTime:(PLPartyTime *)partyTime didReceiveData:(NSData *)data fromPeer:(MCPeerID *)peerID;
+ - (void)mcWrapper:(MHMultipeerWrapper *)mcWrapper didReceiveData:(NSData *)data fromPeer:(NSString *)peer;
  
  @param data Data to send.
- @param peerIDs An array of MCPeerID objects to send data to.
- @param mode The transmission mode to use (reliable or unreliable delivery).
+ @param to^Peers An array of MHPeerID (strings) to send data to.
+ @param reliable Boolean defining the transmission mode to use (reliable or unreliable delivery).
  @param error The address of an NSError pointer where an error object should be stored upon error.
- @return Returns YES if the message was successfully enqueued for delivery, or NO if an error occurred.
  
  */
 - (void)sendData:(NSData *)data
          toPeers:(NSArray *)peers
-        withMode:(MCSessionSendDataMode)mode
+        reliable:(BOOL)reliable
            error:(NSError **)error;
 
-- (NSString *)getPeer;
+- (NSString *)getOwnPeer;
 
 @end
 
@@ -141,6 +133,11 @@
 - (void)mcWrapper:(MHMultipeerWrapper *)mcWrapper
   hasDisconnected:(NSString *)info
              peer:(NSString *)peer;
+
+- (void)mcWrapper:(MHMultipeerWrapper *)mcWrapper
+     hasConnected:(NSString *)info
+             peer:(NSString *)peer
+      displayName:(NSString *)displayName;
 
 - (void)mcWrapper:(MHMultipeerWrapper *)mcWrapper
   failedToConnect:(NSError *)error;

@@ -12,7 +12,7 @@
 @interface MHMultipeerWrapper () <MHPeerDelegate, MCNearbyServiceAdvertiserDelegate, MCNearbyServiceBrowserDelegate>
 
 // Public Properties
-@property (nonatomic, readwrite) BOOL acceptingGuests;
+@property (nonatomic, readwrite) BOOL serviceStarted;
 @property (nonatomic, readwrite, strong) NSString *serviceType;
 
 @property (nonatomic, strong) MHPeer *mhPeer;
@@ -58,43 +58,51 @@
 {
     // If we're already joined, then don't try again. This causes crashes.
     
-    if (!self.acceptingGuests)
+    if (!self.serviceStarted)
     {
         // Simultaneously advertise and browse at the same time
         [self.advertiser startAdvertisingPeer];
         [self.browser startBrowsingForPeers];
 
-        self.acceptingGuests = YES;
+        self.serviceStarted = YES;
     }
 }
 
-- (void)stopAcceptingConnections
+- (void)stopService
 {
-    if (self.acceptingGuests)
-    {
-        [self.advertiser stopAdvertisingPeer];
-        [self.browser stopBrowsingForPeers];
-        self.acceptingGuests = NO;
-    }
+    [self.advertiser stopAdvertisingPeer];
+    [self.browser stopBrowsingForPeers];
+    
+    // Must nil out these because if we try to reconnect, we need to recreate them
+    // Else it fails to connect
+    self.advertiser = nil;
+    self.browser = nil;
+    
+    self.serviceStarted = NO;
 }
 
 - (void)disconnectFromAll
 {
-    [self stopAcceptingConnections];
-    
-    // Must nil out these because if we try to reconnect, we need to recreate them
-    // Else it fails to connect
-
-    [self.connectedPeers removeAllObjects];
-    
-    self.advertiser = nil;
-    self.browser = nil;
+    if(self.serviceStarted)
+    {
+        [self stopService];
+        
+        
+        for (id peerObj in self.connectedPeers)
+        {
+            MHPeer *peer = [self getMHPeerFromId:(NSString *)peerObj];
+            
+            [peer disconnect];
+        }
+        
+        [self.connectedPeers removeAllObjects];
+    }
 }
 
 #pragma mark - Communicate
 
 - (void)sendData:(NSData *)data
-        withMode:(MCSessionSendDataMode)mode
+        reliable:(BOOL)reliable
            error:(NSError **)error
 {
     for (id peerObj in self.connectedPeers)
@@ -102,14 +110,14 @@
         MHPeer *peer = [self getMHPeerFromId:(NSString *)peerObj];
 
         [peer sendData:data
-              withMode:mode
+              reliable:reliable
                  error:error];
     }
 }
 
 - (void)sendData:(NSData *)data
          toPeers:(NSArray *)peers
-        withMode:(MCSessionSendDataMode)mode
+        reliable:(BOOL)reliable
            error:(NSError **)error
 {
     for (id peerObj in peers)
@@ -117,12 +125,12 @@
         MHPeer *peer = [self getMHPeerFromId:(NSString *)peerObj];
         
         [peer sendData:data
-              withMode:mode
+              reliable:reliable
                  error:error];
     }
 }
 
-- (NSString *)getPeer
+- (NSString *)getOwnPeer
 {
     return self.mhPeer.mhPeerID;
 }
@@ -182,9 +190,9 @@
         
         [self.connectedPeers removeObjectForKey:mhPeerID];
         
-        [self stopAcceptingConnections];
-        self.advertiser = nil;
-        self.browser = nil;
+        // We must restarting the service, otherwise
+        // the advertiser and brower do not work properly
+        [self stopService];
         [self connectToAll];
         
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -192,6 +200,14 @@
         });
     }
 }
+
+- (void)mhPeer:(MHPeer *)mhPeer hasConnected:(NSString *)info
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.delegate mcWrapper:self hasConnected:info peer:mhPeer.mhPeerID displayName:mhPeer.displayName];
+    });
+}
+
 
 - (void)mhPeer:(MHPeer *)mhPeer didReceiveData:(NSData *)data
 {

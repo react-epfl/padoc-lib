@@ -148,11 +148,22 @@
 
 
 - (void)sendData:(NSData *)data
-        withMode:(MCSessionSendDataMode)mode
+        relable:(BOOL)reliable
            error:(NSError **)error
 {
     if (self.connected)
     {
+        MCSessionSendDataMode mode;
+        
+        if (reliable)
+        {
+            mode = MCSessionSendDataReliable;
+        }
+        else
+        {
+            mode = MCSessionSendDataUnreliable;
+        }
+        
         [self.session sendData:data
                        toPeers:self.session.connectedPeers
                       withMode:mode
@@ -174,6 +185,9 @@
     else if(state == MCSessionStateConnected)
     {
         self.connected = YES;
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.delegate mhPeer:self hasConnected:@"Connected"];
+        });
     }
 }
 
