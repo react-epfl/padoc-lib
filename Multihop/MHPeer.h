@@ -46,6 +46,12 @@
         withMCPeerID:(MCPeerID *)mcPeerID
         withMHPeerID:(NSString *)mhPeerID;
 
+- (void)sendData:(NSData *)data
+        withMode:(MCSessionSendDataMode)mode
+           error:(NSError **)error;
+
+- (void)disconnect;
+
 + (MHPeer *)getOwnMHPeerWithDisplayName:(NSString *)displayName;
 
 @end

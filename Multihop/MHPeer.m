@@ -49,13 +49,16 @@
         self.mcPeerID = mcPeerID;
         self.mhPeerID = mhPeerID;
         
-        self.session = [[MCSession alloc] initWithPeer:ownMCPeerID
-                                      securityIdentity:nil
-                                  encryptionPreference:MCEncryptionRequired];
-        self.session.delegate = self;
+        if (![ownMCPeerID isEqual:mcPeerID]) // if it is not the owner mhPeer we create a sessionß
+        {
+            self.session = [[MCSession alloc] initWithPeer:ownMCPeerID
+                                          securityIdentity:nil
+                                      encryptionPreference:MCEncryptionRequired];
+            self.session.delegate = self;
+        }
         
         
-        MHPeer * __weak weakSelf = self;
+        /*MHPeer * __weak weakSelf = self;
         
         self.sendHeartbeat = ^{
             weakSelf.nbHeartbeatFails++;
@@ -81,7 +84,7 @@
         
         
         // Dispatch after 1-3 seconds
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)((arc4random_uniform(2) + 1) * NSEC_PER_SEC)), dispatch_get_main_queue(), self.sendHeartbeat);
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)((arc4random_uniform(2) + 1) * NSEC_PER_SEC)), dispatch_get_main_queue(), self.sendHeartbeat);*/
     }
     return self;
 }
@@ -89,10 +92,29 @@
 
 - (void)dealloc
 {
-    // Will clean up the session properly
-    [self.session disconnect];
+    [self disconnect];
     self.session = nil;
     self.mcPeerID = nil;
+}
+
+
+- (void)disconnect
+{
+    // Will clean up the session properly
+    [self.session disconnect];
+}
+
+
+- (void)sendData:(NSData *)data
+        withMode:(MCSessionSendDataMode)mode
+           error:(NSError **)error
+{
+    NSLog(@"sending message");
+    [self.session sendData:data
+                   toPeers:self.session.connectedPeers
+                  withMode:mode
+                     error:error];
+    NSLog(@"Finished sending message");
 }
 
 
@@ -108,7 +130,7 @@
 }
 
 - (void)session:(MCSession *)session didReceiveData:(NSData *)data fromPeer:(MCPeerID *)peerID
-{
+{/*
     // TODO: find a faster way to check if it is the heartbeat msg
     NSString *dataStr = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
     
@@ -124,14 +146,14 @@
         self.nbHeartbeatFails = 0;
     }
     else
-    {
+    {*/
         dispatch_async(dispatch_get_main_queue(), ^{
             if ([self.delegate respondsToSelector:@selector(mhPeer:didReceiveData:)])
             {
                 [self.delegate mhPeer:self didReceiveData:data];
             }
         });
-    }
+    //}
 }
 
 
