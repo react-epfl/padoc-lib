@@ -13,6 +13,8 @@
 @interface MHPeer () <MCSessionDelegate>
 
 // Public Properties
+@property (nonatomic, readwrite) BOOL connected;
+
 @property (nonatomic, readwrite, strong) NSString *displayName;
 
 @property (nonatomic, strong) MCSession *session;
@@ -23,7 +25,7 @@
 @property (nonatomic, strong) NSString *HeartbeatMsg;
 @property (nonatomic, strong) NSString *AckMsg;
 
-@property (copy) void (^sendHeartbeat)(void);
+@property (copy) void (^processHeartbeat)(void);
 
 @end
 
@@ -35,6 +37,7 @@
 
 - (instancetype)initWithDisplayName:(NSString *)displayName
      withOwnMCPeerID:(MCPeerID *)ownMCPeerID
+     withOwnMHPeerID:(NSString *)ownMHPeerID
         withMCPeerID:(MCPeerID *)mcPeerID
         withMHPeerID:(NSString *)mhPeerID
 {
@@ -49,42 +52,80 @@
         self.mcPeerID = mcPeerID;
         self.mhPeerID = mhPeerID;
         
-        if (![ownMCPeerID isEqual:mcPeerID]) // if it is not the owner mhPeer we create a sessionß
+        if (![ownMCPeerID isEqual:mcPeerID]) // if it is not the owner mhPeer we create a session
         {
             self.session = [[MCSession alloc] initWithPeer:ownMCPeerID
                                           securityIdentity:nil
                                       encryptionPreference:MCEncryptionRequired];
             self.session.delegate = self;
-        }
-        
-        
-        /*MHPeer * __weak weakSelf = self;
-        
-        self.sendHeartbeat = ^{
-            weakSelf.nbHeartbeatFails++;
             
-            // The heartbeat fails for 3 times, then disconnect
-            if (weakSelf.nbHeartbeatFails > 3)
+            
+
+            // Heartbeat mechanism
+            MHPeer * __weak weakSelf = self;
+            
+            // We send heartbeat messages only one way
+            if ([ownMHPeerID compare:self.mhPeerID] == NSOrderedAscending)
             {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [weakSelf.delegate mhPeer:weakSelf hasDisconnected:@"Disconnected"];
-                });
+                self.processHeartbeat = ^{
+                    weakSelf.nbHeartbeatFails++;
+                    
+                    // The heartbeat fails for 3 times, then disconnect
+                    if (weakSelf.nbHeartbeatFails > 3)
+                    {
+                        weakSelf.connected = NO;
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            [weakSelf.delegate mhPeer:weakSelf hasDisconnected:@"Disconnected"];
+                        });
+                    }
+                    else
+                    {
+                        NSError *error;
+                        
+                        NSLog(@"sending heartbeat");
+                        
+                        if(weakSelf.connected)
+                        {
+                            [weakSelf.session sendData:[weakSelf.HeartbeatMsg dataUsingEncoding:NSUTF8StringEncoding] toPeers:weakSelf.session.connectedPeers withMode:MCSessionSendDataReliable error:&error];
+                            
+                            
+                            // Dispatch after 3-5 seconds
+                            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)((arc4random_uniform(2) + 3) * NSEC_PER_SEC)), dispatch_get_main_queue(), weakSelf.processHeartbeat);
+                        }
+                    }
+                };
+                
+                // Dispatch after 3-5 seconds
+                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)((arc4random_uniform(2) + 3) * NSEC_PER_SEC)), dispatch_get_main_queue(), self.processHeartbeat);
             }
             else
             {
-                NSError *error;
+                self.processHeartbeat = ^{
+                    weakSelf.nbHeartbeatFails++;
+                    
+                    // The heartbeat fails for 3 times, then disconnect
+                    if (weakSelf.nbHeartbeatFails > 3)
+                    {
+                        weakSelf.connected = NO;
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            [weakSelf.delegate mhPeer:weakSelf hasDisconnected:@"Disconnected"];
+                        });
+                    }
+                    else
+                    {
+                        if (weakSelf.connected)
+                        {
+                            // Dispatch after 6 seconds
+                            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(6 * NSEC_PER_SEC)), dispatch_get_main_queue(), weakSelf.processHeartbeat);
+                        }
+                    }
+                };
                 
-                [weakSelf.session sendData:[weakSelf.HeartbeatMsg dataUsingEncoding:NSUTF8StringEncoding] toPeers:weakSelf.session.connectedPeers withMode:MCSessionSendDataReliable error:&error];
-                
-                
-                // Dispatch after 1-3 seconds
-                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)((arc4random_uniform(2) + 1) * NSEC_PER_SEC)), dispatch_get_main_queue(), weakSelf.sendHeartbeat);
+                // Dispatch after 6 seconds
+                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(6 * NSEC_PER_SEC)), dispatch_get_main_queue(), weakSelf.processHeartbeat);
             }
-        };
-        
-        
-        // Dispatch after 1-3 seconds
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)((arc4random_uniform(2) + 1) * NSEC_PER_SEC)), dispatch_get_main_queue(), self.sendHeartbeat);*/
+
+        }
     }
     return self;
 }
@@ -100,6 +141,7 @@
 
 - (void)disconnect
 {
+    self.connected = NO;
     // Will clean up the session properly
     [self.session disconnect];
 }
@@ -109,12 +151,13 @@
         withMode:(MCSessionSendDataMode)mode
            error:(NSError **)error
 {
-    NSLog(@"sending message");
-    [self.session sendData:data
-                   toPeers:self.session.connectedPeers
-                  withMode:mode
-                     error:error];
-    NSLog(@"Finished sending message");
+    if (self.connected)
+    {
+        [self.session sendData:data
+                       toPeers:self.session.connectedPeers
+                      withMode:mode
+                         error:error];
+    }
 }
 
 
@@ -123,37 +166,47 @@
 - (void)session:(MCSession *)session peer:(MCPeerID *)peerID didChangeState:(MCSessionState)state
 {
     if(state == MCSessionStateNotConnected) {
+        self.connected = NO;
         dispatch_async(dispatch_get_main_queue(), ^{
             [self.delegate mhPeer:self hasDisconnected:@"Disconnected"];
         });
     }
+    else if(state == MCSessionStateConnected)
+    {
+        self.connected = YES;
+    }
 }
 
 - (void)session:(MCSession *)session didReceiveData:(NSData *)data fromPeer:(MCPeerID *)peerID
-{/*
+{
     // TODO: find a faster way to check if it is the heartbeat msg
     NSString *dataStr = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
     
     if ([dataStr isEqualToString:self.HeartbeatMsg])
     {
+        NSLog(@"received heartbeat, sending ack");
         self.nbHeartbeatFails = 0;
-        NSError *error;
         
-        [self.session sendData:[self.AckMsg dataUsingEncoding:NSUTF8StringEncoding] toPeers:self.session.connectedPeers withMode:MCSessionSendDataReliable error:&error];
+        if (self.connected)
+        {
+            NSError *error;
+            [self.session sendData:[self.AckMsg dataUsingEncoding:NSUTF8StringEncoding] toPeers:self.session.connectedPeers withMode:MCSessionSendDataReliable error:&error];
+        }
     }
     else if ([dataStr isEqualToString:self.AckMsg])
     {
+        NSLog(@"received ack");
         self.nbHeartbeatFails = 0;
     }
     else
-    {*/
+    {
         dispatch_async(dispatch_get_main_queue(), ^{
             if ([self.delegate respondsToSelector:@selector(mhPeer:didReceiveData:)])
             {
                 [self.delegate mhPeer:self didReceiveData:data];
             }
         });
-    //}
+    }
 }
 
 
@@ -195,7 +248,12 @@
     
     
     MCPeerID *mcPeerID = [[MCPeerID alloc] initWithDisplayName:displayName];
-    return [[MHPeer alloc] initWithDisplayName:displayName withOwnMCPeerID:mcPeerID withMCPeerID:mcPeerID withMHPeerID:mhPeerID];
+    
+    return [[MHPeer alloc] initWithDisplayName:displayName
+                               withOwnMCPeerID:mcPeerID
+                               withOwnMHPeerID:@""
+                                  withMCPeerID:mcPeerID
+                                  withMHPeerID:mhPeerID];
 }
 
 

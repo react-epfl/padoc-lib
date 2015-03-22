@@ -23,8 +23,6 @@
 /// Delegate for the MHMultipeerWrapper methods
 @property (nonatomic, weak) id<MHMultipeerWrapperDelegate> delegate;
 
-/// Query whether the client has joined the party
-@property (nonatomic, readonly) BOOL connected;
 /// Returns the current client's MHPeer
 /// Returns the serviceType which was passed in when the object was initialized.
 @property (nonatomic, readonly, strong) NSString *serviceType;

@@ -12,7 +12,6 @@
 @interface MHMultipeerWrapper () <MHPeerDelegate, MCNearbyServiceAdvertiserDelegate, MCNearbyServiceBrowserDelegate>
 
 // Public Properties
-@property (nonatomic, readwrite) BOOL connected;
 @property (nonatomic, readwrite) BOOL acceptingGuests;
 @property (nonatomic, readwrite, strong) NSString *serviceType;
 
@@ -64,8 +63,7 @@
         // Simultaneously advertise and browse at the same time
         [self.advertiser startAdvertisingPeer];
         [self.browser startBrowsingForPeers];
-        
-        self.connected = YES;
+
         self.acceptingGuests = YES;
     }
 }
@@ -91,7 +89,6 @@
     
     self.advertiser = nil;
     self.browser = nil;
-    self.connected = NO;
 }
 
 #pragma mark - Communicate
@@ -221,7 +218,7 @@ didReceiveInvitationFromPeer:(MCPeerID *)peerID
     
     if (![self peerConnected:[info objectForKey:@"MultihopID"]] && [self.mhPeer.mhPeerID compare:[info objectForKey:@"MultihopID"]] == NSOrderedDescending)
     {
-        MHPeer *peer = [[MHPeer alloc] initWithDisplayName:[info objectForKey:@"MultihopDisplayName"] withOwnMCPeerID:self.mhPeer.mcPeerID withMCPeerID:peerID withMHPeerID:[info objectForKey:@"MultihopID"]];
+        MHPeer *peer = [[MHPeer alloc] initWithDisplayName:[info objectForKey:@"MultihopDisplayName"] withOwnMCPeerID:self.mhPeer.mcPeerID withOwnMHPeerID:self.mhPeer.mhPeerID withMCPeerID:peerID withMHPeerID:[info objectForKey:@"MultihopID"]];
         peer.delegate = self;
 
         [self.connectedPeers setObject:peer forKey:peer.mhPeerID];
@@ -246,7 +243,7 @@ didReceiveInvitationFromPeer:(MCPeerID *)peerID
     
     if (![self peerConnected:[info objectForKey:@"MultihopID"]] && [self.mhPeer.mhPeerID compare:[info objectForKey:@"MultihopID"]] == NSOrderedAscending)
     {
-        MHPeer *peer = [[MHPeer alloc] initWithDisplayName:[info objectForKey:@"MultihopDisplayName"] withOwnMCPeerID:self.mhPeer.mcPeerID withMCPeerID:peerID withMHPeerID:[info objectForKey:@"MultihopID"]];
+        MHPeer *peer = [[MHPeer alloc] initWithDisplayName:[info objectForKey:@"MultihopDisplayName"] withOwnMCPeerID:self.mhPeer.mcPeerID withOwnMHPeerID:self.mhPeer.mhPeerID withMCPeerID:peerID withMHPeerID:[info objectForKey:@"MultihopID"]];
         peer.delegate = self;
         
         [self.connectedPeers setObject:peer forKey:peer.mhPeerID];

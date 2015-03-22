@@ -43,6 +43,7 @@
 
 - (instancetype)initWithDisplayName:(NSString *)displayName
      withOwnMCPeerID:(MCPeerID *)ownMCPeerID
+     withOwnMHPeerID:(NSString *)ownMHPeerID
         withMCPeerID:(MCPeerID *)mcPeerID
         withMHPeerID:(NSString *)mhPeerID;
 
