@@ -148,7 +148,7 @@
 
 
 - (void)sendData:(NSData *)data
-        relable:(BOOL)reliable
+        reliable:(BOOL)reliable
            error:(NSError **)error
 {
     if (self.connected)
