@@ -73,9 +73,9 @@
                     // The heartbeat fails for 3 times, then disconnect
                     if (weakSelf.nbHeartbeatFails > 3)
                     {
-                        weakSelf.connected = NO;
                         dispatch_async(dispatch_get_main_queue(), ^{
                             [weakSelf.delegate mhPeer:weakSelf hasDisconnected:@"Disconnected"];
+                            weakSelf.connected = NO;
                         });
                     }
                     else
@@ -106,9 +106,9 @@
                     // The heartbeat fails for 3 times, then disconnect
                     if (weakSelf.nbHeartbeatFails > 3)
                     {
-                        weakSelf.connected = NO;
                         dispatch_async(dispatch_get_main_queue(), ^{
                             [weakSelf.delegate mhPeer:weakSelf hasDisconnected:@"Disconnected"];
+                            weakSelf.connected = NO;
                         });
                     }
                     else
@@ -177,16 +177,16 @@
 - (void)session:(MCSession *)session peer:(MCPeerID *)peerID didChangeState:(MCSessionState)state
 {
     if(state == MCSessionStateNotConnected) {
-        self.connected = NO;
         dispatch_async(dispatch_get_main_queue(), ^{
             [self.delegate mhPeer:self hasDisconnected:@"Disconnected"];
+            self.connected = NO;
         });
     }
     else if(state == MCSessionStateConnected)
     {
-        self.connected = YES;
         dispatch_async(dispatch_get_main_queue(), ^{
             [self.delegate mhPeer:self hasConnected:@"Connected"];
+            self.connected = YES;
         });
     }
 }

@@ -182,9 +182,10 @@
 
 - (void)mhPeer:(MHPeer *)mhPeer hasDisconnected:(NSString *)info
 {
-    if ([self peerConnected:mhPeer.mhPeerID])
+    if ([self peerAvailable:mhPeer.mhPeerID])
     {
         NSString *mhPeerID = mhPeer.mhPeerID;
+        BOOL connected = [[self getMHPeerFromId:mhPeerID] connected];
         
         [mhPeer disconnect];
         
@@ -195,9 +196,12 @@
         [self stopService];
         [self connectToAll];
         
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [self.delegate mcWrapper:self hasDisconnected:info peer:mhPeerID];
-        });
+        if (connected)
+        {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self.delegate mcWrapper:self hasDisconnected:info peer:mhPeerID];
+            });
+        }
     }
 }
 
@@ -232,7 +236,7 @@ didReceiveInvitationFromPeer:(MCPeerID *)peerID
     // However, this should always be the case since we only send invites in one direction
     NSDictionary *info = (NSDictionary*) [NSKeyedUnarchiver unarchiveObjectWithData:context];
     
-    if (![self peerConnected:[info objectForKey:@"MultihopID"]] && [self.mhPeer.mhPeerID compare:[info objectForKey:@"MultihopID"]] == NSOrderedDescending)
+    if (![self peerAvailable:[info objectForKey:@"MultihopID"]] && [self.mhPeer.mhPeerID compare:[info objectForKey:@"MultihopID"]] == NSOrderedDescending)
     {
         MHPeer *peer = [[MHPeer alloc] initWithDisplayName:[info objectForKey:@"MultihopDisplayName"] withOwnMCPeerID:self.mhPeer.mcPeerID withOwnMHPeerID:self.mhPeer.mhPeerID withMCPeerID:peerID withMHPeerID:[info objectForKey:@"MultihopID"]];
         peer.delegate = self;
@@ -257,7 +261,7 @@ didReceiveInvitationFromPeer:(MCPeerID *)peerID
     // Whenever we find a peer, let's just send them an invitation
     // But only send invites one way
     
-    if (![self peerConnected:[info objectForKey:@"MultihopID"]] && [self.mhPeer.mhPeerID compare:[info objectForKey:@"MultihopID"]] == NSOrderedAscending)
+    if (![self peerAvailable:[info objectForKey:@"MultihopID"]] && [self.mhPeer.mhPeerID compare:[info objectForKey:@"MultihopID"]] == NSOrderedAscending)
     {
         MHPeer *peer = [[MHPeer alloc] initWithDisplayName:[info objectForKey:@"MultihopDisplayName"] withOwnMCPeerID:self.mhPeer.mcPeerID withOwnMHPeerID:self.mhPeer.mhPeerID withMCPeerID:peerID withMHPeerID:[info objectForKey:@"MultihopID"]];
         peer.delegate = self;
@@ -302,7 +306,7 @@ didReceiveInvitationFromPeer:(MCPeerID *)peerID
     return peer;
 }
 
-- (BOOL)peerConnected:(NSString *)peer
+- (BOOL)peerAvailable:(NSString *)peer
 {
     return [self.connectedPeers objectForKey:peer] != nil;
 }

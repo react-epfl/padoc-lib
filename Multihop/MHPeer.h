@@ -23,6 +23,7 @@
 /// Delegate for the PartyTime methods
 @property (nonatomic, weak) id<MHPeerDelegate> delegate;
 
+@property (nonatomic, readonly) BOOL connected;
 
 /// Returns the current client's MCPeerID (this ID is different for each
 /// application startup)
