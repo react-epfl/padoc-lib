@@ -36,8 +36,10 @@
     {
         self.mcWrapper = [[MHMultipeerWrapper alloc] initWithServiceType:serviceType
                                                              displayName:displayName];
+        self.mcWrapper.delegate = self;
         
         self.bgManager = [[MHBackgroundManager alloc] initWithMultipeerWrapper:self.mcWrapper];
+        self.bgManager.delegate = self;
     }
     return self;
 }
@@ -143,7 +145,7 @@
          fromPeer:(NSString *)peer
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        if ([self.delegate respondsToSelector:@selector(mhPeer:didReceiveData:)])
+        if ([self.delegate respondsToSelector:@selector(mhHandler:didReceiveData:fromPeer:)])
         {
             [self.delegate mhHandler:self didReceiveData:data fromPeer:peer];
         }

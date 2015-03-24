@@ -32,7 +32,7 @@
 
 
 - (void)applicationDidEnterBackground:(UIApplication *)application {
-    
+    NSLog(@"background entered");
 }
 
 - (void)applicationWillEnterForeground:(UIApplication *)application {
