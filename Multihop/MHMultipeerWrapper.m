@@ -28,12 +28,6 @@
 #pragma mark - Life Cycle
 
 - (instancetype)initWithServiceType:(NSString *)serviceType
-{
-    return [self initWithServiceType:serviceType
-                         displayName:[UIDevice currentDevice].name];
-}
-
-- (instancetype)initWithServiceType:(NSString *)serviceType
                         displayName:(NSString *)displayName
 {
     self = [super init];
