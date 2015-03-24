@@ -31,11 +31,13 @@
 
 
 
+- (void)applicationWillResignActive:(UIApplication *)application;
 
 - (void)applicationDidEnterBackground:(UIApplication *)application;
 
 - (void)applicationWillEnterForeground:(UIApplication *)application;
 
+- (void)applicationDidBecomeActive:(UIApplication *)application;
 
 @end
 

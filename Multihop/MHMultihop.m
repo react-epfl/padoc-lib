@@ -92,6 +92,9 @@
 
 
 #pragma mark - Background Mode methods
+- (void)applicationWillResignActive:(UIApplication *)application {
+    [self.bgManager applicationWillResignActive:application];
+}
 
 - (void)applicationDidEnterBackground:(UIApplication *)application {
     [self.bgManager applicationDidEnterBackground:application];
@@ -100,6 +103,11 @@
 - (void)applicationWillEnterForeground:(UIApplication *)application {
     [self.bgManager applicationWillEnterForeground:application];
 }
+
+- (void)applicationDidBecomeActive:(UIApplication *)application {
+    [self.bgManager applicationDidBecomeActive:application];
+}
+
 
 
 # pragma mark - Termination method

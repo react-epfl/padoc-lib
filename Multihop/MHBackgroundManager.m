@@ -31,6 +31,9 @@
 
 
 
+- (void)applicationWillResignActive:(UIApplication *)application {
+}
+
 - (void)applicationDidEnterBackground:(UIApplication *)application {
     NSLog(@"background entered");
 }
@@ -39,5 +42,7 @@
     
 }
 
+- (void)applicationDidBecomeActive:(UIApplication *)application {
+}
 
 @end
