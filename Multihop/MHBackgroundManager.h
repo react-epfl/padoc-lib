@@ -19,41 +19,19 @@
 
 #pragma mark - Properties
 
-/// Delegate for the MHBackgroundManager methods
-@property (nonatomic, weak) id<MHBackgroundManagerDelegate> delegate;
 
 
 
 #pragma mark - Initialization
 
 
-- (instancetype)initWithMultipeerWrapper:(MHMultipeerWrapper *)mcWrapper;
+- (instancetype)init;
 
 
 
-- (void)applicationWillResignActive:(UIApplication *)application;
+- (void)applicationWillResignActive;
 
-- (void)applicationDidEnterBackground:(UIApplication *)application;
-
-- (void)applicationWillEnterForeground:(UIApplication *)application;
-
-- (void)applicationDidBecomeActive:(UIApplication *)application;
-
-@end
-
-/**
- The delegate for the MHMultipeerWrapperDelegate class.
- */
-@protocol MHBackgroundManagerDelegate <NSObject>
-
-@required
-/*
-- (void)mcWrapper:(MHMultipeerWrapper *)mcWrapper
-  hasDisconnected:(NSString *)info
-             peer:(NSString *)peer;
-*/
-
-@optional
+- (void)applicationDidBecomeActive;
 
 @end
 

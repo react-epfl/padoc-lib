@@ -9,7 +9,7 @@
 #import "MHMultihop.h"
 
 
-@interface MHMultihop () <MHMultipeerWrapperDelegate, MHBackgroundManagerDelegate>
+@interface MHMultihop () <MHMultipeerWrapperDelegate>
 
 @property (nonatomic, readwrite) BOOL serviceStarted;
 @property (nonatomic, readwrite, strong) NSString *serviceType;
@@ -38,8 +38,7 @@
                                                              displayName:displayName];
         self.mcWrapper.delegate = self;
         
-        self.bgManager = [[MHBackgroundManager alloc] initWithMultipeerWrapper:self.mcWrapper];
-        self.bgManager.delegate = self;
+        self.bgManager = [[MHBackgroundManager alloc] init];
     }
     return self;
 }
@@ -92,26 +91,18 @@
 
 
 #pragma mark - Background Mode methods
-- (void)applicationWillResignActive:(UIApplication *)application {
-    [self.bgManager applicationWillResignActive:application];
+- (void)applicationWillResignActive {
+    [self.bgManager applicationWillResignActive];
 }
 
-- (void)applicationDidEnterBackground:(UIApplication *)application {
-    [self.bgManager applicationDidEnterBackground:application];
-}
-
-- (void)applicationWillEnterForeground:(UIApplication *)application {
-    [self.bgManager applicationWillEnterForeground:application];
-}
-
-- (void)applicationDidBecomeActive:(UIApplication *)application {
-    [self.bgManager applicationDidBecomeActive:application];
+- (void)applicationDidBecomeActive{
+    [self.bgManager applicationDidBecomeActive];
 }
 
 
 
 # pragma mark - Termination method
-- (void)applicationWillTerminate:(UIApplication *)application {
+- (void)applicationWillTerminate {
     [self.mcWrapper disconnectFromAll];
     self.mcWrapper = nil;
     self.bgManager = nil;

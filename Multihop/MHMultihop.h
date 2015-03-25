@@ -123,16 +123,12 @@
 
 
 // Background Mode methods
-- (void)applicationWillResignActive:(UIApplication *)application;
+- (void)applicationWillResignActive;
 
-- (void)applicationDidEnterBackground:(UIApplication *)application;
-
-- (void)applicationWillEnterForeground:(UIApplication *)application;
-
-- (void)applicationDidBecomeActive:(UIApplication *)application;
+- (void)applicationDidBecomeActive;
 
 // Termination method
-- (void)applicationWillTerminate:(UIApplication *)application;
+- (void)applicationWillTerminate;
 
 @end
 

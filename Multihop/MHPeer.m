@@ -25,6 +25,10 @@
 @property (nonatomic, strong) NSString *HeartbeatMsg;
 @property (nonatomic, strong) NSString *AckMsg;
 
+@property (nonatomic) int HeartbeatTimeBase;
+@property (nonatomic) int HeartbeatTimeRange;
+@property (nonatomic) int MaxHeartbeatFails;
+
 @property (copy) void (^processHeartbeat)(void);
 
 @end
@@ -45,6 +49,11 @@
     if (self)
     {
         self.nbHeartbeatFails = 0;
+        
+        self.HeartbeatTimeBase = 3;
+        self.HeartbeatTimeRange = 2;
+        self.MaxHeartbeatFails = 3;
+        
         self.HeartbeatMsg = @"[{_-heartbeat-_}]";
         self.AckMsg = @"[{_-ack-_}]";
         
@@ -70,8 +79,8 @@
                 self.processHeartbeat = ^{
                     weakSelf.nbHeartbeatFails++;
                     
-                    // The heartbeat fails for 3 times, then disconnect
-                    if (weakSelf.nbHeartbeatFails > 3)
+                    // The heartbeat fails for x times, then disconnect
+                    if (weakSelf.nbHeartbeatFails > weakSelf.MaxHeartbeatFails)
                     {
                         dispatch_async(dispatch_get_main_queue(), ^{
                             [weakSelf.delegate mhPeer:weakSelf hasDisconnected:@"Disconnected"];
@@ -89,22 +98,22 @@
                             [weakSelf.session sendData:[weakSelf.HeartbeatMsg dataUsingEncoding:NSUTF8StringEncoding] toPeers:weakSelf.session.connectedPeers withMode:MCSessionSendDataReliable error:&error];
                             
                             
-                            // Dispatch after 3-5 seconds
-                            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)((arc4random_uniform(2) + 3) * NSEC_PER_SEC)), dispatch_get_main_queue(), weakSelf.processHeartbeat);
+                            // Dispatch after y seconds
+                            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)((arc4random_uniform(weakSelf.HeartbeatTimeRange) + weakSelf.HeartbeatTimeBase) * NSEC_PER_SEC)), dispatch_get_main_queue(), weakSelf.processHeartbeat);
                         }
                     }
                 };
                 
-                // Dispatch after 3-5 seconds
-                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)((arc4random_uniform(2) + 3) * NSEC_PER_SEC)), dispatch_get_main_queue(), self.processHeartbeat);
+                // Dispatch after y seconds
+                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)((arc4random_uniform(weakSelf.HeartbeatTimeRange) + weakSelf.HeartbeatTimeBase) * NSEC_PER_SEC)), dispatch_get_main_queue(), self.processHeartbeat);
             }
             else
             {
                 self.processHeartbeat = ^{
                     weakSelf.nbHeartbeatFails++;
                     
-                    // The heartbeat fails for 3 times, then disconnect
-                    if (weakSelf.nbHeartbeatFails > 3)
+                    // The heartbeat fails for x times, then disconnect
+                    if (weakSelf.nbHeartbeatFails > weakSelf.MaxHeartbeatFails)
                     {
                         dispatch_async(dispatch_get_main_queue(), ^{
                             [weakSelf.delegate mhPeer:weakSelf hasDisconnected:@"Disconnected"];
@@ -115,14 +124,14 @@
                     {
                         if (weakSelf.connected)
                         {
-                            // Dispatch after 6 seconds
-                            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(6 * NSEC_PER_SEC)), dispatch_get_main_queue(), weakSelf.processHeartbeat);
+                            // Dispatch after y seconds
+                            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)((weakSelf.HeartbeatTimeBase + weakSelf.HeartbeatTimeRange + 1) * NSEC_PER_SEC)), dispatch_get_main_queue(), weakSelf.processHeartbeat);
                         }
                     }
                 };
                 
-                // Dispatch after 6 seconds
-                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(6 * NSEC_PER_SEC)), dispatch_get_main_queue(), weakSelf.processHeartbeat);
+                // Dispatch after y seconds
+                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)((weakSelf.HeartbeatTimeBase + weakSelf.HeartbeatTimeRange + 1) * NSEC_PER_SEC)), dispatch_get_main_queue(), weakSelf.processHeartbeat);
             }
 
         }

@@ -12,37 +12,52 @@
 
 @interface MHBackgroundManager ()
 
-@property (nonatomic, strong) MHMultipeerWrapper *mcWrapper;
+
+@property (nonatomic) UIBackgroundTaskIdentifier backgroundTask;
+
+@property (copy) void (^backgroundTaskEndHandler)(void);
+
 @end
 
 @implementation MHBackgroundManager
 
 #pragma mark - Life Cycle
 
-- (instancetype)initWithMultipeerWrapper:(MHMultipeerWrapper *)mcWrapper
+- (instancetype)init
 {
     self = [super init];
     if (self)
     {
-        self.mcWrapper = mcWrapper;
+        // Background task end handler
+        MHBackgroundManager * __weak weakSelf = self;
+        
+        self.backgroundTaskEndHandler = ^{
+            //This is called 3 seconds before the time expires
+            //Here: Kill the session, advertisers, nil its delegates,
+            //      which should correctly send a disconnect signal to other peers
+            //      it's important if we want to be able to reconnect later,
+            //      as the MC framework is still buggy
+            
+            UIBackgroundTaskIdentifier newTask = [[UIApplication sharedApplication] beginBackgroundTaskWithExpirationHandler:weakSelf.backgroundTaskEndHandler];
+            
+            [[UIApplication sharedApplication] endBackgroundTask:weakSelf.backgroundTask];
+            
+            weakSelf.backgroundTask = newTask;
+        };
     }
+    
     return self;
 }
 
-
-
-- (void)applicationWillResignActive:(UIApplication *)application {
+- (void)applicationWillResignActive
+{
+    self.backgroundTask = [[UIApplication sharedApplication] beginBackgroundTaskWithExpirationHandler:self.backgroundTaskEndHandler];
 }
 
-- (void)applicationDidEnterBackground:(UIApplication *)application {
-    NSLog(@"background entered");
-}
 
-- (void)applicationWillEnterForeground:(UIApplication *)application {
-    
-}
-
-- (void)applicationDidBecomeActive:(UIApplication *)application {
+- (void)applicationDidBecomeActive
+{
+    self.backgroundTask = UIBackgroundTaskInvalid;
 }
 
 @end

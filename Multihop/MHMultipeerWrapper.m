@@ -275,7 +275,7 @@ didReceiveInvitationFromPeer:(MCPeerID *)peerID
 
 - (void)browser:(MCNearbyServiceBrowser *)browser lostPeer:(MCPeerID *)peerID
 {
-    NSLog(@"Lost a peer");
+    //NSLog(@"Lost a peer");
     // Ignore this. We don't need it.
 }
 
