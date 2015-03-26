@@ -11,7 +11,7 @@
 
 #import <Foundation/Foundation.h>
 #import <MultipeerConnectivity/MultipeerConnectivity.h>
-#import "MHMultipeerWrapper.h"
+#import "MHConnectionsHandler.h"
 #import "MHBackgroundManager.h"
 
 
@@ -91,12 +91,10 @@
  - (void)mhHandler:(MHMultihop *)mhHandler didReceiveData:(NSData *)data fromPeer:(NSString *)peer;
  
  @param data Data to send.
- @param reliable Boolean defining the transmission mode to use (reliable or unreliable delivery).
  @param error The address of an NSError pointer where an error object should be stored upon error.
  
  */
 - (void)sendData:(NSData *)data
-        reliable:(BOOL)reliable
            error:(NSError **)error;
 
 /**
@@ -108,13 +106,11 @@
  
  @param data Data to send.
  @param to^Peers An array of MHPeerID (strings) to send data to.
- @param reliable Boolean defining the transmission mode to use (reliable or unreliable delivery).
  @param error The address of an NSError pointer where an error object should be stored upon error.
  
  */
 - (void)sendData:(NSData *)data
          toPeers:(NSArray *)peers
-        reliable:(BOOL)reliable
            error:(NSError **)error;
 
 - (NSString *)getOwnPeer;

@@ -29,6 +29,8 @@
 @property (nonatomic) int HeartbeatTimeRange;
 @property (nonatomic) int MaxHeartbeatFails;
 
+@property (nonatomic) BOOL HeartbeatSender;
+
 @property (copy) void (^processHeartbeat)(void);
 
 @end
@@ -50,8 +52,8 @@
     {
         self.nbHeartbeatFails = 0;
         
-        self.HeartbeatTimeBase = 3;
-        self.HeartbeatTimeRange = 2;
+        self.HeartbeatTimeBase = 1;
+        self.HeartbeatTimeRange = 1;
         self.MaxHeartbeatFails = 3;
         
         self.HeartbeatMsg = @"[{_-heartbeat-_}]";
@@ -75,6 +77,16 @@
             
             // We send heartbeat messages only one way
             if ([ownMHPeerID compare:self.mhPeerID] == NSOrderedAscending)
+            {
+                self.HeartbeatSender = YES;
+            }
+            else
+            {
+                self.HeartbeatSender = NO;
+            }
+                
+                
+            if (self.HeartbeatSender)
             {
                 self.processHeartbeat = ^{
                     weakSelf.nbHeartbeatFails++;
@@ -103,9 +115,6 @@
                         }
                     }
                 };
-                
-                // Dispatch after y seconds
-                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)((arc4random_uniform(weakSelf.HeartbeatTimeRange) + weakSelf.HeartbeatTimeBase) * NSEC_PER_SEC)), dispatch_get_main_queue(), self.processHeartbeat);
             }
             else
             {
@@ -129,9 +138,6 @@
                         }
                     }
                 };
-                
-                // Dispatch after y seconds
-                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)((weakSelf.HeartbeatTimeBase + weakSelf.HeartbeatTimeRange + 1) * NSEC_PER_SEC)), dispatch_get_main_queue(), weakSelf.processHeartbeat);
             }
 
         }
@@ -196,6 +202,20 @@
         dispatch_async(dispatch_get_main_queue(), ^{
             [self.delegate mhPeer:self hasConnected:@"Connected"];
             self.connected = YES;
+            
+            int delay = 0;
+            
+            if (self.HeartbeatSender)
+            {
+                delay = arc4random_uniform(self.HeartbeatTimeRange) + self.HeartbeatTimeBase;
+            }
+            else
+            {
+                delay = self.HeartbeatTimeBase + self.HeartbeatTimeRange + 1;
+            }
+            
+            // Dispatch after y seconds
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delay * NSEC_PER_SEC)), dispatch_get_main_queue(), self.processHeartbeat);
         });
     }
 }
