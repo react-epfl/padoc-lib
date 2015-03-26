@@ -15,6 +15,7 @@
 		2B8093361AB87CE50059F89D /* MHMultipeerWrapper.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B8093111AB725FF0059F89D /* MHMultipeerWrapper.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		2B8093441AB8802E0059F89D /* MHPeer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B80930E1AB71A580059F89D /* MHPeer.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		2BBA880F1AC4651E0032E360 /* MHConnectionsHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BBA880E1AC4651E0032E360 /* MHConnectionsHandler.m */; };
+		2BBA881A1AC4670D0032E360 /* MHConnectionBuffer.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BBA88191AC4670D0032E360 /* MHConnectionBuffer.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -53,6 +54,8 @@
 		2B8093121AB726170059F89D /* MHMultipeerWrapper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MHMultipeerWrapper.m; sourceTree = "<group>"; };
 		2BBA880D1AC465080032E360 /* MHConnectionsHandler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MHConnectionsHandler.h; sourceTree = "<group>"; };
 		2BBA880E1AC4651E0032E360 /* MHConnectionsHandler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MHConnectionsHandler.m; sourceTree = "<group>"; };
+		2BBA88181AC466F70032E360 /* MHConnectionBuffer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MHConnectionBuffer.h; sourceTree = "<group>"; };
+		2BBA88191AC4670D0032E360 /* MHConnectionBuffer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MHConnectionBuffer.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -169,6 +172,8 @@
 			children = (
 				2BBA880D1AC465080032E360 /* MHConnectionsHandler.h */,
 				2BBA880E1AC4651E0032E360 /* MHConnectionsHandler.m */,
+				2BBA88181AC466F70032E360 /* MHConnectionBuffer.h */,
+				2BBA88191AC4670D0032E360 /* MHConnectionBuffer.m */,
 			);
 			name = Connections;
 			sourceTree = "<group>";
@@ -277,6 +282,7 @@
 			files = (
 				2B8093131AB726170059F89D /* MHMultipeerWrapper.m in Sources */,
 				2B8093101AB71A750059F89D /* MHPeer.m in Sources */,
+				2BBA881A1AC4670D0032E360 /* MHConnectionBuffer.m in Sources */,
 				2BBA880F1AC4651E0032E360 /* MHConnectionsHandler.m in Sources */,
 				2B676F161AC1823F002474D2 /* MHMultihop.m in Sources */,
 				2B676F131AC179E8002474D2 /* MHBackgroundManager.m in Sources */,
