@@ -10,32 +10,35 @@
 #define Multihop_MHConnectionBuffer_h
 
 #import <Foundation/Foundation.h>
+#import "MHMultipeerWrapper.h"
+
+
+typedef enum MHConnectionBufferState : NSUInteger
+{
+    MHConnectionBufferConnected,
+    MHConnectionBufferBroken
+} MHConnectionBufferState;
+
 
 @interface MHConnectionBuffer : NSObject
 
 #pragma mark - Properties
 @property (nonatomic, readonly, strong) NSString *peerID;
-@property (nonatomic, readonly) NSUInteger status;
+@property (nonatomic, readonly) MHConnectionBufferState status;
 
 
 #pragma mark - Initialization
-- (instancetype)initWithPeerID:(NSString *)peerID;
+- (instancetype)initWithPeerID:(NSString *)peerID
+          withMultipeerWrapper:(MHMultipeerWrapper *)mcWrapper;
 
 
 #pragma mark - Properties
-- (void)setStatus:(NSUInteger)status;
+- (void)setStatus:(MHConnectionBufferState)status;
 
 - (void)pushData:(NSData *)data;
 - (NSData *)popData;
 
 
 @end
-
-typedef enum MHConnectionBufferState : NSUInteger
-{
-    MHConnectionBufferDisconnected,
-    MHConnectionBufferConnected,
-    MHConnectionBufferBroken
-} MHConnectionBufferState;
 
 #endif

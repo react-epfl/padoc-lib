@@ -96,20 +96,6 @@
 #pragma mark - Communicate
 
 - (void)sendData:(NSData *)data
-        reliable:(BOOL)reliable
-           error:(NSError **)error
-{
-    for (id peerObj in self.connectedPeers)
-    {
-        MHPeer *peer = [self getMHPeerFromId:(NSString *)peerObj];
-
-        [peer sendData:data
-              reliable:reliable
-                 error:error];
-    }
-}
-
-- (void)sendData:(NSData *)data
          toPeers:(NSArray *)peers
         reliable:(BOOL)reliable
            error:(NSError **)error
@@ -265,7 +251,6 @@ didReceiveInvitationFromPeer:(MCPeerID *)peerID
         
         NSData *context = [NSKeyedArchiver archivedDataWithRootObject:self.dictInfo];
         
-        NSLog(@"Sending invite: Self: %@", self.mhPeer.displayName);
         [browser invitePeer:peerID
                   toSession:peer.session
                 withContext:context

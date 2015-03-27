@@ -13,6 +13,7 @@
 
 @property (nonatomic, strong) MHConnectionsHandler *cHandler;
 @property (nonatomic, strong) MHBackgroundManager *bgManager;
+@property (nonatomic, strong) NSMutableArray *peers;
 @end
 
 @implementation MHMultihop
@@ -36,6 +37,8 @@
         self.cHandler.delegate = self;
         
         self.bgManager = [[MHBackgroundManager alloc] init];
+        
+        self.peers = [[NSMutableArray alloc] init];
     }
     return self;
 }
@@ -44,6 +47,8 @@
 {
     self.cHandler  = nil;
     self.bgManager = nil;
+    [self.peers removeAllObjects];
+    self.peers = nil;
 }
 
 #pragma mark - Membership
@@ -64,8 +69,9 @@
 - (void)sendData:(NSData *)data
            error:(NSError **)error
 {
-    [self.cHandler sendData:data
-                       error:error];
+    [self sendData:data
+           toPeers:self.peers
+             error:error];
 }
 
 - (void)sendData:(NSData *)data
@@ -109,6 +115,8 @@
   hasDisconnected:(NSString *)info
              peer:(NSString *)peer
 {
+    [self.peers removeObject:peer];
+    
     dispatch_async(dispatch_get_main_queue(), ^{
         [self.delegate mhHandler:self hasDisconnected:info peer:peer];
     });
@@ -119,6 +127,8 @@
              peer:(NSString *)peer
       displayName:(NSString *)displayName
 {
+    [self.peers addObject:peer];
+    
     dispatch_async(dispatch_get_main_queue(), ^{
         [self.delegate mhHandler:self hasConnected:info peer:peer displayName:displayName];
     });

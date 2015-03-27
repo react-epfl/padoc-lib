@@ -32,10 +32,6 @@
 - (void)disconnectFromAll;
 
 - (void)sendData:(NSData *)data
-        reliable:(BOOL)reliable
-           error:(NSError **)error;
-
-- (void)sendData:(NSData *)data
          toPeers:(NSArray *)peers
         reliable:(BOOL)reliable
            error:(NSError **)error;

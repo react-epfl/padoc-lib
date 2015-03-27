@@ -12,6 +12,7 @@
 
 #import <Foundation/Foundation.h>
 #import "MHMultipeerWrapper.h"
+#import "MHConnectionBuffer.h"
 
 
 /**
@@ -42,9 +43,6 @@
 - (void)connectToAll;
 
 - (void)disconnectFromAll;
-
-- (void)sendData:(NSData *)data
-           error:(NSError **)error;
 
 - (void)sendData:(NSData *)data
          toPeers:(NSArray *)peers
