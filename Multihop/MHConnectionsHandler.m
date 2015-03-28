@@ -14,6 +14,13 @@
 @property (nonatomic, strong) MHMultipeerWrapper *mcWrapper;
 @property (nonatomic, strong) NSMutableDictionary *buffers;
 
+@property (nonatomic, strong) NSString *BackgroundSignal;
+
+
+@property (nonatomic) UIBackgroundTaskIdentifier backgroundTask;
+@property (copy) void (^backgroundTaskEndHandler)(void);
+
+
 @end
 
 @implementation MHConnectionsHandler
@@ -31,8 +38,60 @@
         self.mcWrapper.delegate = self;
         
         self.buffers = [[NSMutableDictionary alloc] init];
+
+        
+        
+        // Background task end handler
+        self.BackgroundSignal = @"[{_-background-_}]";
+        MHConnectionsHandler * __weak weakSelf = self;
+        
+        self.backgroundTaskEndHandler = ^{
+            [weakSelf sendBackgroundSignal:weakSelf];
+            
+            
+            //This is called 3 seconds before the time expires
+            UIBackgroundTaskIdentifier newTask = [[UIApplication sharedApplication] beginBackgroundTaskWithExpirationHandler:weakSelf.backgroundTaskEndHandler];
+            
+            [[UIApplication sharedApplication] endBackgroundTask:weakSelf.backgroundTask];
+            
+            weakSelf.backgroundTask = newTask;
+        };
     }
     return self;
+}
+
+- (void)sendBackgroundSignal:(MHConnectionsHandler * __weak)weakSelf
+{
+    NSError *error;
+    [weakSelf.mcWrapper sendData:[weakSelf.BackgroundSignal dataUsingEncoding:NSUTF8StringEncoding]
+                         toPeers:[weakSelf.buffers allKeys]
+                        reliable:YES
+                           error:&error];
+    
+    for (id peerKey in weakSelf.buffers)
+    {
+        MHConnectionBuffer *buf = [self.buffers objectForKey:peerKey];
+        
+        [buf setStatus:MHConnectionBufferBroken];
+    }
+    
+
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(4000 * NSEC_PER_MSEC)), dispatch_get_main_queue(), ^{
+        NSError* error1;
+        [weakSelf sendData:[@"bla1" dataUsingEncoding:NSUTF8StringEncoding]
+                   toPeers:weakSelf.buffers.allKeys
+                     error:&error1];
+        
+        NSError* error2;
+        [weakSelf sendData:[@"bla2" dataUsingEncoding:NSUTF8StringEncoding]
+                   toPeers:weakSelf.buffers.allKeys
+                     error:&error2];
+        
+        NSError* error3;
+        [weakSelf sendData:[@"bla3" dataUsingEncoding:NSUTF8StringEncoding]
+                   toPeers:weakSelf.buffers.allKeys
+                     error:&error3];
+    });
 }
 
 - (void)dealloc
@@ -84,6 +143,8 @@
     }
 }
 
+
+
 - (NSString *)getOwnPeer
 {
     return [self.mcWrapper getOwnPeer];
@@ -91,40 +152,23 @@
 
 
 
-#pragma mark - MHMultipeerWrapper Delegates
-- (void)mcWrapper:(MHMultipeerWrapper *)mcWrapper
-  hasDisconnected:(NSString *)info
-             peer:(NSString *)peer
+#pragma mark - Background handling
+
+- (void)applicationWillResignActive
 {
-    NSLog(@"Peer disconnected");
-    MHConnectionBuffer *buf = [self.buffers objectForKey:peer];
-    
-    // We define it as a broken connection instead of a disconnected one,
-    // which means we do not immediately notify the above layers of the
-    // disconnection, because the peer could reconnect very soon
-    if (buf.status == MHConnectionBufferConnected)
-    {
-        [buf setStatus:MHConnectionBufferBroken];
-        
-        MHConnectionsHandler * __weak weakSelf = self;
-        // Check after 10 seconds whether the peer has reconnected, otherwise notify the above layers
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(10 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-            if (weakSelf && weakSelf.buffers)
-            {
-                MHConnectionBuffer *buf = [weakSelf.buffers objectForKey:peer];
-                
-                if(buf.status == MHConnectionBufferBroken) // Still deconnected, then we remove it and notify
-                {
-                    [weakSelf.buffers removeObjectForKey:peer];
-                    
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        [weakSelf.delegate cHandler:self hasDisconnected:info peer:peer];
-                    });
-                }
-            }
-        });
-    }
+    self.backgroundTask = [[UIApplication sharedApplication] beginBackgroundTaskWithExpirationHandler:self.backgroundTaskEndHandler];
 }
+
+
+- (void)applicationDidBecomeActive
+{
+    self.backgroundTask = UIBackgroundTaskInvalid;
+}
+
+
+
+
+#pragma mark - MHMultipeerWrapper Delegates
 
 - (void)mcWrapper:(MHMultipeerWrapper *)mcWrapper
      hasConnected:(NSString *)info
@@ -138,7 +182,7 @@
     if (buf == nil)
     {
         buf = [[MHConnectionBuffer alloc] initWithPeerID:peer
-               withMultipeerWrapper:self.mcWrapper];
+                                    withMultipeerWrapper:self.mcWrapper];
         
         [buf setStatus:MHConnectionBufferConnected];
         
@@ -154,6 +198,48 @@
     }
 }
 
+
+
+- (void)mcWrapper:(MHMultipeerWrapper *)mcWrapper
+  hasDisconnected:(NSString *)info
+             peer:(NSString *)peer
+{
+    NSLog(@"Peer disconnected");
+    MHConnectionBuffer *buf = [self.buffers objectForKey:peer];
+    
+
+    if (buf.status == MHConnectionBufferConnected)
+    {
+        [self.buffers removeObjectForKey:peer];
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.delegate cHandler:self hasDisconnected:info peer:peer];
+        });
+    }
+    else if(buf.status == MHConnectionBufferBroken) // The background task has expirated
+    {
+        MHConnectionsHandler * __weak weakSelf = self;
+        // Check after 60 seconds whether the peer has reconnected, otherwise notify the above layers
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(60 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            if (weakSelf && weakSelf.buffers)
+            {
+                MHConnectionBuffer *buf = [weakSelf.buffers objectForKey:peer];
+                
+                if(buf != nil && buf.status == MHConnectionBufferBroken) // Still deconnected, then we remove it and notify
+                {
+                    [weakSelf.buffers removeObjectForKey:peer];
+                    
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        [weakSelf.delegate cHandler:self hasDisconnected:info peer:peer];
+                    });
+                }
+            }
+        });
+
+    }
+}
+
+
 - (void)mcWrapper:(MHMultipeerWrapper *)mcWrapper
   failedToConnect:(NSError *)error
 {
@@ -166,12 +252,24 @@
    didReceiveData:(NSData *)data
          fromPeer:(NSString *)peer
 {
-    dispatch_async(dispatch_get_main_queue(), ^{
-        if ([self.delegate respondsToSelector:@selector(cHandler:didReceiveData:fromPeer:)])
-        {
-            [self.delegate cHandler:self didReceiveData:data fromPeer:peer];
-        }
-    });
+    // TODO: find a faster way to check if it is the background signal
+    NSString *dataStr = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+    
+    if ([dataStr isEqualToString:self.BackgroundSignal])
+    {
+        MHConnectionBuffer *buf = [self.buffers objectForKey:peer];
+        
+        [buf setStatus:MHConnectionBufferBroken];
+    }
+    else
+    {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if ([self.delegate respondsToSelector:@selector(cHandler:didReceiveData:fromPeer:)])
+            {
+                [self.delegate cHandler:self didReceiveData:data fromPeer:peer];
+            }
+        });
+    }
 }
 
 @end

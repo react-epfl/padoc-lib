@@ -12,7 +12,6 @@
 @interface MHMultihop () <MHConnectionsHandlerDelegate>
 
 @property (nonatomic, strong) MHConnectionsHandler *cHandler;
-@property (nonatomic, strong) MHBackgroundManager *bgManager;
 @property (nonatomic, strong) NSMutableArray *peers;
 @end
 
@@ -36,8 +35,6 @@
                                                              displayName:displayName];
         self.cHandler.delegate = self;
         
-        self.bgManager = [[MHBackgroundManager alloc] init];
-        
         self.peers = [[NSMutableArray alloc] init];
     }
     return self;
@@ -46,7 +43,6 @@
 - (void)dealloc
 {
     self.cHandler  = nil;
-    self.bgManager = nil;
     [self.peers removeAllObjects];
     self.peers = nil;
 }
@@ -91,11 +87,11 @@
 
 #pragma mark - Background Mode methods
 - (void)applicationWillResignActive {
-    [self.bgManager applicationWillResignActive];
+    [self.cHandler applicationWillResignActive];
 }
 
 - (void)applicationDidBecomeActive{
-    [self.bgManager applicationDidBecomeActive];
+    [self.cHandler applicationDidBecomeActive];
 }
 
 
@@ -104,7 +100,6 @@
 - (void)applicationWillTerminate {
     [self.cHandler disconnectFromAll];
     self.cHandler = nil;
-    self.bgManager = nil;
 }
 
 

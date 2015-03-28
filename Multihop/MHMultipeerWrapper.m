@@ -160,6 +160,13 @@
 
 #pragma mark - MHPeer Delegate
 
+- (void)mhPeer:(MHPeer *)mhPeer hasConnected:(NSString *)info
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.delegate mcWrapper:self hasConnected:info peer:mhPeer.mhPeerID displayName:mhPeer.displayName];
+    });
+}
+
 - (void)mhPeer:(MHPeer *)mhPeer hasDisconnected:(NSString *)info
 {
     if ([self peerAvailable:mhPeer.mhPeerID])
@@ -185,12 +192,6 @@
     }
 }
 
-- (void)mhPeer:(MHPeer *)mhPeer hasConnected:(NSString *)info
-{
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [self.delegate mcWrapper:self hasConnected:info peer:mhPeer.mhPeerID displayName:mhPeer.displayName];
-    });
-}
 
 
 - (void)mhPeer:(MHPeer *)mhPeer didReceiveData:(NSData *)data

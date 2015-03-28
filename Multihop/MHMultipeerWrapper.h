@@ -44,13 +44,13 @@
 
 @required
 - (void)mcWrapper:(MHMultipeerWrapper *)mcWrapper
-  hasDisconnected:(NSString *)info
-             peer:(NSString *)peer;
-
-- (void)mcWrapper:(MHMultipeerWrapper *)mcWrapper
      hasConnected:(NSString *)info
              peer:(NSString *)peer
       displayName:(NSString *)displayName;
+
+- (void)mcWrapper:(MHMultipeerWrapper *)mcWrapper
+  hasDisconnected:(NSString *)info
+             peer:(NSString *)peer;
 
 - (void)mcWrapper:(MHMultipeerWrapper *)mcWrapper
   failedToConnect:(NSError *)error;

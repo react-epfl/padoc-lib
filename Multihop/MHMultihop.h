@@ -12,7 +12,6 @@
 #import <Foundation/Foundation.h>
 #import <MultipeerConnectivity/MultipeerConnectivity.h>
 #import "MHConnectionsHandler.h"
-#import "MHBackgroundManager.h"
 
 
 @protocol MHMultihopDelegate;

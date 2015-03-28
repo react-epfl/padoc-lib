@@ -103,7 +103,7 @@
                     {
                         NSError *error;
                         
-                        NSLog(@"sending heartbeat");
+                        //NSLog(@"sending heartbeat");
                         
                         if(weakSelf.connected)
                         {
@@ -227,7 +227,7 @@
     
     if ([dataStr isEqualToString:self.HeartbeatMsg])
     {
-        NSLog(@"received heartbeat, sending ack");
+        //NSLog(@"received heartbeat, sending ack");
         self.nbHeartbeatFails = 0;
         
         if (self.connected)
@@ -238,7 +238,7 @@
     }
     else if ([dataStr isEqualToString:self.AckMsg])
     {
-        NSLog(@"received ack");
+        //NSLog(@"received ack");
         self.nbHeartbeatFails = 0;
     }
     else

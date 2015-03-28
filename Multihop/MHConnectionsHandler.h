@@ -44,11 +44,17 @@
 
 - (void)disconnectFromAll;
 
+
 - (void)sendData:(NSData *)data
          toPeers:(NSArray *)peers
            error:(NSError **)error;
 
 - (NSString *)getOwnPeer;
+
+#pragma mark - Background handling
+- (void)applicationWillResignActive;
+
+- (void)applicationDidBecomeActive;
 
 @end
 
@@ -56,13 +62,13 @@
 
 @required
 - (void)cHandler:(MHConnectionsHandler *)cHandler
- hasDisconnected:(NSString *)info
-            peer:(NSString *)peer;
-
-- (void)cHandler:(MHConnectionsHandler *)cHandler
     hasConnected:(NSString *)info
             peer:(NSString *)peer
      displayName:(NSString *)displayName;
+
+- (void)cHandler:(MHConnectionsHandler *)cHandler
+ hasDisconnected:(NSString *)info
+            peer:(NSString *)peer;
 
 - (void)cHandler:(MHConnectionsHandler *)cHandler
  failedToConnect:(NSError *)error;

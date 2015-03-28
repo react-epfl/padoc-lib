@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		2B676F131AC179E8002474D2 /* MHBackgroundManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B676F121AC179E8002474D2 /* MHBackgroundManager.m */; };
 		2B676F161AC1823F002474D2 /* MHMultihop.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B676F151AC1823F002474D2 /* MHMultihop.m */; };
 		2B8092FA1AB34C7F0059F89D /* libMultihop.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B8092EE1AB34C7F0059F89D /* libMultihop.a */; };
 		2B8093101AB71A750059F89D /* MHPeer.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B80930F1AB71A750059F89D /* MHPeer.m */; };
@@ -41,8 +40,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		2B676F111AC1798C002474D2 /* MHBackgroundManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MHBackgroundManager.h; sourceTree = "<group>"; };
-		2B676F121AC179E8002474D2 /* MHBackgroundManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MHBackgroundManager.m; sourceTree = "<group>"; };
 		2B676F141AC18226002474D2 /* MHMultihop.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MHMultihop.h; sourceTree = "<group>"; };
 		2B676F151AC1823F002474D2 /* MHMultihop.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MHMultihop.m; sourceTree = "<group>"; };
 		2B8092EE1AB34C7F0059F89D /* libMultihop.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libMultihop.a; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -77,15 +74,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		2B676F101AC17967002474D2 /* Background */ = {
-			isa = PBXGroup;
-			children = (
-				2B676F111AC1798C002474D2 /* MHBackgroundManager.h */,
-				2B676F121AC179E8002474D2 /* MHBackgroundManager.m */,
-			);
-			name = Background;
-			sourceTree = "<group>";
-		};
 		2B8092E51AB34C7F0059F89D = {
 			isa = PBXGroup;
 			children = (
@@ -107,7 +95,6 @@
 		2B8092F01AB34C7F0059F89D /* Multihop */ = {
 			isa = PBXGroup;
 			children = (
-				2B676F101AC17967002474D2 /* Background */,
 				2B80930A1AB718510059F89D /* Interface */,
 				2B8093091AB717790059F89D /* Routing */,
 				2B8093081AB7174B0059F89D /* Communication */,
@@ -285,7 +272,6 @@
 				2BBA881A1AC4670D0032E360 /* MHConnectionBuffer.m in Sources */,
 				2BBA880F1AC4651E0032E360 /* MHConnectionsHandler.m in Sources */,
 				2B676F161AC1823F002474D2 /* MHMultihop.m in Sources */,
-				2B676F131AC179E8002474D2 /* MHBackgroundManager.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
