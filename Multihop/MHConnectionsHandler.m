@@ -74,24 +74,6 @@
         
         [buf setStatus:MHConnectionBufferBroken];
     }
-    
-
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(4000 * NSEC_PER_MSEC)), dispatch_get_main_queue(), ^{
-        NSError* error1;
-        [weakSelf sendData:[@"bla1" dataUsingEncoding:NSUTF8StringEncoding]
-                   toPeers:weakSelf.buffers.allKeys
-                     error:&error1];
-        
-        NSError* error2;
-        [weakSelf sendData:[@"bla2" dataUsingEncoding:NSUTF8StringEncoding]
-                   toPeers:weakSelf.buffers.allKeys
-                     error:&error2];
-        
-        NSError* error3;
-        [weakSelf sendData:[@"bla3" dataUsingEncoding:NSUTF8StringEncoding]
-                   toPeers:weakSelf.buffers.allKeys
-                     error:&error3];
-    });
 }
 
 - (void)dealloc
