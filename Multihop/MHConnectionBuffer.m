@@ -100,7 +100,7 @@
     if (self.messages.count > 0)
     {
         NSData *data = [self.messages objectAtIndex:0];
-        [self.messages removeObject:data];
+        [self.messages removeObjectAtIndex:0];
         
         return data;
     }
