@@ -13,6 +13,9 @@
 #import "MHMultipeerWrapper.h"
 
 
+#define MHCONNECTIONBUFFER_BUFFER_SIZE 1000
+
+
 typedef enum MHConnectionBufferState : NSUInteger
 {
     MHConnectionBufferConnected,
@@ -36,7 +39,6 @@ typedef enum MHConnectionBufferState : NSUInteger
 - (void)setStatus:(MHConnectionBufferState)status;
 
 - (void)pushData:(NSData *)data;
-- (NSData *)popData;
 
 
 @end

@@ -22,12 +22,6 @@
 @property (nonatomic, strong) NSString *mhPeerID;
 @property (nonatomic) int nbHeartbeatFails;
 
-@property (nonatomic, strong) NSString *HeartbeatMsg;
-@property (nonatomic, strong) NSString *AckMsg;
-
-@property (nonatomic) int HeartbeatTimeBase;
-@property (nonatomic) int HeartbeatTimeRange;
-@property (nonatomic) int MaxHeartbeatFails;
 
 @property (nonatomic) BOOL HeartbeatSender;
 
@@ -42,22 +36,15 @@
 #pragma mark - Life Cycle
 
 - (instancetype)initWithDisplayName:(NSString *)displayName
-     withOwnMCPeerID:(MCPeerID *)ownMCPeerID
-     withOwnMHPeerID:(NSString *)ownMHPeerID
-        withMCPeerID:(MCPeerID *)mcPeerID
-        withMHPeerID:(NSString *)mhPeerID
+                    withOwnMCPeerID:(MCPeerID *)ownMCPeerID
+                    withOwnMHPeerID:(NSString *)ownMHPeerID
+                       withMCPeerID:(MCPeerID *)mcPeerID
+                       withMHPeerID:(NSString *)mhPeerID
 {
     self = [super init];
     if (self)
     {
         self.nbHeartbeatFails = 0;
-        
-        self.HeartbeatTimeBase = 1;
-        self.HeartbeatTimeRange = 1;
-        self.MaxHeartbeatFails = 3;
-        
-        self.HeartbeatMsg = @"[{_-heartbeat-_}]";
-        self.AckMsg = @"[{_-ack-_}]";
         
         self.displayName = displayName;
         self.mcPeerID = mcPeerID;
@@ -71,7 +58,7 @@
             self.session.delegate = self;
             
             
-
+            
             // Heartbeat mechanism
             MHPeer * __weak weakSelf = self;
             
@@ -84,15 +71,15 @@
             {
                 self.HeartbeatSender = NO;
             }
-                
-                
+            
+            
             if (self.HeartbeatSender)
             {
                 self.processHeartbeat = ^{
                     weakSelf.nbHeartbeatFails++;
                     
                     // The heartbeat fails for x times, then disconnect
-                    if (weakSelf.nbHeartbeatFails > weakSelf.MaxHeartbeatFails)
+                    if (weakSelf.nbHeartbeatFails > MHPEER_MAX_HEARTBEAT_FAILS)
                     {
                         dispatch_async(dispatch_get_main_queue(), ^{
                             [weakSelf.delegate mhPeer:weakSelf hasDisconnected:@"Disconnected"];
@@ -103,15 +90,13 @@
                     {
                         NSError *error;
                         
-                        //NSLog(@"sending heartbeat");
-                        
                         if(weakSelf.connected)
                         {
-                            [weakSelf.session sendData:[weakSelf.HeartbeatMsg dataUsingEncoding:NSUTF8StringEncoding] toPeers:weakSelf.session.connectedPeers withMode:MCSessionSendDataReliable error:&error];
+                            [weakSelf.session sendData:[MHPEER_HEARTBEAT_MSG dataUsingEncoding:NSUTF8StringEncoding] toPeers:weakSelf.session.connectedPeers withMode:MCSessionSendDataReliable error:&error];
                             
                             
                             // Dispatch after y seconds
-                            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)((arc4random_uniform(weakSelf.HeartbeatTimeRange) + weakSelf.HeartbeatTimeBase) * NSEC_PER_SEC)), dispatch_get_main_queue(), weakSelf.processHeartbeat);
+                            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)((arc4random_uniform(MHPEER_HEARTBEAT_TIME_RANGE) + MHPEER_HEARTBEAT_TIME_BASE) * NSEC_PER_SEC)), dispatch_get_main_queue(), weakSelf.processHeartbeat);
                         }
                     }
                 };
@@ -122,7 +107,7 @@
                     weakSelf.nbHeartbeatFails++;
                     
                     // The heartbeat fails for x times, then disconnect
-                    if (weakSelf.nbHeartbeatFails > weakSelf.MaxHeartbeatFails)
+                    if (weakSelf.nbHeartbeatFails > MHPEER_MAX_HEARTBEAT_FAILS)
                     {
                         dispatch_async(dispatch_get_main_queue(), ^{
                             [weakSelf.delegate mhPeer:weakSelf hasDisconnected:@"Disconnected"];
@@ -134,12 +119,12 @@
                         if (weakSelf.connected)
                         {
                             // Dispatch after y seconds
-                            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)((weakSelf.HeartbeatTimeBase + weakSelf.HeartbeatTimeRange + 1) * NSEC_PER_SEC)), dispatch_get_main_queue(), weakSelf.processHeartbeat);
+                            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)((MHPEER_HEARTBEAT_TIME_BASE + MHPEER_HEARTBEAT_TIME_RANGE + 1) * NSEC_PER_SEC)), dispatch_get_main_queue(), weakSelf.processHeartbeat);
                         }
                     }
                 };
             }
-
+            
         }
     }
     return self;
@@ -207,11 +192,11 @@
             
             if (self.HeartbeatSender)
             {
-                delay = arc4random_uniform(self.HeartbeatTimeRange) + self.HeartbeatTimeBase;
+                delay = arc4random_uniform(MHPEER_HEARTBEAT_TIME_RANGE) + MHPEER_HEARTBEAT_TIME_BASE;
             }
             else
             {
-                delay = self.HeartbeatTimeBase + self.HeartbeatTimeRange + 1;
+                delay = MHPEER_HEARTBEAT_TIME_BASE + MHPEER_HEARTBEAT_TIME_RANGE + 1;
             }
             
             // Dispatch after y seconds
@@ -225,20 +210,18 @@
     // TODO: find a faster way to check if it is the heartbeat msg
     NSString *dataStr = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
     
-    if ([dataStr isEqualToString:self.HeartbeatMsg])
+    if ([dataStr isEqualToString:MHPEER_HEARTBEAT_MSG])
     {
-        //NSLog(@"received heartbeat, sending ack");
         self.nbHeartbeatFails = 0;
         
         if (self.connected)
         {
             NSError *error;
-            [self.session sendData:[self.AckMsg dataUsingEncoding:NSUTF8StringEncoding] toPeers:self.session.connectedPeers withMode:MCSessionSendDataReliable error:&error];
+            [self.session sendData:[MHPEER_ACK_MSG dataUsingEncoding:NSUTF8StringEncoding] toPeers:self.session.connectedPeers withMode:MCSessionSendDataReliable error:&error];
         }
     }
-    else if ([dataStr isEqualToString:self.AckMsg])
+    else if ([dataStr isEqualToString:MHPEER_ACK_MSG])
     {
-        //NSLog(@"received ack");
         self.nbHeartbeatFails = 0;
     }
     else
@@ -255,7 +238,7 @@
 
 - (void)session:(MCSession *)session didReceiveStream:(NSInputStream *)stream withName:(NSString *)streamName fromPeer:(MCPeerID *)peerID
 {
-   // Unsupported: Nothing to do
+    // Unsupported: Nothing to do
 }
 
 - (void)session:(MCSession *)session didStartReceivingResourceWithName:(NSString *)resourceName fromPeer:(MCPeerID *)peerID withProgress:(NSProgress *)progress
@@ -265,7 +248,7 @@
 
 - (void)session:(MCSession *)session didFinishReceivingResourceWithName:(NSString *)resourceName fromPeer:(MCPeerID *)peerID atURL:(NSURL *)localURL withError:(NSError *)error
 {
-   // Unsupported: Nothing to do
+    // Unsupported: Nothing to do
 }
 
 // Required because of an apple bug

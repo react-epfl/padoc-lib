@@ -14,8 +14,6 @@
 @property (nonatomic, strong) MHMultipeerWrapper *mcWrapper;
 @property (nonatomic, strong) NSMutableDictionary *buffers;
 
-@property (nonatomic, strong) NSString *BackgroundSignal;
-
 
 @property (nonatomic) UIBackgroundTaskIdentifier backgroundTask;
 @property (copy) void (^backgroundTaskEndHandler)(void);
@@ -42,7 +40,6 @@
         
         
         // Background task end handler
-        self.BackgroundSignal = @"[{_-background-_}]";
         MHConnectionsHandler * __weak weakSelf = self;
         
         self.backgroundTaskEndHandler = ^{
@@ -63,7 +60,7 @@
 - (void)sendBackgroundSignal:(MHConnectionsHandler * __weak)weakSelf
 {
     NSError *error;
-    [weakSelf.mcWrapper sendData:[weakSelf.BackgroundSignal dataUsingEncoding:NSUTF8StringEncoding]
+    [weakSelf.mcWrapper sendData:[MHCONNECTIONSHANDLER_BACKGROUND_SIGNAL dataUsingEncoding:NSUTF8StringEncoding]
                          toPeers:[weakSelf.buffers allKeys]
                         reliable:YES
                            error:&error];
@@ -201,8 +198,8 @@
     else if(buf.status == MHConnectionBufferBroken) // The background task has expirated
     {
         MHConnectionsHandler * __weak weakSelf = self;
-        // Check after 60 seconds whether the peer has reconnected, otherwise notify the above layers
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(60 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        // Check after some seconds whether the peer has reconnected, otherwise notify the above layers
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(MHCONNECTIONSHANDLER_CHECK_TIME * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
             if (weakSelf && weakSelf.buffers)
             {
                 MHConnectionBuffer *buf = [weakSelf.buffers objectForKey:peer];
@@ -237,7 +234,7 @@
     // TODO: find a faster way to check if it is the background signal
     NSString *dataStr = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
     
-    if ([dataStr isEqualToString:self.BackgroundSignal])
+    if ([dataStr isEqualToString:MHCONNECTIONSHANDLER_BACKGROUND_SIGNAL])
     {
         MHConnectionBuffer *buf = [self.buffers objectForKey:peer];
         

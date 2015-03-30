@@ -86,7 +86,13 @@
 
 - (void)pushData:(NSData *)data
 {
-    [self.messages addObject:data];
+    // If buffer size is reached, messages are lost
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (self.messages.count < MHCONNECTIONBUFFER_BUFFER_SIZE)
+        {
+            [self.messages addObject:data];
+        }
+    });
 }
 
 - (NSData *)popData

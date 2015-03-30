@@ -15,6 +15,9 @@
 #import "MHConnectionBuffer.h"
 
 
+#define MHCONNECTIONSHANDLER_BACKGROUND_SIGNAL @"[{_-background_sgn-_}]"
+#define MHCONNECTIONSHANDLER_CHECK_TIME 60
+
 /**
  
  This layer has 2 purposes:
