@@ -60,12 +60,12 @@
                 }
                 
                 
-                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(100 * NSEC_PER_MSEC)), dispatch_get_main_queue(), weakSelf.releaseMessages);
+                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(MHCONNECTIONBUFFER_RELEASE_TIME * NSEC_PER_MSEC)), dispatch_get_main_queue(), weakSelf.releaseMessages);
             }
         };
         
         // Check every 0.1 seconds for buffered messages
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(100 * NSEC_PER_MSEC)), dispatch_get_main_queue(), self.releaseMessages);
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(MHCONNECTIONBUFFER_RELEASE_TIME * NSEC_PER_MSEC)), dispatch_get_main_queue(), self.releaseMessages);
     }
     return self;
 }

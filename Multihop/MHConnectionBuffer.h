@@ -14,6 +14,7 @@
 
 
 #define MHCONNECTIONBUFFER_BUFFER_SIZE 1000
+#define MHCONNECTIONBUFFER_RELEASE_TIME 100
 
 
 typedef enum MHConnectionBufferState : NSUInteger
