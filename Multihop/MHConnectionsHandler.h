@@ -76,10 +76,19 @@
 - (void)cHandler:(MHConnectionsHandler *)cHandler
  failedToConnect:(NSError *)error;
 
+
 @optional
 - (void)cHandler:(MHConnectionsHandler *)cHandler
   didReceiveData:(NSData *)data
         fromPeer:(NSString *)peer;
+
+- (void)cHandler:(MHConnectionsHandler *)cHandler
+  enteredStandby:(NSString *)info
+            peer:(NSString *)peer;
+
+- (void)cHandler:(MHConnectionsHandler *)cHandler
+   leavedStandby:(NSString *)info
+            peer:(NSString *)peer;
 @end
 
 

@@ -70,6 +70,13 @@
         MHConnectionBuffer *buf = [self.buffers objectForKey:peerKey];
         
         [buf setStatus:MHConnectionBufferBroken];
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if ([self.delegate respondsToSelector:@selector(cHandler:enteredStandby:peer:)])
+            {
+                [self.delegate cHandler:self enteredStandby:@"Standby" peer:peerKey];
+            }
+        });
     }
 }
 
@@ -106,7 +113,7 @@
         NSString *peer = (NSString*)peerObj;
         MHConnectionBuffer *buf = [self.buffers objectForKey:peer];
         
-        if (buf.status == MHConnectionBufferBroken) // We bufferize
+        if (buf && buf.status == MHConnectionBufferBroken) // We bufferize
         {
             [bufferedPeers removeObject:peerObj];
             [buf pushData:data];
@@ -174,6 +181,13 @@
     else // The peer has reconnected, we do not notify the above layers yet
     {
         [buf setStatus:MHConnectionBufferConnected];
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if ([self.delegate respondsToSelector:@selector(cHandler:leavedStandby:peer:)])
+            {
+                [self.delegate cHandler:self leavedStandby:@"Active" peer:peer];
+            }
+        });
     }
 }
 
@@ -183,7 +197,7 @@
   hasDisconnected:(NSString *)info
              peer:(NSString *)peer
 {
-    NSLog(@"Peer disconnected");
+    NSLog([NSString stringWithFormat:@"Peer disconnected: %@", info]);
     MHConnectionBuffer *buf = [self.buffers objectForKey:peer];
     
 
@@ -239,6 +253,13 @@
         MHConnectionBuffer *buf = [self.buffers objectForKey:peer];
         
         [buf setStatus:MHConnectionBufferBroken];
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if ([self.delegate respondsToSelector:@selector(cHandler:enteredStandby:peer:)])
+            {
+                [self.delegate cHandler:self enteredStandby:@"Standby" peer:peer];
+            }
+        });
     }
     else
     {

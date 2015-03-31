@@ -100,13 +100,16 @@
         reliable:(BOOL)reliable
            error:(NSError **)error
 {
-    for (id peerObj in peers)
+    for (id peerKey in peers)
     {
-        MHPeer *peer = [self getMHPeerFromId:(NSString *)peerObj];
-        
-        [peer sendData:data
-              reliable:reliable
-                 error:error];
+        if ([self peerAvailable:peerKey])
+        {
+            MHPeer *peer = [self getMHPeerFromId:(NSString *)peerKey];
+            
+            [peer sendData:data
+                  reliable:reliable
+                     error:error];
+        }
     }
 }
 

@@ -82,7 +82,7 @@
                     if (weakSelf.nbHeartbeatFails > MHPEER_MAX_HEARTBEAT_FAILS)
                     {
                         dispatch_async(dispatch_get_main_queue(), ^{
-                            [weakSelf.delegate mhPeer:weakSelf hasDisconnected:@"Disconnected"];
+                            [weakSelf.delegate mhPeer:weakSelf hasDisconnected:@"Heartbeat failed"];
                             weakSelf.connected = NO;
                         });
                     }
@@ -110,7 +110,7 @@
                     if (weakSelf.nbHeartbeatFails > MHPEER_MAX_HEARTBEAT_FAILS)
                     {
                         dispatch_async(dispatch_get_main_queue(), ^{
-                            [weakSelf.delegate mhPeer:weakSelf hasDisconnected:@"Disconnected"];
+                            [weakSelf.delegate mhPeer:weakSelf hasDisconnected:@"Heartbeat failed"];
                             weakSelf.connected = NO;
                         });
                     }
@@ -178,7 +178,7 @@
 {
     if(state == MCSessionStateNotConnected) {
         dispatch_async(dispatch_get_main_queue(), ^{
-            [self.delegate mhPeer:self hasDisconnected:@"Disconnected"];
+            [self.delegate mhPeer:self hasDisconnected:@"Session disconnection"];
             self.connected = NO;
         });
     }
