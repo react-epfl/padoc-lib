@@ -18,6 +18,7 @@
 		2BBA88211ACEA84C0032E360 /* MHRouter.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BBA88201ACEA84C0032E360 /* MHRouter.m */; };
 		2BBA88251ACEA8990032E360 /* MHPacket.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BBA88241ACEA8990032E360 /* MHPacket.m */; };
 		2BBA882A1ACEA8F50032E360 /* MHRoutingProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BBA88291ACEA8F50032E360 /* MHRoutingProtocol.m */; };
+		2BF4C58A1ACF2664005B8481 /* MHFloodingProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BF4C5891ACF2664005B8481 /* MHFloodingProtocol.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -62,6 +63,8 @@
 		2BBA88241ACEA8990032E360 /* MHPacket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MHPacket.m; sourceTree = "<group>"; };
 		2BBA88281ACEA8E30032E360 /* MHRoutingProtocol.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MHRoutingProtocol.h; sourceTree = "<group>"; };
 		2BBA88291ACEA8F50032E360 /* MHRoutingProtocol.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MHRoutingProtocol.m; sourceTree = "<group>"; };
+		2BF4C5881ACF2650005B8481 /* MHFloodingProtocol.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MHFloodingProtocol.h; sourceTree = "<group>"; };
+		2BF4C5891ACF2664005B8481 /* MHFloodingProtocol.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MHFloodingProtocol.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -193,6 +196,8 @@
 		2BBA88261ACEA8A50032E360 /* Flooding */ = {
 			isa = PBXGroup;
 			children = (
+				2BF4C5881ACF2650005B8481 /* MHFloodingProtocol.h */,
+				2BF4C5891ACF2664005B8481 /* MHFloodingProtocol.m */,
 			);
 			name = Flooding;
 			sourceTree = "<group>";
@@ -311,6 +316,7 @@
 				2BBA881A1AC4670D0032E360 /* MHConnectionBuffer.m in Sources */,
 				2BBA880F1AC4651E0032E360 /* MHConnectionsHandler.m in Sources */,
 				2B676F161AC1823F002474D2 /* MHMultihop.m in Sources */,
+				2BF4C58A1ACF2664005B8481 /* MHFloodingProtocol.m in Sources */,
 				2BBA882A1ACEA8F50032E360 /* MHRoutingProtocol.m in Sources */,
 				2BBA88251ACEA8990032E360 /* MHPacket.m in Sources */,
 				2BBA88211ACEA84C0032E360 /* MHRouter.m in Sources */,

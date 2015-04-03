@@ -13,6 +13,7 @@
 #import <Foundation/Foundation.h>
 #import "MHConnectionsHandler.h"
 #import "MHRoutingProtocol.h"
+#import "MHFloodingProtocol.h"
 #import "MHPacket.h"
 
 

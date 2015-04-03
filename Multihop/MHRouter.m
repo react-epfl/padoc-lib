@@ -34,17 +34,16 @@
         
         switch (protocol) {
             case MHRoutingProtocolFlooding:
-                
+                self.protocol = [[MHFloodingProtocol alloc] init];
                 break;
             case MHRoutingProtocol6Shots:
                 
                 break;
             default:
-                
+                self.protocol = [[MHFloodingProtocol alloc] init];
                 break;
         }
         
-        self.protocol = [[MHRoutingProtocol alloc] init];
         self.protocol.delegate = self;
     }
     return self;
