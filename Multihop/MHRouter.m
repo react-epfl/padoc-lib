@@ -44,6 +44,7 @@
                 break;
         }
         
+        self.protocol = [[MHRoutingProtocol alloc] init];
         self.protocol.delegate = self;
     }
     return self;

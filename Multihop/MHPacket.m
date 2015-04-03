@@ -23,7 +23,7 @@
 @implementation MHPacket
 
 - (instancetype)initWithSource:(NSString *)source
-               withDestinations:(NSArray *)destinations
+              withDestinations:(NSArray *)destinations
                       withData:(NSData *)data
 {
     self = [super init];
@@ -38,6 +38,21 @@
     return self;
 }
 
+- (id)initWithCoder:(NSCoder *)decoder {
+    if (self = [super init]) {
+        self.source = [decoder decodeObjectForKey:@"source"];
+        self.destinations = [decoder decodeObjectForKey:@"destinations"];
+        self.data = [decoder decodeObjectForKey:@"data"];
+    }
+    return self;
+}
+
+- (void)encodeWithCoder:(NSCoder *)encoder {
+    [encoder encodeObject:self.source forKey:@"source"];
+    [encoder encodeObject:self.destinations forKey:@"destinations"];
+    [encoder encodeObject:self.data forKey:@"data"];
+}
+
 
 - (void)dealloc
 {
@@ -50,14 +65,7 @@
 
 - (NSData *)asNSData
 {
-    NSError *error = nil;
-    NSData *data = [NSJSONSerialization dataWithJSONObject:self
-                                                   options:0 error:&error];
-    
-    if(error)
-    {
-        return nil;
-    }
+    NSData *data = [NSKeyedArchiver archivedDataWithRootObject:self];
     
     return data;
 }
@@ -65,16 +73,7 @@
 
 + (MHPacket *)fromNSData:(NSData *)nsData
 {
-    NSError *error = nil;
-    id object = [NSJSONSerialization JSONObjectWithData:nsData
-                                                options:0
-                                                  error:&error];
-    
-    if(error)
-    {
-        return nil;
-    }
-    
+    id object = [NSKeyedUnarchiver unarchiveObjectWithData:nsData];
 
     if([object isKindOfClass:[MHPacket class]])
     {

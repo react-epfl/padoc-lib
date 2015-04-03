@@ -62,7 +62,7 @@
 #pragma mark - Communicate
 
 - (void)sendPacket:(MHPacket *)packet
-             error:(NSError *__autoreleasing *)error
+             error:(NSError **)error
 {
     [self.mhRouter sendPacket:packet error:error];
 }

@@ -13,7 +13,7 @@
 #import <Foundation/Foundation.h>
 
 
-@interface MHPacket : NSObject
+@interface MHPacket : NSObject<NSCoding>
 
 @property (nonatomic, readonly, strong) NSString *source;
 @property (nonatomic, readonly, strong) NSArray *destinations;
