@@ -10,7 +10,6 @@
 #define Multihop_MHMultihop_h
 
 #import <Foundation/Foundation.h>
-#import <MultipeerConnectivity/MultipeerConnectivity.h>
 #import "MHConnectionsHandler.h"
 
 
@@ -134,13 +133,13 @@
 
 @required
 - (void)mhHandler:(MHMultihop *)mhHandler
-  hasDisconnected:(NSString *)info
-             peer:(NSString *)peer;
-
-- (void)mhHandler:(MHMultihop *)mhHandler
      hasConnected:(NSString *)info
              peer:(NSString *)peer
       displayName:(NSString *)displayName;
+
+- (void)mhHandler:(MHMultihop *)mhHandler
+  hasDisconnected:(NSString *)info
+             peer:(NSString *)peer;
 
 - (void)mhHandler:(MHMultihop *)mhHandler
   failedToConnect:(NSError *)error;

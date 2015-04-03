@@ -55,7 +55,6 @@
 - (void)mcWrapper:(MHMultipeerWrapper *)mcWrapper
   failedToConnect:(NSError *)error;
 
-@optional
 - (void)mcWrapper:(MHMultipeerWrapper *)mcWrapper
    didReceiveData:(NSData *)data
          fromPeer:(NSString *)peer;

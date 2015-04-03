@@ -107,17 +107,6 @@
 
 #pragma mark - MHConnectionsHandler Delegates
 - (void)cHandler:(MHConnectionsHandler *)cHandler
-  hasDisconnected:(NSString *)info
-             peer:(NSString *)peer
-{
-    [self.peers removeObject:peer];
-    
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [self.delegate mhHandler:self hasDisconnected:info peer:peer];
-    });
-}
-
-- (void)cHandler:(MHConnectionsHandler *)cHandler
      hasConnected:(NSString *)info
              peer:(NSString *)peer
       displayName:(NSString *)displayName
@@ -126,6 +115,17 @@
     
     dispatch_async(dispatch_get_main_queue(), ^{
         [self.delegate mhHandler:self hasConnected:info peer:peer displayName:displayName];
+    });
+}
+
+- (void)cHandler:(MHConnectionsHandler *)cHandler
+ hasDisconnected:(NSString *)info
+            peer:(NSString *)peer
+{
+    [self.peers removeObject:peer];
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.delegate mhHandler:self hasDisconnected:info peer:peer];
     });
 }
 

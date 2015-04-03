@@ -200,10 +200,7 @@
 - (void)mhPeer:(MHPeer *)mhPeer didReceiveData:(NSData *)data
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        if ([self.delegate respondsToSelector:@selector(mcWrapper:didReceiveData:fromPeer:)])
-        {
-            [self.delegate mcWrapper:self didReceiveData:data fromPeer:mhPeer.mhPeerID];
-        }
+        [self.delegate mcWrapper:self didReceiveData:data fromPeer:mhPeer.mhPeerID];
     });
 }
 

@@ -15,6 +15,9 @@
 		2B8093441AB8802E0059F89D /* MHPeer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B80930E1AB71A580059F89D /* MHPeer.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		2BBA880F1AC4651E0032E360 /* MHConnectionsHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BBA880E1AC4651E0032E360 /* MHConnectionsHandler.m */; };
 		2BBA881A1AC4670D0032E360 /* MHConnectionBuffer.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BBA88191AC4670D0032E360 /* MHConnectionBuffer.m */; };
+		2BBA88211ACEA84C0032E360 /* MHRouter.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BBA88201ACEA84C0032E360 /* MHRouter.m */; };
+		2BBA88251ACEA8990032E360 /* MHPacket.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BBA88241ACEA8990032E360 /* MHPacket.m */; };
+		2BBA882A1ACEA8F50032E360 /* MHRoutingProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BBA88291ACEA8F50032E360 /* MHRoutingProtocol.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -53,6 +56,12 @@
 		2BBA880E1AC4651E0032E360 /* MHConnectionsHandler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MHConnectionsHandler.m; sourceTree = "<group>"; };
 		2BBA88181AC466F70032E360 /* MHConnectionBuffer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MHConnectionBuffer.h; sourceTree = "<group>"; };
 		2BBA88191AC4670D0032E360 /* MHConnectionBuffer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MHConnectionBuffer.m; sourceTree = "<group>"; };
+		2BBA881F1ACEA8340032E360 /* MHRouter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MHRouter.h; sourceTree = "<group>"; };
+		2BBA88201ACEA84C0032E360 /* MHRouter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MHRouter.m; sourceTree = "<group>"; };
+		2BBA88231ACEA8810032E360 /* MHPacket.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MHPacket.h; sourceTree = "<group>"; };
+		2BBA88241ACEA8990032E360 /* MHPacket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MHPacket.m; sourceTree = "<group>"; };
+		2BBA88281ACEA8E30032E360 /* MHRoutingProtocol.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MHRoutingProtocol.h; sourceTree = "<group>"; };
+		2BBA88291ACEA8F50032E360 /* MHRoutingProtocol.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MHRoutingProtocol.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -130,6 +139,11 @@
 		2B8093091AB717790059F89D /* Routing */ = {
 			isa = PBXGroup;
 			children = (
+				2BBA881E1ACEA7A70032E360 /* Protocols */,
+				2BBA881F1ACEA8340032E360 /* MHRouter.h */,
+				2BBA88201ACEA84C0032E360 /* MHRouter.m */,
+				2BBA88231ACEA8810032E360 /* MHPacket.h */,
+				2BBA88241ACEA8990032E360 /* MHPacket.m */,
 			);
 			name = Routing;
 			sourceTree = "<group>";
@@ -163,6 +177,31 @@
 				2BBA88191AC4670D0032E360 /* MHConnectionBuffer.m */,
 			);
 			name = Connections;
+			sourceTree = "<group>";
+		};
+		2BBA881E1ACEA7A70032E360 /* Protocols */ = {
+			isa = PBXGroup;
+			children = (
+				2BBA88271ACEA8B10032E360 /* 6Shots */,
+				2BBA88261ACEA8A50032E360 /* Flooding */,
+				2BBA88281ACEA8E30032E360 /* MHRoutingProtocol.h */,
+				2BBA88291ACEA8F50032E360 /* MHRoutingProtocol.m */,
+			);
+			name = Protocols;
+			sourceTree = "<group>";
+		};
+		2BBA88261ACEA8A50032E360 /* Flooding */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Flooding;
+			sourceTree = "<group>";
+		};
+		2BBA88271ACEA8B10032E360 /* 6Shots */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = 6Shots;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -272,6 +311,9 @@
 				2BBA881A1AC4670D0032E360 /* MHConnectionBuffer.m in Sources */,
 				2BBA880F1AC4651E0032E360 /* MHConnectionsHandler.m in Sources */,
 				2B676F161AC1823F002474D2 /* MHMultihop.m in Sources */,
+				2BBA882A1ACEA8F50032E360 /* MHRoutingProtocol.m in Sources */,
+				2BBA88251ACEA8990032E360 /* MHPacket.m in Sources */,
+				2BBA88211ACEA84C0032E360 /* MHRouter.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -327,7 +369,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.3;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.2;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
@@ -362,7 +404,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.3;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.2;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				VALIDATE_PRODUCT = YES;
@@ -372,6 +414,7 @@
 		2B8093031AB34C800059F89D /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				IPHONEOS_DEPLOYMENT_TARGET = 8.2;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -381,6 +424,7 @@
 		2B8093041AB34C800059F89D /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				IPHONEOS_DEPLOYMENT_TARGET = 8.2;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -401,6 +445,7 @@
 					"$(inherited)",
 				);
 				INFOPLIST_FILE = MultihopTests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.2;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
@@ -417,6 +462,7 @@
 					"$(inherited)",
 				);
 				INFOPLIST_FILE = MultihopTests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.2;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";

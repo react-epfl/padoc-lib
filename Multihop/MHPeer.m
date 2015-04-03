@@ -227,10 +227,7 @@
     else
     {
         dispatch_async(dispatch_get_main_queue(), ^{
-            if ([self.delegate respondsToSelector:@selector(mhPeer:didReceiveData:)])
-            {
-                [self.delegate mhPeer:self didReceiveData:data];
-            }
+            [self.delegate mhPeer:self didReceiveData:data];
         });
     }
 }

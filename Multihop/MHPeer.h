@@ -81,7 +81,6 @@ hasDisconnected:(NSString *)info;
 - (void)mhPeer:(MHPeer *)mhPeer
 hasConnected:(NSString *)info;
 
-@optional
 - (void)mhPeer:(MHPeer *)mhPeer
 didReceiveData:(NSData *)data;
 

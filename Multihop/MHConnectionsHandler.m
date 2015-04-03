@@ -72,10 +72,7 @@
         [buf setStatus:MHConnectionBufferBroken];
         
         dispatch_async(dispatch_get_main_queue(), ^{
-            if ([self.delegate respondsToSelector:@selector(cHandler:enteredStandby:peer:)])
-            {
-                [self.delegate cHandler:self enteredStandby:@"Standby" peer:peerKey];
-            }
+            [self.delegate cHandler:self enteredStandby:@"Standby" peer:peerKey];
         });
     }
 }
@@ -183,10 +180,7 @@
         [buf setStatus:MHConnectionBufferConnected];
         
         dispatch_async(dispatch_get_main_queue(), ^{
-            if ([self.delegate respondsToSelector:@selector(cHandler:leavedStandby:peer:)])
-            {
-                [self.delegate cHandler:self leavedStandby:@"Active" peer:peer];
-            }
+            [self.delegate cHandler:self leavedStandby:@"Active" peer:peer];
         });
     }
 }
@@ -255,19 +249,13 @@
         [buf setStatus:MHConnectionBufferBroken];
         
         dispatch_async(dispatch_get_main_queue(), ^{
-            if ([self.delegate respondsToSelector:@selector(cHandler:enteredStandby:peer:)])
-            {
-                [self.delegate cHandler:self enteredStandby:@"Standby" peer:peer];
-            }
+            [self.delegate cHandler:self enteredStandby:@"Standby" peer:peer];
         });
     }
     else
     {
         dispatch_async(dispatch_get_main_queue(), ^{
-            if ([self.delegate respondsToSelector:@selector(cHandler:didReceiveData:fromPeer:)])
-            {
-                [self.delegate cHandler:self didReceiveData:data fromPeer:peer];
-            }
+            [self.delegate cHandler:self didReceiveData:data fromPeer:peer];
         });
     }
 }
