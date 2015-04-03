@@ -12,11 +12,12 @@
 
 @interface MHPacket ()
 
+@property (nonatomic, readwrite, strong) NSString *tag;
 @property (nonatomic, readwrite, strong) NSString *source;
 @property (nonatomic, readwrite, strong) NSArray *destinations;
 @property (nonatomic, readwrite, strong) NSData *data;
 
-@property (nonatomic, readwrite, strong) NSMutableDictionary *pathInfo;
+@property (nonatomic, readwrite, strong) NSMutableDictionary *info;
 
 @end
 
@@ -29,35 +30,40 @@
     self = [super init];
     if (self)
     {
+        self.tag = [MHPacket makeUniqueStringFromPeer:source];
         self.source = source;
         self.destinations = destinations;
         self.data = data;
         
-        self.pathInfo = [[NSMutableDictionary alloc] init];
+        self.info = [[NSMutableDictionary alloc] init];
     }
     return self;
 }
 
 - (id)initWithCoder:(NSCoder *)decoder {
     if (self = [super init]) {
+        self.tag = [decoder decodeObjectForKey:@"tag"];
         self.source = [decoder decodeObjectForKey:@"source"];
         self.destinations = [decoder decodeObjectForKey:@"destinations"];
         self.data = [decoder decodeObjectForKey:@"data"];
+        self.info = [decoder decodeObjectForKey:@"info"];
     }
     return self;
 }
 
 - (void)encodeWithCoder:(NSCoder *)encoder {
+    [encoder encodeObject:self.tag forKey:@"tag"];
     [encoder encodeObject:self.source forKey:@"source"];
     [encoder encodeObject:self.destinations forKey:@"destinations"];
     [encoder encodeObject:self.data forKey:@"data"];
+    [encoder encodeObject:self.info forKey:@"info"];
 }
 
 
 - (void)dealloc
 {
-    [self.pathInfo removeAllObjects];
-    self.pathInfo = nil;
+    [self.info removeAllObjects];
+    self.info = nil;
     
     self.destinations = nil;
 }
@@ -86,5 +92,21 @@
         return nil;
     }
 }
+
+
+#pragma mark - Helper methods
+
++(NSString *)makeUniqueStringFromPeer:(NSString *)peer
+{
+    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+    [dateFormatter setDateFormat:@"yyMMddHHmmss"];
+
+    NSString *dateString = [dateFormatter stringFromDate:[NSDate date]];
+    
+    int randomValue = arc4random() % 1000;
+
+    return [NSString stringWithFormat:@"%@%@%d",dateString, peer, randomValue];
+}
+
 
 @end

@@ -24,7 +24,7 @@
 
 
 #pragma mark - Initialization
-- (instancetype)init;
+- (instancetype)initWithPeer:(NSString *)peer withDisplayName:(NSString *)displayName;
 
 
 - (void)discover;
@@ -39,7 +39,8 @@
 
 #pragma mark - ConnectionsHandler methods
 - (void)hasConnected:(NSString *)info
-                peer:(NSString *)peer;
+                peer:(NSString *)peer
+         displayName:(NSString *)displayName;
 
 - (void)hasDisconnected:(NSString *)info
                    peer:(NSString *)peer;

@@ -13,17 +13,21 @@
 @interface MHRoutingProtocol ()
 
 @property (nonatomic, strong) NSMutableArray *neighbourPeers;
+@property (nonatomic, strong) NSString *ownPeer;
+@property (nonatomic, strong) NSString *displayName;
 @end
 
 @implementation MHRoutingProtocol
 
 #pragma mark - Initialization
-- (instancetype)init
+- (instancetype)initWithPeer:(NSString *)peer withDisplayName:(NSString *)displayName
 {
     self = [super init];
     if (self)
     {
         self.neighbourPeers = [[NSMutableArray alloc] init];
+        self.ownPeer = peer;
+        self.displayName = displayName;
     }
     return self;
 }
@@ -56,6 +60,7 @@
 #pragma mark - ConnectionsHandler methods
 - (void)hasConnected:(NSString *)info
                 peer:(NSString *)peer
+         displayName:(NSString *)displayName
 {
     [self.neighbourPeers addObject:peer];
 }

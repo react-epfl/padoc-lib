@@ -15,11 +15,12 @@
 
 @interface MHPacket : NSObject<NSCoding>
 
+@property (nonatomic, readonly, strong) NSString *tag;
 @property (nonatomic, readonly, strong) NSString *source;
 @property (nonatomic, readonly, strong) NSArray *destinations;
 @property (nonatomic, readonly, strong) NSData *data;
 
-@property (nonatomic, readonly, strong) NSMutableDictionary *pathInfo;
+@property (nonatomic, readonly, strong) NSMutableDictionary *info;
 
 
 - (instancetype)initWithSource:(NSString *)source

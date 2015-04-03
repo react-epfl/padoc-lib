@@ -34,17 +34,19 @@
         
         switch (protocol) {
             case MHRoutingProtocolFlooding:
-                self.protocol = [[MHFloodingProtocol alloc] init];
+                self.protocol = [[MHFloodingProtocol alloc] initWithPeer:[self getOwnPeer] withDisplayName:displayName];
                 break;
             case MHRoutingProtocol6Shots:
                 
                 break;
             default:
-                self.protocol = [[MHFloodingProtocol alloc] init];
+                self.protocol = [[MHFloodingProtocol alloc] initWithPeer:[self getOwnPeer] withDisplayName:displayName];
                 break;
         }
         
         self.protocol.delegate = self;
+        
+        [self.cHandler connectToAll];
     }
     return self;
 }
@@ -59,7 +61,6 @@
 
 - (void)discover
 {
-    [self.cHandler connectToAll];
     [self.protocol discover];
 }
 
@@ -102,11 +103,7 @@
             peer:(NSString *)peer
      displayName:(NSString *)displayName
 {
-    [self.protocol hasConnected:info peer:peer];
-    
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [self.delegate mhRouter:self isDiscovered:@"Discovered" peer:peer displayName:displayName];
-    });
+    [self.protocol hasConnected:info peer:peer displayName:displayName];
 }
 
 - (void)cHandler:(MHConnectionsHandler *)cHandler
