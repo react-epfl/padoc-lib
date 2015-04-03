@@ -10,7 +10,8 @@
 #define Multihop_MHMultihop_h
 
 #import <Foundation/Foundation.h>
-#import "MHConnectionsHandler.h"
+#import "MHRouter.h"
+#import "MHPacket.h"
 
 
 @protocol MHMultihopDelegate;
@@ -35,6 +36,8 @@
  Since you are not passing in a display name, it will default to:
  
  [UIDevice currentDevice].name]
+ 
+ Since you are not passing a routing protocol, the default one will be Flooding
  
  Which returns a string similar to: @"Peter's iPhone".
  
@@ -62,54 +65,44 @@
  This name should be easily distinguished from unrelated services. For example, a text chat app made by ABC company could use the service type abc-txtchat. For more details, read “Domain Naming Conventions”.
  
  @param displayName The display name which is sent to other peers.
+ 
+ @param protocol The routing protocol used.
  */
 - (instancetype)initWithServiceType:(NSString *)serviceType
-                        displayName:(NSString *)displayName;
+                        displayName:(NSString *)displayName
+                withRoutingProtocol:(MHProtocol)protocol;
+
 
 /**
  Call this method to connect to all peers. It will automatically start searching for peers.
  
  When you successfully connect to another peer, you will receive a delegate callback to:
  
- - (void)mhHandler:(MHMultihop *)mhHandler hasConnected:(NSString *)info peer:(NSString *)peer displayName:(NSString *)displayName;
+ - (void)mhHandler:(MHMultihop *)mhHandler isDiscovered:(NSString *)info peer:(NSString *)peer displayName:(NSString *)displayName
  */
-- (void)connectToAll;
+- (void)discover;
 
 
 /**
- Call this method to disconnect from everyone. You can reconnect at any time using the connectToAll method.
+ Call this method to disconnect from everyone. You can reconnect at any time using the discover method.
  */
-- (void)disconnectFromAll;
+- (void)disconnect;
+
 
 /**
- Broadcast data to all connected peers.
+ Sends a packet to selected peers.
  
  They will receive the data with the delegate callback:
  
- - (void)mhHandler:(MHMultihop *)mhHandler didReceiveData:(NSData *)data fromPeer:(NSString *)peer;
+ - (void)mhHandler:(MHMultihop *)mhHandler didReceivePacket:(MHPacket *)packet
  
- @param data Data to send.
+ @param packet packet to send.
  @param error The address of an NSError pointer where an error object should be stored upon error.
  
  */
-- (void)sendData:(NSData *)data
-           error:(NSError **)error;
+- (void)sendPacket:(MHPacket *)packet
+             error:(NSError **)error;
 
-/**
- Sends data to selected peers.
- 
- They will receive the data with the delegate callback:
- 
- - (void)mhHandler:(MHMultihop *)mhHandler didReceiveData:(NSData *)data fromPeer:(NSString *)peer;
- 
- @param data Data to send.
- @param to^Peers An array of MHPeerID (strings) to send data to.
- @param error The address of an NSError pointer where an error object should be stored upon error.
- 
- */
-- (void)sendData:(NSData *)data
-         toPeers:(NSArray *)peers
-           error:(NSError **)error;
 
 - (NSString *)getOwnPeer;
 
@@ -124,6 +117,9 @@
 // Termination method
 - (void)applicationWillTerminate;
 
+
+
+
 @end
 
 /**
@@ -133,10 +129,11 @@
 
 @required
 - (void)mhHandler:(MHMultihop *)mhHandler
-     hasConnected:(NSString *)info
+     isDiscovered:(NSString *)info
              peer:(NSString *)peer
       displayName:(NSString *)displayName;
 
+@required
 - (void)mhHandler:(MHMultihop *)mhHandler
   hasDisconnected:(NSString *)info
              peer:(NSString *)peer;
@@ -146,8 +143,7 @@
 
 @optional
 - (void)mhHandler:(MHMultihop *)mhHandler
-   didReceiveData:(NSData *)data
-         fromPeer:(NSString *)peer;
+ didReceivePacket:(MHPacket *)packet;
 @end
 
 

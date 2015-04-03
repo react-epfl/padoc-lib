@@ -148,7 +148,7 @@
 
 
 
-#pragma mark - MHRoutingProcol delegates
+#pragma mark - MHRoutingProtocol delegates
 - (void)mhProtocol:(MHRoutingProtocol *)mhProtocol
       isDiscovered:(NSString *)info
               peer:(NSString *)peer
@@ -160,11 +160,20 @@
 }
 
 - (void)mhProtocol:(MHRoutingProtocol *)mhProtocol
+   hasDisconnected:(NSString *)info
+              peer:(NSString *)peer
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.delegate mhRouter:self hasDisconnected:info peer:peer];
+    });
+}
+
+- (void)mhProtocol:(MHRoutingProtocol *)mhProtocol
         sendPacket:(MHPacket *)packet
            toPeers:(NSArray *)peers
+             error:(NSError**)error
 {
-    NSError *error;
-    [self.cHandler sendData:[packet asNSData] toPeers:peers error:&error];
+    [self.cHandler sendData:[packet asNSData] toPeers:peers error:error];
 }
 
 - (void)mhProtocol:(MHRoutingProtocol *)mhProtocol

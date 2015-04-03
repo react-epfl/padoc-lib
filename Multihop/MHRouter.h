@@ -69,6 +69,10 @@ typedef enum MHProtocol
      displayName:(NSString *)displayName;
 
 - (void)mhRouter:(MHRouter *)mhRouter
+ hasDisconnected:(NSString *)info
+            peer:(NSString *)peer;
+
+- (void)mhRouter:(MHRouter *)mhRouter
  failedToConnect:(NSError *)error;
 
 - (void)mhRouter:(MHRouter *)mhRouter

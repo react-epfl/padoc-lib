@@ -9,10 +9,9 @@
 #import "MHMultihop.h"
 
 
-@interface MHMultihop () <MHConnectionsHandlerDelegate>
+@interface MHMultihop () <MHRouterDelegate>
 
-@property (nonatomic, strong) MHConnectionsHandler *cHandler;
-@property (nonatomic, strong) NSMutableArray *peers;
+@property (nonatomic, strong) MHRouter *mhRouter;
 @end
 
 @implementation MHMultihop
@@ -22,129 +21,113 @@
 - (instancetype)initWithServiceType:(NSString *)serviceType
 {
     return [self initWithServiceType:serviceType
-                         displayName:[UIDevice currentDevice].name];
+                         displayName:[UIDevice currentDevice].name
+                 withRoutingProtocol:MHRoutingProtocolFlooding];
 }
 
 - (instancetype)initWithServiceType:(NSString *)serviceType
                         displayName:(NSString *)displayName
+                withRoutingProtocol:(MHProtocol)protocol
 {
     self = [super init];
     if (self)
     {
-        self.cHandler = [[MHConnectionsHandler alloc] initWithServiceType:serviceType
-                                                             displayName:displayName];
-        self.cHandler.delegate = self;
-        
-        self.peers = [[NSMutableArray alloc] init];
+        self.mhRouter = [[MHRouter alloc] initWithServiceType:serviceType
+                                                  displayName:displayName
+                                          withRoutingProtocol:protocol];
+        self.mhRouter.delegate = self;
+
     }
     return self;
 }
 
 - (void)dealloc
 {
-    self.cHandler  = nil;
-    [self.peers removeAllObjects];
-    self.peers = nil;
+    self.mhRouter  = nil;
 }
 
 #pragma mark - Membership
 
-- (void)connectToAll
+- (void)discover
 {
-    [self.cHandler connectToAll];
+    [self.mhRouter discover];
 }
 
 
-- (void)disconnectFromAll
+- (void)disconnect
 {
-    [self.cHandler disconnectFromAll];
+    [self.mhRouter disconnect];
 }
 
 #pragma mark - Communicate
 
-- (void)sendData:(NSData *)data
-           error:(NSError **)error
+- (void)sendPacket:(MHPacket *)packet
+             error:(NSError *__autoreleasing *)error
 {
-    [self sendData:data
-           toPeers:self.peers
-             error:error];
-}
-
-- (void)sendData:(NSData *)data
-         toPeers:(NSArray *)peers
-           error:(NSError **)error
-{
-    [self.cHandler sendData:data
-                     toPeers:peers
-                       error:error];
+    [self.mhRouter sendPacket:packet error:error];
 }
 
 - (NSString *)getOwnPeer
 {
-    return [self.cHandler getOwnPeer];
+    return [self.mhRouter getOwnPeer];
 }
 
 
 #pragma mark - Background Mode methods
 - (void)applicationWillResignActive {
-    [self.cHandler applicationWillResignActive];
+    [self.mhRouter applicationWillResignActive];
 }
 
 - (void)applicationDidBecomeActive{
-    [self.cHandler applicationDidBecomeActive];
+    [self.mhRouter applicationDidBecomeActive];
 }
 
 
 
 # pragma mark - Termination method
 - (void)applicationWillTerminate {
-    [self.cHandler disconnectFromAll];
-    self.cHandler = nil;
+    [self disconnect];
 }
 
 
 
 
 #pragma mark - MHConnectionsHandler Delegates
-- (void)cHandler:(MHConnectionsHandler *)cHandler
-     hasConnected:(NSString *)info
-             peer:(NSString *)peer
-      displayName:(NSString *)displayName
+
+- (void)mhRouter:(MHRouter *)mhRouter
+    isDiscovered:(NSString *)info
+            peer:(NSString *)peer
+     displayName:(NSString *)displayName
 {
-    [self.peers addObject:peer];
-    
     dispatch_async(dispatch_get_main_queue(), ^{
-        [self.delegate mhHandler:self hasConnected:info peer:peer displayName:displayName];
+        [self.delegate mhHandler:self isDiscovered:info peer:peer displayName:displayName];
     });
 }
 
-- (void)cHandler:(MHConnectionsHandler *)cHandler
+- (void)mhRouter:(MHRouter *)mhRouter
  hasDisconnected:(NSString *)info
             peer:(NSString *)peer
 {
-    [self.peers removeObject:peer];
-    
     dispatch_async(dispatch_get_main_queue(), ^{
         [self.delegate mhHandler:self hasDisconnected:info peer:peer];
     });
 }
 
-- (void)cHandler:(MHConnectionsHandler *)cHandler
-  failedToConnect:(NSError *)error
+- (void)mhRouter:(MHRouter *)mhRouter
+ failedToConnect:(NSError *)error
 {
     dispatch_async(dispatch_get_main_queue(), ^{
         [self.delegate mhHandler:self failedToConnect:error];
     });
 }
 
-- (void)cHandler:(MHConnectionsHandler *)cHandler
-   didReceiveData:(NSData *)data
-         fromPeer:(NSString *)peer
+- (void)mhRouter:(MHRouter *)mhRouter
+didReceivePacket:(MHPacket *)packet
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        if ([self.delegate respondsToSelector:@selector(mhHandler:didReceiveData:fromPeer:)])
+        if ([self.delegate respondsToSelector:@selector(mhHandler:didReceivePacket:)])
         {
-            [self.delegate mhHandler:self didReceiveData:data fromPeer:peer];
+            [self.delegate mhHandler:self didReceivePacket:packet];
         }
     });
 }

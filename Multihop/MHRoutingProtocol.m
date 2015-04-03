@@ -47,7 +47,9 @@
 - (void)sendPacket:(MHPacket *)packet
              error:(NSError **)error
 {
-    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.delegate mhProtocol:self sendPacket:packet toPeers:packet.destinations error:error];
+    });
 }
 
 
@@ -70,7 +72,9 @@
 - (void)didReceivePacket:(MHPacket *)packet
                 fromPeer:(NSString *)peer
 {
-    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.delegate mhProtocol:self didReceivePacket:packet];
+    });
 }
 
 - (void)enteredStandby:(NSString *)info

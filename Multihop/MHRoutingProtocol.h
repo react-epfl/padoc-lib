@@ -66,8 +66,13 @@
        displayName:(NSString *)displayName;
 
 - (void)mhProtocol:(MHRoutingProtocol *)mhProtocol
+   hasDisconnected:(NSString *)info
+              peer:(NSString *)peer;
+
+- (void)mhProtocol:(MHRoutingProtocol *)mhProtocol
         sendPacket:(MHPacket *)packet
-           toPeers:(NSArray *)peers;
+           toPeers:(NSArray *)peers
+             error:(NSError**)error;
 
 - (void)mhProtocol:(MHRoutingProtocol *)mhProtocol
   didReceivePacket:(MHPacket *)packet;
