@@ -40,6 +40,11 @@
 }
 
 
+- (void)callSpecialRoutingFunctionWithName:(NSString *)name withArgs:(NSDictionary *)args
+{
+    // No special functions supported
+}
+
 - (void)discover
 {
     MHPacket *discoverRequestPacket = [[MHPacket alloc] initWithSource:self.ownPeer

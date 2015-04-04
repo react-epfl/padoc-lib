@@ -25,6 +25,16 @@
                  withRoutingProtocol:MHRoutingProtocolFlooding];
 }
 
+
+- (instancetype)initWithServiceType:(NSString *)serviceType
+                withRoutingProtocol:(MHProtocol)protocol
+{
+    return [self initWithServiceType:serviceType
+                         displayName:[UIDevice currentDevice].name
+                 withRoutingProtocol:protocol];
+}
+
+
 - (instancetype)initWithServiceType:(NSString *)serviceType
                         displayName:(NSString *)displayName
                 withRoutingProtocol:(MHProtocol)protocol
@@ -71,6 +81,13 @@
 {
     return [self.mhRouter getOwnPeer];
 }
+
+
+- (void)callSpecialRoutingFunctionWithName:(NSString *)name withArgs:(NSDictionary *)args
+{
+    [self.mhRouter callSpecialRoutingFunctionWithName:name withArgs:args];
+}
+
 
 
 #pragma mark - Background Mode methods

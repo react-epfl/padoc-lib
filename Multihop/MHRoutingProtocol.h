@@ -26,6 +26,7 @@
 #pragma mark - Initialization
 - (instancetype)initWithPeer:(NSString *)peer withDisplayName:(NSString *)displayName;
 
+- (void)callSpecialRoutingFunctionWithName:(NSString *)name withArgs:(NSDictionary *)args;
 
 - (void)discover;
 

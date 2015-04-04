@@ -96,7 +96,7 @@
 
 #pragma mark - Helper methods
 
-+(NSString *)makeUniqueStringFromPeer:(NSString *)peer
++ (NSString *)makeUniqueStringFromPeer:(NSString *)peer
 {
     NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
     [dateFormatter setDateFormat:@"yyMMddHHmmss"];

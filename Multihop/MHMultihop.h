@@ -29,10 +29,6 @@
 /**
  Init method for this class.
  
- You must initialize this method with this method or:
- 
- - (instancetype)initWithServiceType:(NSString *)serviceType displayName:(NSString *)displayName;
- 
  Since you are not passing in a display name, it will default to:
  
  [UIDevice currentDevice].name]
@@ -49,6 +45,29 @@
  This name should be easily distinguished from unrelated services. For example, a text chat app made by ABC company could use the service type abc-txtchat. For more details, read “Domain Naming Conventions”.
  */
 - (instancetype)initWithServiceType:(NSString *)serviceType;
+
+
+
+/**
+ Init method for this class.
+ 
+ Since you are not passing in a display name, it will default to:
+ 
+ [UIDevice currentDevice].name]
+ 
+ @param serviceType The type of service to advertise. This should be a short text string that describes the app's networking protocol, in the same format as a Bonjour service type:
+ 
+ 1. Must be 1–15 characters long.
+ 2. Can contain only ASCII lowercase letters, numbers, and hyphens.
+ 
+ This name should be easily distinguished from unrelated services. For example, a text chat app made by ABC company could use the service type abc-txtchat. For more details, read “Domain Naming Conventions”.
+
+ 
+ @param protocol The routing protocol used.
+ */
+- (instancetype)initWithServiceType:(NSString *)serviceType
+                withRoutingProtocol:(MHProtocol)protocol;
+
 
 /**
  Init method for this class.
@@ -75,6 +94,8 @@
 
 /**
  Call this method to connect to all peers. It will automatically start searching for peers.
+ Note that the method is not supported by all routing algorithms. In case it is not supported,
+ nothing happens.
  
  When you successfully connect to another peer, you will receive a delegate callback to:
  
@@ -84,7 +105,8 @@
 
 
 /**
- Call this method to disconnect from everyone. You can reconnect at any time using the discover method.
+ Call this method to disconnect from everyone. In order to restart the system, a new Multihop object
+ should be reinstantiated.
  */
 - (void)disconnect;
 
@@ -107,6 +129,16 @@
 - (NSString *)getOwnPeer;
 
 
+/**
+ This methods enables the user to call a special function of the specified routing algorithm.
+ This mechanism is available due to the highly heterogenity of provided functions by different
+ routing algorithms. Every algorithm provides a documentation descriving the supported functions
+ 
+ @param name Name of the special function
+ @param args Dictionary containing a list of arguments taken by the special function.
+             Note that the name of an argument is defined by the dictionary key.
+ */
+- (void)callSpecialRoutingFunctionWithName:(NSString *)name withArgs:(NSDictionary *)args;
 
 
 // Background Mode methods

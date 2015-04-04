@@ -1,27 +1,36 @@
 //
-//  MHFloodingProtocol.h
+//  MH6ShotsProtocol.h
 //  Multihop
 //
-//  Created by quarta on 03/04/15.
+//  Created by quarta on 04/04/15.
 //  Copyright (c) 2015 quarta. All rights reserved.
 //
 
-#ifndef Multihop_MHFloodingProtocol_h
-#define Multihop_MHFloodingProtocol_h
-
+#ifndef Multihop_MH6ShotsProtocol_h
+#define Multihop_MH6ShotsProtocol_h
 
 #import "MHRoutingProtocol.h"
 
 
-@interface MHFloodingProtocol : MHRoutingProtocol
+@interface MH6ShotsProtocol : MHRoutingProtocol
 
 
 #pragma mark - Initialization
 - (instancetype)initWithPeer:(NSString *)peer withDisplayName:(NSString *)displayName;
 
-// No special functions supported
+/**
+ Supported special functions ("fct name" => "arg1 name"(type), "arg2 name"(type), ...):
+
+    Joining a group
+ - join => name(NSString*)
+ 
+    Leaving a group
+ - leave => name(NSString*)
+ 
+ */
 - (void)callSpecialRoutingFunctionWithName:(NSString *)name withArgs:(NSDictionary *)args;
 
+// Not supported
 - (void)discover;
 
 - (void)disconnect;
@@ -51,5 +60,6 @@
                  peer:(NSString *)peer;
 
 @end
+
 
 #endif

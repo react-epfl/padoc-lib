@@ -49,7 +49,7 @@ typedef enum MHProtocol
 
 - (NSString *)getOwnPeer;
 
-
+- (void)callSpecialRoutingFunctionWithName:(NSString *)name withArgs:(NSDictionary *)args;
 
 
 // Background Mode methods

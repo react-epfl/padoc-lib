@@ -85,6 +85,12 @@
 }
 
 
+- (void)callSpecialRoutingFunctionWithName:(NSString *)name withArgs:(NSDictionary *)args
+{
+    [self.protocol callSpecialRoutingFunctionWithName:name withArgs:args];
+}
+
+
 #pragma mark - Background Mode methods
 - (void)applicationWillResignActive {
     [self.cHandler applicationWillResignActive];

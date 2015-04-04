@@ -32,6 +32,8 @@
 
 + (MHPacket *)fromNSData:(NSData *)nsData;
 
++ (NSString *)makeUniqueStringFromPeer:(NSString *)peer;
+
 @end
 
 

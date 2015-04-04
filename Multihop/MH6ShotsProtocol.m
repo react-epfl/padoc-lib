@@ -1,56 +1,73 @@
 //
-//  MHRoutingProtocol.m
+//  MH6ShotsProtocol.m
 //  Multihop
 //
-//  Created by quarta on 03/04/15.
+//  Created by quarta on 04/04/15.
 //  Copyright (c) 2015 quarta. All rights reserved.
 //
 
-#import "MHRoutingProtocol.h"
+#import "MH6ShotsProtocol.h"
 
 
-
-@interface MHRoutingProtocol ()
+@interface MH6ShotsProtocol ()
 
 @property (nonatomic, strong) NSMutableArray *neighbourPeers;
 @property (nonatomic, strong) NSString *ownPeer;
 @property (nonatomic, strong) NSString *displayName;
+
+@property (nonatomic, strong) NSMutableArray *joinedGroups;
+
 @end
 
-@implementation MHRoutingProtocol
+@implementation MH6ShotsProtocol
 
 #pragma mark - Initialization
 - (instancetype)initWithPeer:(NSString *)peer withDisplayName:(NSString *)displayName
 {
-    self = [super init];
+    self = [super initWithPeer:peer withDisplayName:displayName];
     if (self)
     {
-        self.neighbourPeers = [[NSMutableArray alloc] init];
-        self.ownPeer = peer;
-        self.displayName = displayName;
+        self.joinedGroups = [[NSMutableArray alloc] init];
     }
     return self;
 }
 
 - (void)dealloc
 {
-    self.neighbourPeers = nil;
+
 }
 
 
 - (void)callSpecialRoutingFunctionWithName:(NSString *)name withArgs:(NSDictionary *)args
 {
-    
+    if ([name isEqualToString:@"join"])
+    {
+        NSString *name = [args objectForKey:@"name"];
+        
+        if (name != nil && ![self.joinedGroups containsObject:name])
+        {
+            [self.joinedGroups addObject:name];
+        }
+    }
+    else if([name isEqualToString:@"leave"])
+    {
+        NSString *name = [args objectForKey:@"name"];
+        
+        if (name != nil && [self.joinedGroups containsObject:name])
+        {
+            [self.joinedGroups removeObject:name];
+        }
+    }
 }
 
 - (void)discover
 {
-    
+    // Not supported
 }
 
 - (void)disconnect
 {
-    [self.neighbourPeers removeAllObjects];
+    [super disconnect];
 }
 
 - (void)sendPacket:(MHPacket *)packet
@@ -67,13 +84,13 @@
                 peer:(NSString *)peer
          displayName:(NSString *)displayName
 {
-    [self.neighbourPeers addObject:peer];
+    [super hasConnected:info peer:peer displayName:displayName];
 }
 
 - (void)hasDisconnected:(NSString *)info
                    peer:(NSString *)peer
 {
-    [self.neighbourPeers removeObject:peer];
+    [super hasDisconnected:info peer:peer];
 }
 
 
@@ -94,7 +111,6 @@
 {
     
 }
-
 
 
 @end
