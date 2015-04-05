@@ -12,8 +12,7 @@
 @interface MH6ShotsProtocol ()
 
 @property (nonatomic, strong) NSMutableArray *neighbourPeers;
-@property (nonatomic, strong) NSString *ownPeer;
-@property (nonatomic, strong) NSString *displayName;
+@property (nonatomic, strong) MHConnectionsHandler *cHandler;
 
 
 @property (nonatomic, strong) NSMutableArray *joinedGroups;
@@ -26,16 +25,17 @@
 @implementation MH6ShotsProtocol
 
 #pragma mark - Initialization
-- (instancetype)initWithPeer:(NSString *)peer withDisplayName:(NSString *)displayName
+- (instancetype)initWithServiceType:(NSString *)serviceType
+                        displayName:(NSString *)displayName
 {
-    self = [super initWithPeer:peer withDisplayName:displayName];
+    self = [super initWithServiceType:serviceType displayName:displayName];
     if (self)
     {
         self.joinedGroups = [[NSMutableArray alloc] init];
 
         
         self.routingTable = [[NSMutableDictionary alloc] init];
-        [self.routingTable setObject:[[NSNumber alloc] initWithInt:0] forKey:self.ownPeer];
+        [self.routingTable setObject:[[NSNumber alloc] initWithInt:0] forKey:[self getOwnPeer]];
         
         self.joinMsgs = [[NSMutableDictionary alloc] init];
         self.shouldForward = [[NSMutableDictionary alloc] init];
@@ -52,61 +52,51 @@
 }
 
 
-- (void)callSpecialRoutingFunctionWithName:(NSString *)name withArgs:(NSDictionary *)args
+- (void)joinGroup:(NSString *)groupName
 {
-    if ([name isEqualToString:@"join"])
+    if (groupName != nil && ![self.joinedGroups containsObject:groupName])
     {
-        NSString *groupName = [args objectForKey:@"name"];
+        MHPacket *packet = [[MHPacket alloc] initWithSource:[self getOwnPeer]
+                                           withDestinations:[[NSArray alloc] init]
+                                                   withData:[@"" dataUsingEncoding:NSUTF8StringEncoding]];
         
-        if (groupName != nil && ![self.joinedGroups containsObject:groupName])
-        {
-            MHPacket *packet = [[MHPacket alloc] initWithSource:self.ownPeer
-                                               withDestinations:[[NSArray alloc] init]
-                                                       withData:[@"" dataUsingEncoding:NSUTF8StringEncoding]];
-            
-            [packet.info setObject:groupName forKey:@"groupName"];
-            [packet.info setObject:[[NSNumber alloc] initWithInt:0] forKey:@"height"];
-            
-            
-            [self.joinMsgs setObject:packet forKey:packet.tag];
-            [self.shouldForward setObject:[[NSNumber alloc] initWithBool:YES] forKey:packet.tag];
-            
-            dispatch_async(dispatch_get_main_queue(), ^{
-                NSError *error;
-                [self.delegate mhProtocol:self sendPacket:packet toPeers:self.neighbourPeers error:&error];
-            });
-            
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [self.joinedGroups addObject:groupName];
-            });
-        }
-    }
-    else if([name isEqualToString:@"leave"])
-    {
-        NSString *groupName = [args objectForKey:@"name"];
+        [packet.info setObject:@"-[join-msg]-" forKey:@"message-type"];
+        [packet.info setObject:groupName forKey:@"groupName"];
+        [packet.info setObject:[[NSNumber alloc] initWithInt:0] forKey:@"height"];
         
-        if (groupName != nil && [self.joinedGroups containsObject:groupName])
-        {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [self.joinedGroups removeObject:groupName];
-            });
-        }
+        
+        [self.joinMsgs setObject:packet forKey:packet.tag];
+        [self.shouldForward setObject:[[NSNumber alloc] initWithBool:YES] forKey:packet.tag];
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            NSError *error;
+            [self.cHandler sendData:[packet asNSData] toPeers:self.neighbourPeers error:&error];
+        });
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.joinedGroups addObject:groupName];
+        });
     }
 }
 
-- (void)discover
+- (void)leaveGroup:(NSString *)groupName
 {
-    // Not supported
+    if (groupName != nil && [self.joinedGroups containsObject:groupName])
+    {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.joinedGroups removeObject:groupName];
+        });
+    }
 }
 
 - (void)disconnect
 {
-    [super disconnect];
-    
     [self.joinedGroups removeAllObjects];
     [self.joinMsgs removeAllObjects];
     [self.shouldForward removeAllObjects];
     [self.routingTable removeAllObjects];
+    
+    [super disconnect];
 }
 
 - (void)sendPacket:(MHPacket *)packet
@@ -119,34 +109,46 @@
 
 
 #pragma mark - ConnectionsHandler methods
-- (void)hasConnected:(NSString *)info
-                peer:(NSString *)peer
-         displayName:(NSString *)displayName
+- (void)cHandler:(MHConnectionsHandler *)cHandler
+    hasConnected:(NSString *)info
+            peer:(NSString *)peer
+     displayName:(NSString *)displayName
 {
-    [super hasConnected:info peer:peer displayName:displayName];
+    [self.neighbourPeers addObject:peer];
 }
 
-- (void)hasDisconnected:(NSString *)info
-                   peer:(NSString *)peer
+- (void)cHandler:(MHConnectionsHandler *)cHandler
+ hasDisconnected:(NSString *)info
+            peer:(NSString *)peer
 {
-    [super hasDisconnected:info peer:peer];
+    [self.neighbourPeers removeObject:peer];
 }
 
 
-- (void)didReceivePacket:(MHPacket *)packet
-                fromPeer:(NSString *)peer
+- (void)cHandler:(MHConnectionsHandler *)cHandler
+  didReceiveData:(NSData *)data
+        fromPeer:(NSString *)peer
 {
-
+    MHPacket *packet = [MHPacket fromNSData:data];
+    
+    NSString * msgType = [packet.info objectForKey:@"message-type"];
+    if (msgType != nil && [msgType isEqualToString:@"-[join-msg]-"]) // it's a join message
+    {
+        
+    }
+    
 }
 
-- (void)enteredStandby:(NSString *)info
-                  peer:(NSString *)peer
+- (void)cHandler:(MHConnectionsHandler *)cHandler
+  enteredStandby:(NSString *)info
+            peer:(NSString *)peer
 {
     
 }
 
-- (void)leavedStandby:(NSString *)info
-                 peer:(NSString *)peer
+- (void)cHandler:(MHConnectionsHandler *)cHandler
+   leavedStandby:(NSString *)info
+            peer:(NSString *)peer
 {
     
 }

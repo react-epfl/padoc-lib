@@ -1,27 +1,33 @@
 //
-//  MHMultihop.h
+//  MHMulticastSocket.h
 //  Multihop
 //
-//  Created by quarta on 24/03/15.
+//  Created by quarta on 05/04/15.
 //  Copyright (c) 2015 quarta. All rights reserved.
 //
 
-#ifndef Multihop_MHMultihop_h
-#define Multihop_MHMultihop_h
+#ifndef Multihop_MHMulticastSocket_h
+#define Multihop_MHMulticastSocket_h
 
 #import <Foundation/Foundation.h>
-#import "MHRouter.h"
+#import "MH6ShotsProtocol.h"
+#import "MHMulticastRoutingProtocol.h"
 #import "MHPacket.h"
 
 
-@protocol MHMultihopDelegate;
+typedef enum MHMulticastProtocol
+{
+    MHMulticast6ShotsProtocol
+}MHMulticastProtocol;
 
-@interface MHMultihop : NSObject
+@protocol MHMulticastSocketDelegate;
+
+@interface MHMulticastSocket : NSObject
 
 #pragma mark - Properties
 
 /// Delegate for the MHMultihop methods
-@property (nonatomic, weak) id<MHMultihopDelegate> delegate;
+@property (nonatomic, weak) id<MHMulticastSocketDelegate> delegate;
 
 
 #pragma mark - Initialization
@@ -33,7 +39,7 @@
  
  [UIDevice currentDevice].name]
  
- Since you are not passing a routing protocol, the default one will be Flooding
+ Since you are not passing a routing protocol, the default one will be 6Shots
  
  Which returns a string similar to: @"Peter's iPhone".
  
@@ -61,12 +67,12 @@
  2. Can contain only ASCII lowercase letters, numbers, and hyphens.
  
  This name should be easily distinguished from unrelated services. For example, a text chat app made by ABC company could use the service type abc-txtchat. For more details, read “Domain Naming Conventions”.
-
+ 
  
  @param protocol The routing protocol used.
  */
 - (instancetype)initWithServiceType:(NSString *)serviceType
-                withRoutingProtocol:(MHProtocol)protocol;
+                withRoutingProtocol:(MHMulticastProtocol)protocol;
 
 
 /**
@@ -89,19 +95,23 @@
  */
 - (instancetype)initWithServiceType:(NSString *)serviceType
                         displayName:(NSString *)displayName
-                withRoutingProtocol:(MHProtocol)protocol;
+                withRoutingProtocol:(MHMulticastProtocol)protocol;
 
 
 /**
- Call this method to connect to all peers. It will automatically start searching for peers.
- Note that the method is not supported by all routing algorithms. In case it is not supported,
- nothing happens.
+ Call this method to join a multicast group
  
- When you successfully connect to another peer, you will receive a delegate callback to:
- 
- - (void)mhHandler:(MHMultihop *)mhHandler isDiscovered:(NSString *)info peer:(NSString *)peer displayName:(NSString *)displayName
+ @param groupName The name of the group to join
  */
-- (void)discover;
+- (void)joinGroup:(NSString *)groupName;
+
+
+/**
+ Call this method to leave a multicast group
+ 
+ @param groupName The name of the group to leave
+ */
+- (void)leaveGroup:(NSString *)groupName;
 
 
 /**
@@ -116,7 +126,7 @@
  
  They will receive the data with the delegate callback:
  
- - (void)mhHandler:(MHMultihop *)mhHandler didReceivePacket:(MHPacket *)packet
+ - (void)mhUnicastSocket:(MHUnicastSocket *)mhUnicastSocket didReceivePacket:(MHPacket *)packet
  
  @param packet packet to send.
  @param error The address of an NSError pointer where an error object should be stored upon error.
@@ -129,16 +139,6 @@
 - (NSString *)getOwnPeer;
 
 
-/**
- This methods enables the user to call a special function of the specified routing algorithm.
- This mechanism is available due to the highly heterogenity of provided functions by different
- routing algorithms. Every algorithm provides a documentation descriving the supported functions
- 
- @param name Name of the special function
- @param args Dictionary containing a list of arguments taken by the special function.
-             Note that the name of an argument is defined by the dictionary key.
- */
-- (void)callSpecialRoutingFunctionWithName:(NSString *)name withArgs:(NSDictionary *)args;
 
 
 // Background Mode methods
@@ -155,28 +155,17 @@
 @end
 
 /**
- The delegate for the MHMultihop class.
+ The delegate for the MHMulticastSocket class.
  */
-@protocol MHMultihopDelegate <NSObject>
+@protocol MHMulticastSocketDelegate <NSObject>
 
 @required
-- (void)mhHandler:(MHMultihop *)mhHandler
-     isDiscovered:(NSString *)info
-             peer:(NSString *)peer
-      displayName:(NSString *)displayName;
-
-@required
-- (void)mhHandler:(MHMultihop *)mhHandler
-  hasDisconnected:(NSString *)info
-             peer:(NSString *)peer;
-
-- (void)mhHandler:(MHMultihop *)mhHandler
-  failedToConnect:(NSError *)error;
+- (void)mhMulticastSocket:(MHMulticastSocket *)mhMulticastSocket
+          failedToConnect:(NSError *)error;
 
 @optional
-- (void)mhHandler:(MHMultihop *)mhHandler
- didReceivePacket:(MHPacket *)packet;
+- (void)mhMulticastSocket:(MHMulticastSocket *)mhMulticastSocket
+         didReceivePacket:(MHPacket *)packet;
 @end
-
 
 #endif

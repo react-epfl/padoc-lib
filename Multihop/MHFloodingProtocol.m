@@ -14,21 +14,23 @@
 @interface MHFloodingProtocol ()
 
 @property (nonatomic, strong) NSMutableArray *neighbourPeers;
-@property (nonatomic, strong) NSString *ownPeer;
-@property (nonatomic, strong) NSString *displayName;
+@property (nonatomic, strong) MHConnectionsHandler *cHandler;
 
 @property (nonatomic, strong) NSMutableArray *processedPackets;
+@property (nonatomic, strong) NSString *displayName;
 
 @end
 
 @implementation MHFloodingProtocol
 
 #pragma mark - Initialization
-- (instancetype)initWithPeer:(NSString *)peer withDisplayName:(NSString *)displayName
+- (instancetype)initWithServiceType:(NSString *)serviceType
+                        displayName:(NSString *)displayName
 {
-    self = [super initWithPeer:peer withDisplayName:displayName];
+    self = [super initWithServiceType:serviceType displayName:displayName];
     if (self)
     {
+        self.displayName = displayName;
         self.processedPackets = [[NSMutableArray alloc] init];
     }
     return self;
@@ -40,14 +42,10 @@
 }
 
 
-- (void)callSpecialRoutingFunctionWithName:(NSString *)name withArgs:(NSDictionary *)args
-{
-    // No special functions supported
-}
 
 - (void)discover
 {
-    MHPacket *discoverRequestPacket = [[MHPacket alloc] initWithSource:self.ownPeer
+    MHPacket *discoverRequestPacket = [[MHPacket alloc] initWithSource:[self getOwnPeer]
                                                       withDestinations:[[NSArray alloc] init]
                                                               withData:[@"" dataUsingEncoding:NSUTF8StringEncoding]];
     
@@ -57,14 +55,14 @@
     
     dispatch_async(dispatch_get_main_queue(), ^{
         NSError *error;
-        [self.delegate mhProtocol:self sendPacket:discoverRequestPacket toPeers:self.neighbourPeers error:&error];
+        [self.cHandler sendData:[discoverRequestPacket asNSData] toPeers:self.neighbourPeers error:&error];
     });
 }
 
 - (void)disconnect
 {
-    [super disconnect];
     [self.processedPackets removeAllObjects];
+    [super disconnect];
 }
 
 - (void)sendPacket:(MHPacket *)packet
@@ -75,29 +73,31 @@
     [self.processedPackets addObject:packet.tag];
     
     dispatch_async(dispatch_get_main_queue(), ^{
-        [self.delegate mhProtocol:self sendPacket:packet toPeers:self.neighbourPeers error:error];
+        [self.cHandler sendData:[packet asNSData] toPeers:self.neighbourPeers error:error];
     });
 }
 
 
 
 
-#pragma mark - ConnectionsHandler methods
-- (void)hasConnected:(NSString *)info
-                peer:(NSString *)peer
-         displayName:(NSString *)displayName
+#pragma mark - ConnectionsHandler delegate methods
+- (void)cHandler:(MHConnectionsHandler *)cHandler
+    hasConnected:(NSString *)info
+            peer:(NSString *)peer
+     displayName:(NSString *)displayName
 {
-    [super hasConnected:info peer:peer displayName:displayName];
+    [self.neighbourPeers addObject:peer];
     
     dispatch_async(dispatch_get_main_queue(), ^{
         [self.delegate mhProtocol:self isDiscovered:@"Discovered" peer:peer displayName:displayName];
     });
 }
 
-- (void)hasDisconnected:(NSString *)info
-                   peer:(NSString *)peer
+- (void)cHandler:(MHConnectionsHandler *)cHandler
+ hasDisconnected:(NSString *)info
+            peer:(NSString *)peer
 {
-    [super hasDisconnected:info peer:peer];
+    [self.neighbourPeers removeObject:peer];
     
     dispatch_async(dispatch_get_main_queue(), ^{
         [self.delegate mhProtocol:self hasDisconnected:info peer:peer];
@@ -105,9 +105,12 @@
 }
 
 
-- (void)didReceivePacket:(MHPacket *)packet
-                fromPeer:(NSString *)peer
+- (void)cHandler:(MHConnectionsHandler *)cHandler
+  didReceiveData:(NSData *)data
+        fromPeer:(NSString *)peer
 {
+    MHPacket *packet = [MHPacket fromNSData:data];
+    
     if (![self.processedPackets containsObject:packet.tag])
     {
         [self.processedPackets addObject:packet.tag];
@@ -116,7 +119,7 @@
         
         if ([packet.info objectForKey:@"discover-request"] != nil && ![self.neighbourPeers containsObject:packet.source])
         {
-            MHPacket *discoverResponsePacket = [[MHPacket alloc] initWithSource:self.ownPeer
+            MHPacket *discoverResponsePacket = [[MHPacket alloc] initWithSource:[self getOwnPeer]
                                                                withDestinations:[[NSArray alloc] initWithObjects:packet.source, nil]
                                                                        withData:[@"" dataUsingEncoding:NSUTF8StringEncoding]];
             
@@ -126,7 +129,7 @@
             
             dispatch_async(dispatch_get_main_queue(), ^{
                 NSError *error;
-                [self.delegate mhProtocol:self sendPacket:discoverResponsePacket toPeers:self.neighbourPeers error:&error];
+                [self.cHandler sendData:[discoverResponsePacket asNSData] toPeers:self.neighbourPeers error:&error];
             });
         }
         
@@ -140,7 +143,7 @@
         }
         
         
-        if ([packet.destinations containsObject:self.ownPeer])
+        if ([packet.destinations containsObject:[self getOwnPeer]])
         {
             dispatch_async(dispatch_get_main_queue(), ^{
                 [self.delegate mhProtocol:self didReceivePacket:packet];
@@ -159,20 +162,22 @@
                 NSMutableArray *targets = [[NSMutableArray alloc] initWithArray:self.neighbourPeers copyItems:YES];
                 [targets removeObject:peer];
                 
-                [self.delegate mhProtocol:self sendPacket:packet toPeers:targets error:&error];
+                [self.cHandler sendData:[packet asNSData] toPeers:targets error:&error];
             });
         }
     }
 }
 
-- (void)enteredStandby:(NSString *)info
-                  peer:(NSString *)peer
+- (void)cHandler:(MHConnectionsHandler *)cHandler
+  enteredStandby:(NSString *)info
+            peer:(NSString *)peer
 {
     
 }
 
-- (void)leavedStandby:(NSString *)info
-                 peer:(NSString *)peer
+- (void)cHandler:(MHConnectionsHandler *)cHandler
+   leavedStandby:(NSString *)info
+            peer:(NSString *)peer
 {
     
 }
