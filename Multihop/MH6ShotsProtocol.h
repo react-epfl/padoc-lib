@@ -10,6 +10,8 @@
 #define Multihop_MH6ShotsProtocol_h
 
 #import "MHMulticastRoutingProtocol.h"
+#import "MHLocationManager.h"
+#import "MH6ShotsScheduler.h"
 
 
 @interface MH6ShotsProtocol : MHMulticastRoutingProtocol

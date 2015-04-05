@@ -16,12 +16,11 @@
 
 @property (nonatomic, readonly) MHPacket *packet;
 
-@property (nonatomic, readonly) NSUInteger time;
+@property (nonatomic, readonly) NSInteger time;
 
 #pragma mark - Initialization
 - (instancetype)initWithPacket:(MHPacket *)packet
-                      withTime:(NSUInteger)time;
-
+                      withTime:(NSInteger)time;
 
 
 @end

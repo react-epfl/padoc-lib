@@ -8,3 +8,34 @@
 
 #import "MH6ShotsSchedule.h"
 
+
+@interface MH6ShotsSchedule ()
+
+@property (nonatomic, readwrite) MHPacket *packet;
+@property (nonatomic, readwrite) NSInteger time;
+
+
+@end
+
+@implementation MH6ShotsSchedule
+
+#pragma mark - Initialization
+- (instancetype)initWithPacket:(MHPacket *)packet
+                      withTime:(NSInteger)time
+{
+    self = [super init];
+    if (self)
+    {
+        self.packet = packet;
+        self.time = time;
+    }
+    
+    return self;
+}
+
+- (void)dealloc
+{
+    self.packet = nil;
+}
+
+@end
