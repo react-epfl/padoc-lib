@@ -16,7 +16,7 @@
 
 @property (nonatomic, readonly) MHPacket *packet;
 
-@property (nonatomic, readonly) NSInteger time;
+@property (nonatomic, readwrite) NSInteger time;
 
 #pragma mark - Initialization
 - (instancetype)initWithPacket:(MHPacket *)packet

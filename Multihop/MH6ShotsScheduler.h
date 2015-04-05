@@ -16,7 +16,11 @@
 
 #define MHRANGE 40.0
 
+@protocol MH6ShotsSchedulerDelegate;
+
 @interface MH6ShotsScheduler : NSObject
+
+@property (nonatomic, weak) id<MH6ShotsSchedulerDelegate> delegate;
 
 @property (nonatomic, readwrite) NSMutableDictionary *schedules;
 
@@ -27,6 +31,17 @@
 
 
 - (void)setScheduleFromPacket:(MHPacket*)packet;
+
+@end
+
+/**
+ The delegate for the MH6ShotsScheduler class.
+ */
+@protocol MH6ShotsSchedulerDelegate <NSObject>
+
+@required
+- (void)mhScheduler:(MH6ShotsScheduler *)mhScheduler
+    broadcastPacket:(MHPacket*)packet;
 
 @end
 

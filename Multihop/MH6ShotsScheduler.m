@@ -14,6 +14,8 @@
 
 @property (nonatomic, strong) NSMutableDictionary *routingTable;
 
+@property (copy) void (^processSchedule)(void);
+
 @end
 
 @implementation MH6ShotsScheduler
@@ -26,6 +28,35 @@
     {
         self.schedules = [[NSMutableDictionary alloc] init];
         self.routingTable = routingTable;
+        
+        
+        MH6ShotsScheduler * __weak weakSelf = self;
+        
+
+        self.processSchedule = ^{
+            if (weakSelf)
+            {
+                NSDate* d = [NSDate date];
+                NSInteger currTime = [d timeIntervalSince1970];
+                
+                for(id scheduleKey in weakSelf.schedules)
+                {
+                    MH6ShotsSchedule *schedule = [weakSelf.schedules objectForKey:scheduleKey];
+                    
+                    if(schedule.time != -1 && schedule.time <= currTime)
+                    {
+                        [weakSelf updateRoutes:[schedule.packet.info objectForKey:@"routes"] withWeakSelf:weakSelf];
+                        [schedule.packet.info setObject:[[MHLocationManager getSingleton] getPosition] forKey:@"senderLocation"];
+                        
+                        [weakSelf.delegate mhScheduler:weakSelf broadcastPacket:schedule.packet];
+                    }
+                }
+                
+                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(500 * NSEC_PER_MSEC)), dispatch_get_main_queue(), weakSelf.processSchedule);
+            }
+        };
+
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(500 * NSEC_PER_MSEC)), dispatch_get_main_queue(), self.processSchedule);
     }
     
     return self;
@@ -45,7 +76,24 @@
 
 - (void)setScheduleFromPacket:(MHPacket*)packet
 {
-    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if ([self isOnRoute:[packet.info objectForKey:@"routes"]])
+        {
+            MH6ShotsSchedule *schedule = [self.schedules objectForKey:packet.tag];
+            
+            if (schedule != nil)
+            {
+                schedule.time = -1;
+            }
+            else
+            {
+                NSDate* d = [NSDate date];
+                NSInteger t = [d timeIntervalSince1970] + [self getDelay:packet];
+                [self.schedules setObject:[[MH6ShotsSchedule alloc] initWithPacket:packet withTime:t]
+                                   forKey:packet.tag];
+            }
+        }
+    });
 }
 
 
@@ -67,9 +115,24 @@
 }
 
 
-- (NSTimeInterval)getDelay:(MHPacket*)packet
+- (NSInteger)getDelay:(MHPacket*)packet
 {
+    MHLocation *myLoc = [[MHLocationManager getSingleton] getPosition];
+    double d = -1.0;
     
+    NSArray *targets = [self getTargets:[packet.info objectForKey:@"senderLocation"]];
+    
+    for(id targetObj in targets)
+    {
+        MHLocation *target = (MHLocation*)targetObj;
+        
+        if([MHLocationManager getDistanceFromLocation:myLoc toLocation:target] < d || d == -1.0)
+        {
+            d = [MHLocationManager getDistanceFromLocation:myLoc toLocation:target];
+        }
+    }
+    
+    return DELAY(d); // TODO
 }
 
 -(NSArray*)getTargets:(MHLocation*)senderLoc
@@ -87,8 +150,19 @@
 }
 
 
--(void)updateRoutes:(NSMutableDictionary*)routes
+-(void)updateRoutes:(NSMutableDictionary*)routes withWeakSelf:(MH6ShotsScheduler * __weak)weakSelf
 {
-    
+    for (id routeKey in routes)
+    {
+        int g = [[routes objectForKey:routeKey] intValue];
+        
+        NSNumber *gp = [weakSelf.routingTable objectForKey:routeKey];
+        
+        if(gp != nil && [gp intValue] < g)
+        {
+            [routes setObject:gp forKey:routeKey];
+        }
+    }
 }
+
 @end

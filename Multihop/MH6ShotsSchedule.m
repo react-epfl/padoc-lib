@@ -12,7 +12,6 @@
 @interface MH6ShotsSchedule ()
 
 @property (nonatomic, readwrite) MHPacket *packet;
-@property (nonatomic, readwrite) NSInteger time;
 
 
 @end

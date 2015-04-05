@@ -9,7 +9,7 @@
 #import "MH6ShotsProtocol.h"
 
 
-@interface MH6ShotsProtocol ()
+@interface MH6ShotsProtocol () <MH6ShotsSchedulerDelegate>
 
 @property (nonatomic, strong) NSMutableArray *neighbourPeers;
 @property (nonatomic, strong) MHConnectionsHandler *cHandler;
@@ -38,7 +38,9 @@
         self.shouldForward = [[NSMutableDictionary alloc] init];
         
         self.scheduler = [[MH6ShotsScheduler alloc] initWithRoutingTable:self.routingTable];
+        self.scheduler.delegate = self;
         
+        [[MHLocationManager getSingleton] start];
         [self.cHandler connectToAll];
     }
     return self;
@@ -59,6 +61,8 @@
     [self.shouldForward removeAllObjects];
     [self.routingTable removeAllObjects];
     [self.scheduler clear];
+    
+    [[MHLocationManager getSingleton] stop];
     
     [super disconnect];
 }
@@ -209,6 +213,16 @@
             peer:(NSString *)peer
 {
     
+}
+
+#pragma mark - MH6ShotsSchedulerDelegate methods
+- (void)mhScheduler:(MH6ShotsScheduler *)mhScheduler
+    broadcastPacket:(MHPacket*)packet
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        NSError *error;
+        [self.cHandler sendData:[packet asNSData] toPeers:self.neighbourPeers error:&error];
+    });
 }
 
 
