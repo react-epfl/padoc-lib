@@ -21,7 +21,7 @@
 		2BBA882A1ACEA8F50032E360 /* MHUnicastRoutingProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BBA88291ACEA8F50032E360 /* MHUnicastRoutingProtocol.m */; };
 		2BF4C58A1ACF2664005B8481 /* MHFloodingProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BF4C5891ACF2664005B8481 /* MHFloodingProtocol.m */; };
 		2BF4C5901ACF5CD5005B8481 /* MH6ShotsProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BF4C58F1ACF5CD5005B8481 /* MH6ShotsProtocol.m */; };
-		2BF4C5991ACF652E005B8481 /* MH6ShotsSchedulesManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BF4C5981ACF652E005B8481 /* MH6ShotsSchedulesManager.m */; };
+		2BF4C5991ACF652E005B8481 /* MH6ShotsSchedule.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BF4C5981ACF652E005B8481 /* MH6ShotsSchedule.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -72,8 +72,8 @@
 		2BF4C5891ACF2664005B8481 /* MHFloodingProtocol.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MHFloodingProtocol.m; sourceTree = "<group>"; };
 		2BF4C58E1ACF5CC3005B8481 /* MH6ShotsProtocol.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MH6ShotsProtocol.h; sourceTree = "<group>"; };
 		2BF4C58F1ACF5CD5005B8481 /* MH6ShotsProtocol.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MH6ShotsProtocol.m; sourceTree = "<group>"; };
-		2BF4C5971ACF6519005B8481 /* MH6ShotsSchedulesManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MH6ShotsSchedulesManager.h; sourceTree = "<group>"; };
-		2BF4C5981ACF652E005B8481 /* MH6ShotsSchedulesManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MH6ShotsSchedulesManager.m; sourceTree = "<group>"; };
+		2BF4C5971ACF6519005B8481 /* MH6ShotsSchedule.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MH6ShotsSchedule.h; sourceTree = "<group>"; };
+		2BF4C5981ACF652E005B8481 /* MH6ShotsSchedule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MH6ShotsSchedule.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -234,8 +234,8 @@
 			children = (
 				2BF4C58E1ACF5CC3005B8481 /* MH6ShotsProtocol.h */,
 				2BF4C58F1ACF5CD5005B8481 /* MH6ShotsProtocol.m */,
-				2BF4C5971ACF6519005B8481 /* MH6ShotsSchedulesManager.h */,
-				2BF4C5981ACF652E005B8481 /* MH6ShotsSchedulesManager.m */,
+				2BF4C5971ACF6519005B8481 /* MH6ShotsSchedule.h */,
+				2BF4C5981ACF652E005B8481 /* MH6ShotsSchedule.m */,
 			);
 			name = 6Shots;
 			sourceTree = "<group>";
@@ -346,7 +346,7 @@
 				2B8093101AB71A750059F89D /* MHPeer.m in Sources */,
 				2BA571AE1AD158470098B966 /* MHMulticastSocket.m in Sources */,
 				2BBA881A1AC4670D0032E360 /* MHConnectionBuffer.m in Sources */,
-				2BF4C5991ACF652E005B8481 /* MH6ShotsSchedulesManager.m in Sources */,
+				2BF4C5991ACF652E005B8481 /* MH6ShotsSchedule.m in Sources */,
 				2BBA880F1AC4651E0032E360 /* MHConnectionsHandler.m in Sources */,
 				2B676F161AC1823F002474D2 /* MHUnicastSocket.m in Sources */,
 				2BF4C58A1ACF2664005B8481 /* MHFloodingProtocol.m in Sources */,

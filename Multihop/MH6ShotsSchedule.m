@@ -1,9 +1,10 @@
 //
-//  MH6ShotsSchedulesManager.m
+//  MH6ShotsSchedule.m
 //  Multihop
 //
 //  Created by quarta on 04/04/15.
 //  Copyright (c) 2015 quarta. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
+#import "MH6ShotsSchedule.h"
+

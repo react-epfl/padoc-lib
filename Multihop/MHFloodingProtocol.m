@@ -32,6 +32,7 @@
     {
         self.displayName = displayName;
         self.processedPackets = [[NSMutableArray alloc] init];
+        [self.cHandler connectToAll];
     }
     return self;
 }

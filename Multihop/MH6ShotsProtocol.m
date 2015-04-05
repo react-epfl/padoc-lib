@@ -35,10 +35,12 @@
 
         
         self.routingTable = [[NSMutableDictionary alloc] init];
-        [self.routingTable setObject:[[NSNumber alloc] initWithInt:0] forKey:[self getOwnPeer]];
+        [self.routingTable setObject:[NSNumber numberWithInt:0] forKey:[self getOwnPeer]];
         
         self.joinMsgs = [[NSMutableDictionary alloc] init];
         self.shouldForward = [[NSMutableDictionary alloc] init];
+        
+        [self.cHandler connectToAll];
     }
     return self;
 }
@@ -62,7 +64,7 @@
         
         [packet.info setObject:@"-[join-msg]-" forKey:@"message-type"];
         [packet.info setObject:groupName forKey:@"groupName"];
-        [packet.info setObject:[[NSNumber alloc] initWithInt:0] forKey:@"height"];
+        [packet.info setObject:[NSNumber numberWithInt:0] forKey:@"height"];
         
         
         [self.joinMsgs setObject:packet forKey:packet.tag];
@@ -134,9 +136,39 @@
     NSString * msgType = [packet.info objectForKey:@"message-type"];
     if (msgType != nil && [msgType isEqualToString:@"-[join-msg]-"]) // it's a join message
     {
+        if (![self.joinMsgs objectForKey:packet.tag])
+        {
+            [self.joinMsgs setObject:packet forKey:packet.tag];
+            
+            int height = [[packet.info objectForKey:@"height"] intValue];
+            height++;
+            [self.routingTable setObject:[NSNumber numberWithInt:height] forKey:packet.source];
+            
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self.shouldForward setObject:[NSNumber numberWithBool:YES] forKey:packet.tag];
+            });
+            
+            // Dispatch after y seconds
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)((arc4random_uniform(2) + 1) * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                if ([[self.shouldForward objectForKey:packet.tag] boolValue])
+                {
+                    NSError *error;
+                    [self.cHandler sendData:[packet asNSData] toPeers:self.neighbourPeers error:&error];
+                }
+            });
+        }
+        else
+        {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self.shouldForward setObject:[NSNumber numberWithBool:NO] forKey:packet.tag];
+            });
+        }
+    }
+    else
+    {
         
     }
-    
 }
 
 - (void)cHandler:(MHConnectionsHandler *)cHandler
