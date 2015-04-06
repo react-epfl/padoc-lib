@@ -37,7 +37,8 @@
         self.joinMsgs = [[NSMutableDictionary alloc] init];
         self.shouldForward = [[NSMutableDictionary alloc] init];
         
-        self.scheduler = [[MH6ShotsScheduler alloc] initWithRoutingTable:self.routingTable];
+        self.scheduler = [[MH6ShotsScheduler alloc] initWithRoutingTable:self.routingTable
+                          withLocalhost:[self getOwnPeer]];
         self.scheduler.delegate = self;
         
         [[MHLocationManager getSingleton] start];
@@ -107,6 +108,7 @@
     
     dispatch_async(dispatch_get_main_queue(), ^{
         NSMutableDictionary *routes = [packet.info objectForKey:@"routes"];
+        
         for (id msgKey in self.joinMsgs)
         {
             MHPacket *msg = [self.joinMsgs objectForKey:msgKey];
@@ -119,6 +121,7 @@
             }
         }
     
+        [packet.info setObject:[[MHLocationManager getSingleton] getPosition] forKey:@"senderLocation"];
         NSError *error;
         [self.cHandler sendData:[packet asNSData] toPeers:self.neighbourPeers error:&error];
     });
@@ -133,14 +136,18 @@
             peer:(NSString *)peer
      displayName:(NSString *)displayName
 {
-    [self.neighbourPeers addObject:peer];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.neighbourPeers addObject:peer];
+    });
 }
 
 - (void)cHandler:(MHConnectionsHandler *)cHandler
  hasDisconnected:(NSString *)info
             peer:(NSString *)peer
 {
-    [self.neighbourPeers removeObject:peer];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.neighbourPeers removeObject:peer];
+    });
 }
 
 
@@ -180,6 +187,13 @@
                 [self.shouldForward setObject:[NSNumber numberWithBool:NO] forKey:packet.tag];
             });
         }
+    }
+    else if(msgType != nil && [msgType isEqualToString:@"-[routingtable-msg]-"]) // it's a neighbour routing table message
+    {
+        NSMutableDictionary *someRT = [packet.info objectForKey:@"routing-table"];
+        
+        [self.scheduler addNeighbourRoutingTable:someRT
+                                      withSource:packet.source];
     }
     else
     {

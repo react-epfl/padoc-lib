@@ -14,7 +14,9 @@
 #import "MH6ShotsSchedule.h"
 #import "MHPacket.h"
 
-#define MHRANGE 40.0
+#define MH6SHOTS_RANGE 40.0
+#define MH6SHOTS_PROCESSSCHEDULE_DELAY 500
+#define MH6SHOTS_OVERLAYMAINTENANCE_DELAY 500
 
 @protocol MH6ShotsSchedulerDelegate;
 
@@ -25,12 +27,16 @@
 @property (nonatomic, readwrite) NSMutableDictionary *schedules;
 
 #pragma mark - Initialization
-- (instancetype)initWithRoutingTable:(NSMutableDictionary*)routingTable;
+- (instancetype)initWithRoutingTable:(NSMutableDictionary*)routingTable
+                       withLocalhost:(NSString*)localhost;
 
 - (void)clear;
 
 
 - (void)setScheduleFromPacket:(MHPacket*)packet;
+
+- (void)addNeighbourRoutingTable:(NSMutableDictionary*)routingTable
+                      withSource:(NSString*)source;
 
 @end
 
