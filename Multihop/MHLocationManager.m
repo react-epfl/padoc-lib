@@ -13,9 +13,6 @@
 
 @interface MHLocation ()
 
-@property (nonatomic) double x;
-@property (nonatomic) double y;
-
 @end
 
 
@@ -26,6 +23,19 @@
     self = [super init];
     
     return self;
+}
+
+- (id)initWithCoder:(NSCoder *)decoder {
+    if (self = [super init]) {
+        self.x = [decoder decodeDoubleForKey:@"x"];
+        self.y = [decoder decodeDoubleForKey:@"y"];
+    }
+    return self;
+}
+
+- (void)encodeWithCoder:(NSCoder *)encoder {
+    [encoder encodeDouble:self.x forKey:@"x"];
+    [encoder encodeDouble:self.y forKey:@"y"];
 }
 
 @end
@@ -76,9 +86,11 @@ static MHLocationManager *locationManager = nil;
 
 - (MHLocation*)getPosition
 {
-    MHLocation *loc;
-    loc.x = self.position.x;
-    loc.y = self.position.y;
+    MHLocation *loc = [[MHLocation alloc] init];
+    //loc.x = self.position.x;
+    //loc.y = self.position.y;
+    loc.x = arc4random_uniform(30);
+    loc.y = arc4random_uniform(30);
     
     return loc;
 }

@@ -109,7 +109,8 @@
     dispatch_async(dispatch_get_main_queue(), ^{
         NSMutableDictionary *routes = [packet.info objectForKey:@"routes"];
         
-        for (id msgKey in self.joinMsgs)
+        NSArray *msgKeys = [self.joinMsgs allKeys];
+        for (id msgKey in msgKeys)
         {
             MHPacket *msg = [self.joinMsgs objectForKey:msgKey];
             if([packet.destinations containsObject:[msg.info objectForKey:@"groupName"]])
@@ -166,13 +167,14 @@
                 [self.joinMsgs setObject:packet forKey:packet.tag];
                 
                 int height = [[packet.info objectForKey:@"height"] intValue] + 1;
+                [packet.info setObject:[NSNumber numberWithInt:height] forKey:@"height"];
 
                 [self.routingTable setObject:[NSNumber numberWithInt:height] forKey:packet.source];
                 [self.shouldForward setObject:[NSNumber numberWithBool:YES] forKey:packet.tag];
                 
                 
                 // Dispatch after y seconds
-                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)((arc4random_uniform(2) + 1) * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)((arc4random_uniform(MH6SHOTS_JOINFORWARD_DELAY_RANGE) + MH6SHOTS_JOINFORWARD_DELAY_BASE) * NSEC_PER_MSEC)), dispatch_get_main_queue(), ^{
                     if ([[self.shouldForward objectForKey:packet.tag] boolValue])
                     {
                         NSError *error;
@@ -198,7 +200,8 @@
     else
     {
         NSMutableDictionary *routes = [packet.info objectForKey:@"routes"];
-        for (id routeKey in routes)
+        NSArray *routeKeys = [routes allKeys];
+        for (id routeKey in routeKeys)
         {
             int g = [[routes objectForKey:routeKey] intValue];
             

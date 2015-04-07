@@ -14,6 +14,9 @@
 #import "MH6ShotsScheduler.h"
 
 
+#define MH6SHOTS_JOINFORWARD_DELAY_RANGE 100
+#define MH6SHOTS_JOINFORWARD_DELAY_BASE 100
+
 @interface MH6ShotsProtocol : MHMulticastRoutingProtocol
 
 

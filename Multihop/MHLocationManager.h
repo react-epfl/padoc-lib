@@ -13,7 +13,7 @@
 #import <CoreLocation/CoreLocation.h>
 
 
-@interface MHLocation : NSObject
+@interface MHLocation : NSObject<NSCoding>
 
 @property (nonatomic, readwrite) double x;
 @property (nonatomic, readwrite) double y;
