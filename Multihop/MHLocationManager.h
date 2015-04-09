@@ -32,12 +32,15 @@
 
 - (void)stop;
 
-- (MHLocation*)getPosition;
+- (MHLocation*)getMPosition;
+- (MHLocation*)getGPSPosition;
 
 
 + (MHLocationManager*)getSingleton;
 
-+ (double)getDistanceFromLocation:(MHLocation*)l1 toLocation:(MHLocation*)l2;
++ (double)getDistanceFromMLocation:(MHLocation*)l1 toMLocation:(MHLocation*)l2;
+
++ (double)getDistanceFromGPSLocation:(MHLocation*)l1 toGPSLocation:(MHLocation*)l2;
 
 @end
 

@@ -122,7 +122,7 @@
             }
         }
     
-        [packet.info setObject:[[MHLocationManager getSingleton] getPosition] forKey:@"senderLocation"];
+        [packet.info setObject:[[MHLocationManager getSingleton] getMPosition] forKey:@"senderLocation"];
         NSError *error;
         [self.cHandler sendData:[packet asNSData] toPeers:self.neighbourPeers error:&error];
     });

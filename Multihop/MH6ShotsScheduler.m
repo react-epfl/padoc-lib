@@ -55,7 +55,7 @@
                     if(schedule.time != -1 && schedule.time <= currTime)
                     {
                         [weakSelf updateRoutes:[schedule.packet.info objectForKey:@"routes"] withWeakSelf:weakSelf];
-                        [schedule.packet.info setObject:[[MHLocationManager getSingleton] getPosition] forKey:@"senderLocation"];
+                        [schedule.packet.info setObject:[[MHLocationManager getSingleton] getMPosition] forKey:@"senderLocation"];
                         
                         [weakSelf.delegate mhScheduler:weakSelf broadcastPacket:schedule.packet];
                         
@@ -97,7 +97,7 @@
 
                             }
                             
-                            [weakSelf.routingTable setObject:[NSNumber numberWithInt:newG] forKey:rtKey];
+                            [weakSelf.routingTable setObject:[NSNumber numberWithInt:newG+1] forKey:rtKey];
                         }
                     }
                     [weakSelf.neighbourRoutingTables removeAllObjects];
@@ -185,7 +185,7 @@
 
 - (NSInteger)getDelay:(MHPacket*)packet
 {
-    MHLocation *myLoc = [[MHLocationManager getSingleton] getPosition];
+    MHLocation *myLoc = [[MHLocationManager getSingleton] getMPosition];
     double d = -1.0;
     
     NSArray *targets = [self getTargets:[packet.info objectForKey:@"senderLocation"]];
@@ -194,9 +194,9 @@
     {
         MHLocation *target = (MHLocation*)targetObj;
         
-        if([MHLocationManager getDistanceFromLocation:myLoc toLocation:target] < d || d == -1.0)
+        if([MHLocationManager getDistanceFromMLocation:myLoc toMLocation:target] < d || d == -1.0)
         {
-            d = [MHLocationManager getDistanceFromLocation:myLoc toLocation:target];
+            d = [MHLocationManager getDistanceFromMLocation:myLoc toMLocation:target];
         }
     }
     
