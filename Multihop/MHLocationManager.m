@@ -43,18 +43,33 @@
 
 
 
-@interface MHLocationManager () <CLLocationManagerDelegate>
+@interface MHLocationManager () <CLLocationManagerDelegate, CBPeripheralManagerDelegate>
 
 @property (nonatomic, strong) CLLocationManager *locationManager;
-@property (nonatomic) MHLocation *position;
+
+@property (nonatomic, strong) MHLocation *position;
+
+@property (nonatomic, strong) NSMutableDictionary *beacons;
+@property (nonatomic, strong) CLBeaconRegion *ownBeaconRegion;
+@property (nonatomic, strong) NSDictionary *beaconPeripheralData;
+@property (nonatomic, strong) CBPeripheralManager *peripheralManager;
+
+@property (nonatomic) BOOL started;
 
 @end
 
+
+#pragma mark - Singleton static variables
+
 static MHLocationManager *locationManager = nil;
+static NSString *beaconID = @"";
+
+
+
 
 @implementation MHLocationManager
 
-- (instancetype)init
+- (instancetype)initWithBeaconID:(NSString*)beaconID
 {
     self = [super init];
     
@@ -71,24 +86,102 @@ static MHLocationManager *locationManager = nil;
         }
         self.locationManager.desiredAccuracy = kCLLocationAccuracyBest;
         
+        
+        
         self.position = [[MHLocation alloc] init];
         
         CLLocation *curPos = self.locationManager.location;
 
         self.position.x = curPos.coordinate.longitude;
         self.position.y = curPos.coordinate.latitude;
+        
+        
+        self.started = NO;
+        self.beacons = [[NSMutableDictionary alloc] init];
+        
+        // Create the beacon region.
+        self.ownBeaconRegion = [[CLBeaconRegion alloc]
+                                initWithProximityUUID:[[NSUUID alloc]initWithUUIDString:beaconID]
+                                           identifier:beaconID];
+        
+        // Create a dictionary of advertisement data.
+        self.beaconPeripheralData = [self.ownBeaconRegion peripheralDataWithMeasuredPower:nil];
+        
+        // Create the peripheral manager.
+        self.peripheralManager = [[CBPeripheralManager alloc]
+                                 initWithDelegate:self queue:nil options:nil];
     }
     return self;
+}
+
+- (void)dealloc
+{
+    [self.beacons removeAllObjects];
+    self.beacons = nil;
+    self.locationManager = nil;
 }
 
 - (void)start
 {
     [self.locationManager startUpdatingLocation];
+  
+    for (id beaconKey in self.beacons.allKeys)
+    {
+        CLBeaconRegion *beacon = [self.beacons objectForKey:beaconKey];
+        
+        [self.locationManager startMonitoringForRegion:beacon];
+    }
+    
+    // Start advertising the beacon's data.
+    [self.peripheralManager startAdvertising:self.beaconPeripheralData];
+    
+    self.started = YES;
 }
 
 - (void)stop
 {
     [self.locationManager stopUpdatingLocation];
+    
+    for (id beaconKey in self.beacons.allKeys)
+    {
+        CLBeaconRegion *beacon = [self.beacons objectForKey:beaconKey];
+        
+        [self.locationManager stopMonitoringForRegion:beacon];
+    }
+    
+    [self.peripheralManager stopAdvertising];
+    
+    self.started = NO;
+}
+
+
+- (void)registerBeaconRegionWithUUID:(NSString *)proximityUUID
+{
+    
+    // Create the beacon region to be monitored.
+    CLBeaconRegion *beaconRegion = [[CLBeaconRegion alloc]
+                                    initWithProximityUUID:[[NSUUID alloc] initWithUUIDString:proximityUUID]
+                                    identifier:proximityUUID];
+    
+    [self.beacons setObject:beaconRegion forKey:proximityUUID];
+
+    if(self.started)
+    {
+        // Register the beacon region with the location manager.
+        [self.locationManager startMonitoringForRegion:beaconRegion];
+    }
+}
+
+- (void)unregisterBeaconRegionWithUUID:(NSString *)proximityUUID
+{
+    CLBeaconRegion *beaconRegion = [self.beacons objectForKey:proximityUUID];
+
+    if(self.started)
+    {
+        [self.locationManager stopMonitoringForRegion:beaconRegion];
+    }
+    
+    [self.beacons removeObjectForKey:proximityUUID];
 }
 
 - (MHLocation*)getGPSPosition
@@ -103,7 +196,7 @@ static MHLocationManager *locationManager = nil;
 - (MHLocation*)getMPosition
 {
     MHLocation *loc = [[MHLocation alloc] init];
-    
+    /*
     MHLocation *origin = [[MHLocation alloc] init];
     origin.x = 0.0;
     origin.y = 0.0;
@@ -119,12 +212,15 @@ static MHLocationManager *locationManager = nil;
     target.x = 0.0;
     target.y = self.position.y;
     loc.y = [MHLocationManager getDistanceFromGPSLocation:origin toGPSLocation:target] * [MHLocationManager sign:self.position.y];
+*/
+    loc.x = arc4random_uniform(30);
+    loc.y = arc4random_uniform(30);
     
     return loc;
 }
 
 
-
+#pragma mark - CCLocationManagerDelegate methods
 - (void) locationManager:(CLLocationManager *)manager
      didUpdateToLocation:(CLLocation *)newLocation
             fromLocation:(CLLocation *)oldLocation
@@ -139,18 +235,54 @@ static MHLocationManager *locationManager = nil;
     NSLog(@"%@", @"Core location can't get a fix.");
 }
 
+- (void)locationManager:(CLLocationManager *)manager
+        didRangeBeacons:(NSArray *)beacons
+               inRegion:(CLBeaconRegion *)region
+{
+    NSLog(@"didrangebeacon");
+    if ([beacons count] > 0) {
+        CLBeacon *nearestExhibit = [beacons firstObject];
+        
+        // Present the exhibit-specific UI only when
+        // the user is relatively close to the exhibit.
+        
+        if (CLProximityNear == nearestExhibit.proximity) {
+            NSLog(@"near");
+        } else {
+            NSLog(@"far");
+        }
+    }
+}
+
+#pragma mark - CBPeripheralManagerDelegate methods
+- (void)peripheralManagerDidUpdateState:(CBPeripheralManager *)peripheral
+{
+    if(peripheral.state == CBPeripheralManagerStateUnsupported)
+    {
+        NSLog(@"Ibeacon unsupported");
+    }
+}
+
+
+#pragma mark - Singleton methods
++ (void)setBeaconIDWithPeerID:(NSString*)peerID
+{
+    beaconID = peerID;
+}
 
 + (MHLocationManager*)getSingleton
 {
     if (locationManager == nil)
     {
-        locationManager = [[MHLocationManager alloc] init];
+        locationManager = [[MHLocationManager alloc] initWithBeaconID:beaconID];
     }
     
     return locationManager;
 }
 
 
+
+#pragma mark - GPS methods
 // We assume these are meter coordinates
 + (double)getDistanceFromMLocation:(MHLocation*)l1 toMLocation:(MHLocation*)l2
 {

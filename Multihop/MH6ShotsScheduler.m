@@ -48,6 +48,7 @@
                 NSInteger currTime = [d timeIntervalSince1970];
                 
                 NSArray *scheduleKeys = [weakSelf.schedules allKeys];
+                
                 for(id scheduleKey in scheduleKeys)
                 {
                     MH6ShotsSchedule *schedule = [weakSelf.schedules objectForKey:scheduleKey];
@@ -57,10 +58,11 @@
                         [weakSelf updateRoutes:[schedule.packet.info objectForKey:@"routes"] withWeakSelf:weakSelf];
                         [schedule.packet.info setObject:[[MHLocationManager getSingleton] getMPosition] forKey:@"senderLocation"];
                         
-                        [weakSelf.delegate mhScheduler:weakSelf broadcastPacket:schedule.packet];
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            [weakSelf.delegate mhScheduler:weakSelf broadcastPacket:schedule.packet];
+                        });
                         
-                        // Should??
-                        //[weakSelf.schedules removeObjectForKey:scheduleKey];
+                        schedule.time = -1;
                     }
                 }
                 
@@ -119,7 +121,7 @@
 
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(MH6SHOTS_PROCESSSCHEDULE_DELAY * NSEC_PER_MSEC)), dispatch_get_main_queue(), self.processSchedule);
         
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(MH6SHOTS_OVERLAYMAINTENANCE_DELAY * NSEC_PER_MSEC)), dispatch_get_main_queue(), self.overlayMaintenance);
+        //dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(MH6SHOTS_OVERLAYMAINTENANCE_DELAY * NSEC_PER_MSEC)), dispatch_get_main_queue(), self.overlayMaintenance);
     }
     
     return self;
@@ -149,8 +151,6 @@
             if (schedule != nil)
             {
                 schedule.time = -1;
-                // Should??
-                //[self.schedules removeObjectForKey:packet.tag];
             }
             else
             {

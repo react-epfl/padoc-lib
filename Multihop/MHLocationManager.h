@@ -11,6 +11,7 @@
 
 #import <Foundation/Foundation.h>
 #import <CoreLocation/CoreLocation.h>
+#import <CoreBluetooth/CoreBluetooth.h>
 
 
 @interface MHLocation : NSObject<NSCoding>
@@ -26,16 +27,19 @@
 
 @interface MHLocationManager : NSObject
 
-- (instancetype)init;
+- (instancetype)initWithBeaconID:(NSString*)beaconID;
 
 - (void)start;
-
 - (void)stop;
+
+- (void)registerBeaconRegionWithUUID:(NSString *)proximityUUID;
+- (void)unregisterBeaconRegionWithUUID:(NSString *)proximityUUID;
 
 - (MHLocation*)getMPosition;
 - (MHLocation*)getGPSPosition;
 
 
++ (void)setBeaconIDWithPeerID:(NSString*)peerID;
 + (MHLocationManager*)getSingleton;
 
 + (double)getDistanceFromMLocation:(MHLocation*)l1 toMLocation:(MHLocation*)l2;

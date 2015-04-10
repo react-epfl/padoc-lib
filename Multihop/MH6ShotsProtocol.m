@@ -41,6 +41,7 @@
                           withLocalhost:[self getOwnPeer]];
         self.scheduler.delegate = self;
         
+        [MHLocationManager setBeaconIDWithPeerID:[self getOwnPeer]];
         [[MHLocationManager getSingleton] start];
         [self.cHandler connectToAll];
     }
@@ -138,6 +139,7 @@
      displayName:(NSString *)displayName
 {
     dispatch_async(dispatch_get_main_queue(), ^{
+        [[MHLocationManager getSingleton] registerBeaconRegionWithUUID:peer];
         [self.neighbourPeers addObject:peer];
     });
 }
@@ -147,6 +149,7 @@
             peer:(NSString *)peer
 {
     dispatch_async(dispatch_get_main_queue(), ^{
+        [[MHLocationManager getSingleton] unregisterBeaconRegionWithUUID:peer];
         [self.neighbourPeers removeObject:peer];
     });
 }
