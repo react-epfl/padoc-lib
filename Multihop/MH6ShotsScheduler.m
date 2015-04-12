@@ -19,6 +19,7 @@
 
 @property (copy) void (^processSchedule)(void);
 @property (copy) void (^overlayMaintenance)(void);
+@property (copy) void (^scheduleCleaning)(void);
 
 @end
 
@@ -41,90 +42,124 @@
         MH6ShotsScheduler * __weak weakSelf = self;
         
 
-        self.processSchedule = ^{
-            if (weakSelf)
-            {
-                NSDate* d = [NSDate date];
-                NSInteger currTime = [d timeIntervalSince1970];
-                
-                NSArray *scheduleKeys = [weakSelf.schedules allKeys];
-                
-                for(id scheduleKey in scheduleKeys)
-                {
-                    MH6ShotsSchedule *schedule = [weakSelf.schedules objectForKey:scheduleKey];
-                    
-                    if(schedule.time != -1 && schedule.time <= currTime)
-                    {
-                        [weakSelf updateRoutes:[schedule.packet.info objectForKey:@"routes"] withWeakSelf:weakSelf];
-                        [schedule.packet.info setObject:[[MHLocationManager getSingleton] getMPosition] forKey:@"senderLocation"];
-                        
-                        dispatch_async(dispatch_get_main_queue(), ^{
-                            [weakSelf.delegate mhScheduler:weakSelf broadcastPacket:schedule.packet];
-                        });
-                        
-                        schedule.time = -1;
-                    }
-                }
-                
-                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(MH6SHOTS_PROCESSSCHEDULE_DELAY * NSEC_PER_MSEC)), dispatch_get_main_queue(), weakSelf.processSchedule);
-            }
-        };
-        
-        
-        self.overlayMaintenance = ^{
-            if (weakSelf)
-            {
-                if (weakSelf.neighbourRoutingTables.count > 0)
-                {
-                    NSArray *rtKeys = [weakSelf.routingTable allKeys];
-                    for(id rtKey in rtKeys)
-                    {
-                        NSNumber *g = [weakSelf.routingTable objectForKey:rtKey];
-                        
-                        if([g intValue] != 0)
-                        {
-                            int newG = -1;
-                            
-                            NSArray *nrtKeys = [weakSelf.neighbourRoutingTables allKeys];
-                            for(id nrtKey in nrtKeys)
-                            {
-                                NSDictionary *nRoutingTable = [weakSelf.neighbourRoutingTables objectForKey:nrtKey];
-                                
-                                NSNumber *gp = [nRoutingTable objectForKey:rtKey];
-                                
-                                if(gp != nil && ([gp intValue] < newG || newG == -1))
-                                {
-                                    newG = [gp intValue];
-                                }
-
-                            }
-                            
-                            [weakSelf.routingTable setObject:[NSNumber numberWithInt:newG+1] forKey:rtKey];
-                        }
-                    }
-                    [weakSelf.neighbourRoutingTables removeAllObjects];
-                }
-                
-                MHPacket *packet = [[MHPacket alloc] initWithSource:weakSelf.localhost
-                                                   withDestinations:[[NSArray alloc] init]
-                                                           withData:[@"" dataUsingEncoding:NSUTF8StringEncoding]];
-                
-                [packet.info setObject:@"-[routingtable-msg]-" forKey:@"message-type"];
-                [packet.info setObject:weakSelf.routingTable forKey:@"routing-table"];
-                
-                [weakSelf.delegate mhScheduler:weakSelf broadcastPacket:packet];
-
-                
-                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(MH6SHOTS_OVERLAYMAINTENANCE_DELAY * NSEC_PER_MSEC)), dispatch_get_main_queue(), weakSelf.overlayMaintenance);
-            }
-        };
-
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(MH6SHOTS_PROCESSSCHEDULE_DELAY * NSEC_PER_MSEC)), dispatch_get_main_queue(), self.processSchedule);
-        
-        //dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(MH6SHOTS_OVERLAYMAINTENANCE_DELAY * NSEC_PER_MSEC)), dispatch_get_main_queue(), self.overlayMaintenance);
+        [self setFctProcessSchedule:weakSelf];
+        [self setFctOverlayMaintenance:weakSelf];
+        [self setFctScheduleCleaning:weakSelf];
     }
     
     return self;
+}
+
+
+- (void)setFctProcessSchedule:(MH6ShotsScheduler * __weak)weakSelf
+{
+    self.processSchedule = ^{
+        if (weakSelf)
+        {
+            NSInteger currTime = [[NSDate date] timeIntervalSince1970];
+            
+            NSArray *scheduleKeys = [weakSelf.schedules allKeys];
+            
+            for(id scheduleKey in scheduleKeys)
+            {
+                MH6ShotsSchedule *schedule = [weakSelf.schedules objectForKey:scheduleKey];
+                
+                if(schedule.forward && schedule.time <= currTime)
+                {
+                    [weakSelf updateRoutes:[schedule.packet.info objectForKey:@"routes"] withWeakSelf:weakSelf];
+                    [schedule.packet.info setObject:[[MHLocationManager getSingleton] getMPosition] forKey:@"senderLocation"];
+                    
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        [weakSelf.delegate mhScheduler:weakSelf broadcastPacket:schedule.packet];
+                    });
+                }
+            }
+            
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(MH6SHOTS_PROCESSSCHEDULE_DELAY * NSEC_PER_MSEC)), dispatch_get_main_queue(), weakSelf.processSchedule);
+        }
+    };
+    
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(MH6SHOTS_PROCESSSCHEDULE_DELAY * NSEC_PER_MSEC)), dispatch_get_main_queue(), self.processSchedule);
+}
+
+- (void)setFctOverlayMaintenance:(MH6ShotsScheduler * __weak)weakSelf
+{
+    self.overlayMaintenance = ^{
+        if (weakSelf)
+        {
+            if (weakSelf.neighbourRoutingTables.count > 0)
+            {
+                NSArray *rtKeys = [weakSelf.routingTable allKeys];
+                for(id rtKey in rtKeys)
+                {
+                    NSNumber *g = [weakSelf.routingTable objectForKey:rtKey];
+                    
+                    if([g intValue] != 0)
+                    {
+                        int newG = -1;
+                        
+                        NSArray *nrtKeys = [weakSelf.neighbourRoutingTables allKeys];
+                        for(id nrtKey in nrtKeys)
+                        {
+                            NSDictionary *nRoutingTable = [weakSelf.neighbourRoutingTables objectForKey:nrtKey];
+                            
+                            NSNumber *gp = [nRoutingTable objectForKey:rtKey];
+                            
+                            if(gp != nil && ([gp intValue] < newG || newG == -1))
+                            {
+                                newG = [gp intValue];
+                            }
+                            
+                        }
+                        
+                        [weakSelf.routingTable setObject:[NSNumber numberWithInt:newG+1] forKey:rtKey];
+                    }
+                }
+                [weakSelf.neighbourRoutingTables removeAllObjects];
+            }
+            
+            MHPacket *packet = [[MHPacket alloc] initWithSource:weakSelf.localhost
+                                               withDestinations:[[NSArray alloc] init]
+                                                       withData:[@"" dataUsingEncoding:NSUTF8StringEncoding]];
+            
+            [packet.info setObject:@"-[routingtable-msg]-" forKey:@"message-type"];
+            [packet.info setObject:weakSelf.routingTable forKey:@"routing-table"];
+            
+            [weakSelf.delegate mhScheduler:weakSelf broadcastPacket:packet];
+            
+            
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(MH6SHOTS_OVERLAYMAINTENANCE_DELAY * NSEC_PER_MSEC)), dispatch_get_main_queue(), weakSelf.overlayMaintenance);
+        }
+    };
+    
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(MH6SHOTS_OVERLAYMAINTENANCE_DELAY * NSEC_PER_MSEC)), dispatch_get_main_queue(), self.overlayMaintenance);
+}
+
+- (void)setFctScheduleCleaning:(MH6ShotsScheduler * __weak)weakSelf
+{
+    self.overlayMaintenance = ^{
+        if (weakSelf)
+        {
+            NSInteger currTime = [[NSDate date] timeIntervalSince1970];
+
+            NSArray *scheduleKeys = [weakSelf.schedules allKeys];
+            for(id scheduleKey in scheduleKeys)
+            {
+                MH6ShotsSchedule *schedule = [weakSelf.schedules objectForKey:scheduleKey];
+                
+            
+                if (!schedule.forward && currTime - schedule.time >= MH6SHOTS_CLEANING_DELAY)
+                {
+                    [weakSelf.schedules removeObjectForKey:scheduleKey];
+                }
+            }
+            
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(MH6SHOTS_SCHEDULECLEANING_DELAY * NSEC_PER_MSEC)), dispatch_get_main_queue(), weakSelf.scheduleCleaning);
+        }
+    };
+
+    
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(MH6SHOTS_SCHEDULECLEANING_DELAY * NSEC_PER_MSEC)), dispatch_get_main_queue(), self.scheduleCleaning);
 }
 
 - (void)dealloc
@@ -150,12 +185,11 @@
             
             if (schedule != nil)
             {
-                schedule.time = -1;
+                schedule.forward = NO;
             }
             else
             {
-                NSDate* d = [NSDate date];
-                NSInteger t = [d timeIntervalSince1970] + [self getDelay:packet];
+                NSInteger t = [[NSDate date] timeIntervalSince1970] + [self getDelay:packet];
                 [self.schedules setObject:[[MH6ShotsSchedule alloc] initWithPacket:packet withTime:t]
                                    forKey:packet.tag];
             }

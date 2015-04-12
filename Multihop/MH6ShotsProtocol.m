@@ -206,9 +206,9 @@
         NSArray *routeKeys = [routes allKeys];
         for (id routeKey in routeKeys)
         {
-            int g = [[routes objectForKey:routeKey] intValue];
+            NSNumber *g = [self.routingTable objectForKey:routeKey];
             
-            if(g == 0)
+            if(g != nil && [g intValue] == 0)
             {
                 [routes removeObjectForKey:routeKey];
                 dispatch_async(dispatch_get_main_queue(), ^{

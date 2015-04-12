@@ -27,6 +27,7 @@
     {
         self.packet = packet;
         self.time = time;
+        self.forward = YES;
     }
     
     return self;

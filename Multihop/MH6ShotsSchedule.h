@@ -17,6 +17,7 @@
 @property (nonatomic, readonly) MHPacket *packet;
 
 @property (nonatomic, readwrite) NSInteger time;
+@property (nonatomic, readwrite) BOOL forward;
 
 #pragma mark - Initialization
 - (instancetype)initWithPacket:(MHPacket *)packet
