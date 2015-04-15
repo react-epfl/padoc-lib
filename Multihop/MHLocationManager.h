@@ -28,7 +28,8 @@
 
 @interface MHLocationManager : NSObject
 
-- (instancetype)initWithBeaconID:(NSString*)beaconID;
+- (instancetype)initWithBeaconID:(NSString*)beaconID
+                         withGPS:(BOOL) useGPS;
 
 - (void)start;
 - (void)stop;
@@ -39,6 +40,7 @@
 - (MHLocation*)getMPosition;
 - (MHLocation*)getGPSPosition;
 
+- (CLProximity)getProximityForUUID:(NSString *)proximityUUID;
 
 + (void)setBeaconIDWithPeerID:(NSString*)peerID;
 + (MHLocationManager*)getSingleton;

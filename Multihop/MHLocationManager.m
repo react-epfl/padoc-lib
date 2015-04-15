@@ -50,12 +50,14 @@
 @property (nonatomic, strong) MHLocation *position;
 
 @property (nonatomic, strong) NSMutableDictionary *beacons;
+@property (nonatomic, strong) NSMutableDictionary *beaconsProximity;
 @property (nonatomic, strong) CLBeaconRegion *ownBeaconRegion;
 @property (nonatomic, strong) NSDictionary *beaconPeripheralData;
 @property (nonatomic, strong) CBPeripheralManager *peripheralManager;
 
 @property (nonatomic) BOOL started;
 @property (nonatomic) BOOL beaconActive;
+@property (nonatomic) BOOL useGPS;
 
 @end
 
@@ -71,11 +73,14 @@ static NSString *beaconID = @"";
 @implementation MHLocationManager
 
 - (instancetype)initWithBeaconID:(NSString*)beaconID
+                         withGPS:(BOOL) useGPS
 {
     self = [super init];
     
     if(self)
     {
+        self.useGPS = useGPS;
+        
         self.locationManager = [[CLLocationManager alloc] init];
         self.locationManager.delegate = self;
         
@@ -100,6 +105,7 @@ static NSString *beaconID = @"";
         self.started = NO;
         self.beaconActive = NO;
         self.beacons = [[NSMutableDictionary alloc] init];
+        self.beaconsProximity = [[NSMutableDictionary alloc] init];
         
         // Create the beacon region.
         self.ownBeaconRegion = [[CLBeaconRegion alloc]
@@ -120,12 +126,17 @@ static NSString *beaconID = @"";
 {
     [self.beacons removeAllObjects];
     self.beacons = nil;
+    [self.beaconsProximity removeAllObjects];
+    self.beaconsProximity = nil;
     self.locationManager = nil;
 }
 
 - (void)start
 {
-    [self.locationManager startUpdatingLocation];
+    if(self.useGPS)
+    {
+        [self.locationManager startUpdatingLocation];
+    }
   
     for (id beaconKey in self.beacons.allKeys)
     {
@@ -146,7 +157,10 @@ static NSString *beaconID = @"";
 
 - (void)stop
 {
-    [self.locationManager stopUpdatingLocation];
+    if(self.useGPS)
+    {
+        [self.locationManager stopUpdatingLocation];
+    }
     
     for (id beaconKey in self.beacons.allKeys)
     {
@@ -171,6 +185,9 @@ static NSString *beaconID = @"";
                                     identifier:[MHIdGenerator makeUniqueStringFromSource:proximityUUID]];
     
     [self.beacons setObject:beaconRegion forKey:proximityUUID];
+    
+    [self.beaconsProximity setObject:@(CLProximityUnknown) forKey:proximityUUID];
+    
 
     if(self.started)
     {
@@ -191,6 +208,7 @@ static NSString *beaconID = @"";
     }
     
     [self.beacons removeObjectForKey:proximityUUID];
+    [self.beaconsProximity removeObjectForKey:proximityUUID];
 }
 
 - (MHLocation*)getGPSPosition
@@ -227,6 +245,19 @@ static NSString *beaconID = @"";
 }
 
 
+- (CLProximity)getProximityForUUID:(NSString *)proximityUUID
+{
+    NSNumber *proximity = [self.beaconsProximity objectForKey:proximityUUID];
+    
+    if(proximity == nil)
+    {
+        return CLProximityUnknown;
+    }
+    
+    return [proximity integerValue];
+}
+
+
 #pragma mark - CCLocationManagerDelegate methods
 - (void) locationManager:(CLLocationManager *)manager
      didUpdateToLocation:(CLLocation *)newLocation
@@ -249,16 +280,16 @@ static NSString *beaconID = @"";
     if ([beacons count] > 0) {
         CLBeacon *nearestExhibit = [beacons firstObject];
         
-        NSLog([NSString stringWithFormat:@"%f", nearestExhibit.accuracy]);
-        if (nearestExhibit.proximity == CLProximityNear) {
-            NSLog(@"near");
-        } else if(nearestExhibit.proximity == CLProximityFar) {
-            NSLog(@"far");
-        }
-        else if(nearestExhibit.proximity == CLProximityUnknown)
+        if(nearestExhibit.proximity == CLProximityUnknown)
         {
-            NSLog(@"unknown");
+            NSLog(@"hidden");
         }
+        else
+        {
+            NSLog(@"visible");
+        }
+        
+        [self.beaconsProximity setObject:@(nearestExhibit.proximity) forKey:[region.proximityUUID UUIDString]];
     }
 }
 
@@ -301,7 +332,8 @@ static NSString *beaconID = @"";
 {
     if (locationManager == nil)
     {
-        locationManager = [[MHLocationManager alloc] initWithBeaconID:beaconID];
+        locationManager = [[MHLocationManager alloc] initWithBeaconID:beaconID
+                                                              withGPS:YES];
     }
     
     return locationManager;

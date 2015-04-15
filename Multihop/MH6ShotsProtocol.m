@@ -124,6 +124,7 @@
         }
     
         [packet.info setObject:[[MHLocationManager getSingleton] getMPosition] forKey:@"senderLocation"];
+        [packet.info setObject:[self getOwnPeer] forKey:@"senderID"];
         NSError *error;
         [self.cHandler sendData:[packet asNSData] toPeers:self.neighbourPeers error:&error];
     });
@@ -206,7 +207,9 @@
         NSArray *routeKeys = [routes allKeys];
         for (id routeKey in routeKeys)
         {
-            if ([routeKey isEqualToString:[self getOwnPeer]])
+            NSNumber *g = [self.routingTable objectForKey:routeKey];
+            
+            if (g != nil && [g intValue] == 0)
             {
                 [routes removeObjectForKey:routeKey];
                 dispatch_async(dispatch_get_main_queue(), ^{

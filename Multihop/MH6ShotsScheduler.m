@@ -68,10 +68,13 @@
                 {
                     [weakSelf updateRoutes:[schedule.packet.info objectForKey:@"routes"] withWeakSelf:weakSelf];
                     [schedule.packet.info setObject:[[MHLocationManager getSingleton] getMPosition] forKey:@"senderLocation"];
+                    [schedule.packet.info setObject:weakSelf.localhost forKey:@"senderID"];
                     
                     dispatch_async(dispatch_get_main_queue(), ^{
                         [weakSelf.delegate mhScheduler:weakSelf broadcastPacket:schedule.packet];
                     });
+                    
+                    schedule.forward = NO;
                 }
             }
             
@@ -234,11 +237,15 @@
         }
     }
     
-    return [self calculateDelay:d];
+    
+    return [self calculateDelayForDist:d
+                          withSenderID:[packet.info objectForKey:@"senderID"]];
 }
 
-- (NSInteger)calculateDelay:(double)dist
+- (NSInteger)calculateDelayForDist:(double)dist
+                      withSenderID:(NSString *)senderID
 {
+    CLProximity proximity = [[MHLocationManager getSingleton] getProximityForUUID:senderID];
     double delay = ((double)MH6SHOTS_TARGET_DELAY_RANGE/(double)MH6SHOTS_RANGE)*dist + (double)MH6SHOTS_TARGET_DELAY_BASE;
     
     if (delay < MH6SHOTS_TARGET_DELAY_BASE)
