@@ -12,6 +12,7 @@
 #import <Foundation/Foundation.h>
 #import <CoreLocation/CoreLocation.h>
 #import <CoreBluetooth/CoreBluetooth.h>
+#import "MHIdGenerator.h"
 
 
 @interface MHLocation : NSObject<NSCoding>

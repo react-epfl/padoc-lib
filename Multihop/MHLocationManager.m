@@ -55,6 +55,7 @@
 @property (nonatomic, strong) CBPeripheralManager *peripheralManager;
 
 @property (nonatomic) BOOL started;
+@property (nonatomic) BOOL beaconActive;
 
 @end
 
@@ -97,12 +98,13 @@ static NSString *beaconID = @"";
         
         
         self.started = NO;
+        self.beaconActive = NO;
         self.beacons = [[NSMutableDictionary alloc] init];
         
         // Create the beacon region.
         self.ownBeaconRegion = [[CLBeaconRegion alloc]
                                 initWithProximityUUID:[[NSUUID alloc]initWithUUIDString:beaconID]
-                                           identifier:beaconID];
+                                           identifier:[MHIdGenerator makeUniqueStringFromSource:beaconID]];
         
         // Create a dictionary of advertisement data.
         self.beaconPeripheralData = [self.ownBeaconRegion peripheralDataWithMeasuredPower:nil];
@@ -130,10 +132,14 @@ static NSString *beaconID = @"";
         CLBeaconRegion *beacon = [self.beacons objectForKey:beaconKey];
         
         [self.locationManager startMonitoringForRegion:beacon];
+        [self.locationManager startRangingBeaconsInRegion:beacon];
     }
     
-    // Start advertising the beacon's data.
-    [self.peripheralManager startAdvertising:self.beaconPeripheralData];
+    if(self.beaconActive)
+    {
+        // Start advertising the beacon's data.
+        [self.peripheralManager startAdvertising:self.beaconPeripheralData];
+    }
     
     self.started = YES;
 }
@@ -147,6 +153,7 @@ static NSString *beaconID = @"";
         CLBeaconRegion *beacon = [self.beacons objectForKey:beaconKey];
         
         [self.locationManager stopMonitoringForRegion:beacon];
+        [self.locationManager stopRangingBeaconsInRegion:beacon];
     }
     
     [self.peripheralManager stopAdvertising];
@@ -161,7 +168,7 @@ static NSString *beaconID = @"";
     // Create the beacon region to be monitored.
     CLBeaconRegion *beaconRegion = [[CLBeaconRegion alloc]
                                     initWithProximityUUID:[[NSUUID alloc] initWithUUIDString:proximityUUID]
-                                    identifier:proximityUUID];
+                                    identifier:[MHIdGenerator makeUniqueStringFromSource:proximityUUID]];
     
     [self.beacons setObject:beaconRegion forKey:proximityUUID];
 
@@ -169,6 +176,7 @@ static NSString *beaconID = @"";
     {
         // Register the beacon region with the location manager.
         [self.locationManager startMonitoringForRegion:beaconRegion];
+        [self.locationManager startRangingBeaconsInRegion:beaconRegion];
     }
 }
 
@@ -179,6 +187,7 @@ static NSString *beaconID = @"";
     if(self.started)
     {
         [self.locationManager stopMonitoringForRegion:beaconRegion];
+        [self.locationManager stopRangingBeaconsInRegion:beaconRegion];
     }
     
     [self.beacons removeObjectForKey:proximityUUID];
@@ -196,7 +205,7 @@ static NSString *beaconID = @"";
 - (MHLocation*)getMPosition
 {
     MHLocation *loc = [[MHLocation alloc] init];
-    /*
+    
     MHLocation *origin = [[MHLocation alloc] init];
     origin.x = 0.0;
     origin.y = 0.0;
@@ -212,9 +221,7 @@ static NSString *beaconID = @"";
     target.x = 0.0;
     target.y = self.position.y;
     loc.y = [MHLocationManager getDistanceFromGPSLocation:origin toGPSLocation:target] * [MHLocationManager sign:self.position.y];
-*/
-    loc.x = arc4random_uniform(30);
-    loc.y = arc4random_uniform(30);
+
     
     return loc;
 }
@@ -232,24 +239,25 @@ static NSString *beaconID = @"";
 - (void) locationManager:(CLLocationManager *)manager
         didFailWithError:(NSError *)error
 {
-    NSLog(@"%@", @"Core location can't get a fix.");
+    NSLog(@"Problem encountered during the Location Manager initialization");
 }
 
 - (void)locationManager:(CLLocationManager *)manager
         didRangeBeacons:(NSArray *)beacons
                inRegion:(CLBeaconRegion *)region
 {
-    NSLog(@"didrangebeacon");
     if ([beacons count] > 0) {
         CLBeacon *nearestExhibit = [beacons firstObject];
         
-        // Present the exhibit-specific UI only when
-        // the user is relatively close to the exhibit.
-        
-        if (CLProximityNear == nearestExhibit.proximity) {
+        NSLog([NSString stringWithFormat:@"%f", nearestExhibit.accuracy]);
+        if (nearestExhibit.proximity == CLProximityNear) {
             NSLog(@"near");
-        } else {
+        } else if(nearestExhibit.proximity == CLProximityFar) {
             NSLog(@"far");
+        }
+        else if(nearestExhibit.proximity == CLProximityUnknown)
+        {
+            NSLog(@"unknown");
         }
     }
 }
@@ -260,6 +268,25 @@ static NSString *beaconID = @"";
     if(peripheral.state == CBPeripheralManagerStateUnsupported)
     {
         NSLog(@"Ibeacon unsupported");
+    }
+    else if(peripheral.state == CBPeripheralManagerStatePoweredOn)
+    {
+        if(self.started)
+        {
+            // Start advertising the beacon's data.
+            [self.peripheralManager startAdvertising:self.beaconPeripheralData];
+        }
+        
+        self.beaconActive = YES;
+    }
+    else if(peripheral.state == CBPeripheralManagerStatePoweredOff)
+    {
+        if (self.started)
+        {
+            [self.peripheralManager stopAdvertising];
+        }
+        
+        self.beaconActive = NO;
     }
 }
 

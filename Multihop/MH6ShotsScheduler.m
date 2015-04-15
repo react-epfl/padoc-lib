@@ -137,7 +137,7 @@
 
 - (void)setFctScheduleCleaning:(MH6ShotsScheduler * __weak)weakSelf
 {
-    self.overlayMaintenance = ^{
+    self.scheduleCleaning = ^{
         if (weakSelf)
         {
             NSInteger currTime = [[NSDate date] timeIntervalSince1970];
@@ -239,7 +239,18 @@
 
 - (NSInteger)calculateDelay:(double)dist
 {
-    return ((double)MH6SHOTS_TARGET_DELAY_RANGE/(double)MH6SHOTS_RANGE)*dist + (double)MH6SHOTS_TARGET_DELAY_BASE;
+    double delay = ((double)MH6SHOTS_TARGET_DELAY_RANGE/(double)MH6SHOTS_RANGE)*dist + (double)MH6SHOTS_TARGET_DELAY_BASE;
+    
+    if (delay < MH6SHOTS_TARGET_DELAY_BASE)
+    {
+        delay = MH6SHOTS_TARGET_DELAY_BASE;
+    }
+    else if(delay > MH6SHOTS_TARGET_DELAY_BASE + MH6SHOTS_TARGET_DELAY_RANGE)
+    {
+        delay = MH6SHOTS_TARGET_DELAY_BASE + MH6SHOTS_TARGET_DELAY_RANGE;
+    }
+    
+    return delay;
 }
 
 -(NSArray*)getTargets:(MHLocation*)senderLoc
