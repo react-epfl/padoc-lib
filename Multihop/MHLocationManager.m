@@ -270,7 +270,7 @@ static NSString *beaconID = @"";
 - (void) locationManager:(CLLocationManager *)manager
         didFailWithError:(NSError *)error
 {
-    NSLog(@"Problem encountered during the Location Manager initialization");
+    NSLog(@"The Location Manager encountered an error");
 }
 
 - (void)locationManager:(CLLocationManager *)manager

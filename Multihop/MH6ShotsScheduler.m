@@ -245,19 +245,43 @@
 - (NSInteger)calculateDelayForDist:(double)dist
                       withSenderID:(NSString *)senderID
 {
+    // GPS part
+    if (dist > MH6SHOTS_RANGE) // There was a GPS problem (value not possible)
+    {
+        dist = MH6SHOTS_RANGE;
+    }
+    
+    double gpsDelay = dist / (double)MH6SHOTS_RANGE;
+    
+    
+
+    // Ibeacons part
     CLProximity proximity = [[MHLocationManager getSingleton] getProximityForUUID:senderID];
-    double delay = ((double)MH6SHOTS_TARGET_DELAY_RANGE/(double)MH6SHOTS_RANGE)*dist + (double)MH6SHOTS_TARGET_DELAY_BASE;
+    double ibeaconsDelay = 0.0;
     
-    if (delay < MH6SHOTS_TARGET_DELAY_BASE)
-    {
-        delay = MH6SHOTS_TARGET_DELAY_BASE;
-    }
-    else if(delay > MH6SHOTS_TARGET_DELAY_BASE + MH6SHOTS_TARGET_DELAY_RANGE)
-    {
-        delay = MH6SHOTS_TARGET_DELAY_BASE + MH6SHOTS_TARGET_DELAY_RANGE;
+    switch (proximity) {
+        case CLProximityImmediate:
+            ibeaconsDelay = 1.0;
+            break;
+        case CLProximityNear:
+            ibeaconsDelay = 0.9;
+            break;
+        case CLProximityFar:
+            ibeaconsDelay = 0.5;
+            break;
+        case CLProximityUnknown:
+            ibeaconsDelay = 0.1;
+            break;
+        default:
+            ibeaconsDelay = 0.5;
+            break;
     }
     
-    return delay;
+    
+    // Final delay
+    double delayFraction = MH6SHOTS_GPS_FRACTION*gpsDelay + MH6SHOTS_IBEACONS_FRACTION*ibeaconsDelay;
+    
+    return (double)MH6SHOTS_TARGET_DELAY_RANGE*delayFraction + (double)MH6SHOTS_TARGET_DELAY_BASE;
 }
 
 -(NSArray*)getTargets:(MHLocation*)senderLoc
