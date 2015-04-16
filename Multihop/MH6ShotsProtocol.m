@@ -93,7 +93,35 @@
 
 - (void)leaveGroup:(NSString *)groupName
 {
-    // TODO: ???
+    MHPacket *packet = [[MHPacket alloc] initWithSource:[self getOwnPeer]
+                                       withDestinations:[[NSArray alloc] init]
+                                               withData:[@"" dataUsingEncoding:NSUTF8StringEncoding]];
+    
+    [packet.info setObject:@"-[leave-msg]-" forKey:@"message-type"];
+    [packet.info setObject:groupName forKey:@"groupName"];
+    
+    NSString *tag = @"";
+    NSArray *msgKeys = [self.joinMsgs allKeys];
+    for (id msgKey in msgKeys)
+    {
+        MHPacket *msg = [self.joinMsgs objectForKey:msgKey];
+        
+        if([msg.source isEqualToString:packet.source] &&
+           [[msg.info objectForKey:@"groupName"] isEqualToString:groupName])
+        {
+            tag = msg.tag;
+        }
+    }
+    
+    [packet.info setObject:tag forKey:@"tag"];
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.shouldForward removeObjectForKey:tag];
+        [self.joinMsgs removeObjectForKey:tag];
+        
+        NSError *error;
+        [self.cHandler sendData:[packet asNSData] toPeers:self.neighbourPeers error:&error];
+    });
 }
 
 
@@ -191,6 +219,24 @@
         {
             dispatch_async(dispatch_get_main_queue(), ^{
                 [self.shouldForward setObject:[NSNumber numberWithBool:NO] forKey:packet.tag];
+            });
+        }
+    }
+    else if (msgType != nil && [msgType isEqualToString:@"-[leave-msg]-"]) // it's a leave message
+    {
+        NSString *tag = [packet.info objectForKey:@"tag"];
+        
+        if ([self.joinMsgs objectForKey:packet.tag])
+        {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self.joinMsgs removeObjectForKey:tag];
+                [self.shouldForward removeObjectForKey:tag];
+                
+                // Dispatch after y seconds
+                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)((arc4random_uniform(MH6SHOTS_JOINFORWARD_DELAY_RANGE) + MH6SHOTS_JOINFORWARD_DELAY_BASE) * NSEC_PER_MSEC)), dispatch_get_main_queue(), ^{
+                    NSError *error;
+                    [self.cHandler sendData:[packet asNSData] toPeers:self.neighbourPeers error:&error];
+                });
             });
         }
     }
