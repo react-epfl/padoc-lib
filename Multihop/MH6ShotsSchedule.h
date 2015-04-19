@@ -16,12 +16,12 @@
 
 @property (nonatomic, readonly) MHPacket *packet;
 
-@property (nonatomic, readwrite) NSInteger time;
+@property (nonatomic, readwrite) NSTimeInterval time;
 @property (nonatomic, readwrite) BOOL forward;
 
 #pragma mark - Initialization
 - (instancetype)initWithPacket:(MHPacket *)packet
-                      withTime:(NSInteger)time;
+                      withTime:(NSTimeInterval)time;
 
 
 @end

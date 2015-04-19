@@ -158,7 +158,7 @@
              peer:(NSString *)peer
       displayName:(NSString *)displayName
 {
-    NSLog(@"Peer connected");
+    NSLog([NSString stringWithFormat:@"Peer connected %@", peer]);
     MHConnectionBuffer *buf = [self.buffers objectForKey:peer];
     
     // A peer connects for the first time, we notify the above layers

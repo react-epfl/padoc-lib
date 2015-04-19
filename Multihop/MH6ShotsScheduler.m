@@ -56,7 +56,7 @@
     self.processSchedule = ^{
         if (weakSelf)
         {
-            NSInteger currTime = [[NSDate date] timeIntervalSince1970];
+            NSTimeInterval currTime = [[NSDate date] timeIntervalSince1970];
             
             NSArray *scheduleKeys = [weakSelf.schedules allKeys];
             
@@ -143,7 +143,7 @@
     self.scheduleCleaning = ^{
         if (weakSelf)
         {
-            NSInteger currTime = [[NSDate date] timeIntervalSince1970];
+            NSTimeInterval currTime = [[NSDate date] timeIntervalSince1970];
 
             NSArray *scheduleKeys = [weakSelf.schedules allKeys];
             for(id scheduleKey in scheduleKeys)
@@ -192,7 +192,7 @@
             }
             else
             {
-                NSInteger t = [[NSDate date] timeIntervalSince1970] + [self getDelay:packet];
+                NSTimeInterval t = [[NSDate date] timeIntervalSince1970] + [self getDelay:packet];
                 [self.schedules setObject:[[MH6ShotsSchedule alloc] initWithPacket:packet withTime:t]
                                    forKey:packet.tag];
             }
@@ -220,7 +220,7 @@
 }
 
 
-- (NSInteger)getDelay:(MHPacket*)packet
+- (NSTimeInterval)getDelay:(MHPacket*)packet
 {
     MHLocation *myLoc = [[MHLocationManager getSingleton] getMPosition];
     double d = -1.0;
@@ -242,7 +242,7 @@
                           withSenderID:[packet.info objectForKey:@"senderID"]];
 }
 
-- (NSInteger)calculateDelayForDist:(double)dist
+- (NSTimeInterval)calculateDelayForDist:(double)dist
                       withSenderID:(NSString *)senderID
 {
     // GPS part
@@ -281,7 +281,11 @@
     // Final delay
     double delayFraction = MH6SHOTS_GPS_FRACTION*gpsDelay + MH6SHOTS_IBEACONS_FRACTION*ibeaconsDelay;
     
-    return (double)MH6SHOTS_TARGET_DELAY_RANGE*delayFraction + (double)MH6SHOTS_TARGET_DELAY_BASE;
+    // In milliseconds
+    double delay = (double)MH6SHOTS_TARGET_DELAY_RANGE*delayFraction + (double)MH6SHOTS_TARGET_DELAY_BASE;
+    
+    // Transform to NSTimeInterval (seconds)
+    return delay / 1000.0;
 }
 
 -(NSArray*)getTargets:(MHLocation*)senderLoc

@@ -279,7 +279,7 @@ static NSString *beaconID = @"";
 {
     if ([beacons count] > 0) {
         CLBeacon *nearestExhibit = [beacons firstObject];
-        
+        /*
         if(nearestExhibit.proximity == CLProximityUnknown)
         {
             NSLog(@"hidden");
@@ -287,7 +287,7 @@ static NSString *beaconID = @"";
         else
         {
             NSLog(@"visible");
-        }
+        }*/
         
         [self.beaconsProximity setObject:@(nearestExhibit.proximity) forKey:[region.proximityUUID UUIDString]];
     }

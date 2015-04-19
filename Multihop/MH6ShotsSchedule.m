@@ -20,7 +20,7 @@
 
 #pragma mark - Initialization
 - (instancetype)initWithPacket:(MHPacket *)packet
-                      withTime:(NSInteger)time
+                      withTime:(NSTimeInterval)time
 {
     self = [super init];
     if (self)
