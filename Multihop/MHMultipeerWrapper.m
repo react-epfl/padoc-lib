@@ -239,16 +239,6 @@ didReceiveInvitationFromPeer:(MCPeerID *)peerID
 
 - (void)browser:(MCNearbyServiceBrowser *)browser foundPeer:(MCPeerID *)peerID withDiscoveryInfo:(NSDictionary *)info
 {
-    // TODO: remove hook
-    if([self.mhPeer.mhPeerID hasPrefix:@"1342"] && [[info objectForKey:@"MultihopID"] hasPrefix:@"8D5F"])
-    {
-        return;
-    }
-    if([self.mhPeer.mhPeerID hasPrefix:@"8D5F"] && [[info objectForKey:@"MultihopID"] hasPrefix:@"1342"])
-    {
-        return;
-    }
-    
     // Whenever we find a peer, let's just send them an invitation
     // But only send invites one way
     

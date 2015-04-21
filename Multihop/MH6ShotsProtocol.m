@@ -170,6 +170,7 @@
     dispatch_async(dispatch_get_main_queue(), ^{
         [[MHLocationManager getSingleton] registerBeaconRegionWithUUID:peer];
         [self.neighbourPeers addObject:peer];
+        [self.routingTable setObject:[NSNumber numberWithInt:1] forKey:peer];
     });
 }
 
@@ -180,6 +181,7 @@
     dispatch_async(dispatch_get_main_queue(), ^{
         [[MHLocationManager getSingleton] unregisterBeaconRegionWithUUID:peer];
         [self.neighbourPeers removeObject:peer];
+        [self.routingTable removeObjectForKey:peer];
     });
 }
 
