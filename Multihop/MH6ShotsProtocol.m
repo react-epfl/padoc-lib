@@ -83,8 +83,9 @@
     
     
     dispatch_async(dispatch_get_main_queue(), ^{
-        [self.joinMsgs setObject:packet forKey:packet.tag];
-        [self.shouldForward setObject:[[NSNumber alloc] initWithBool:YES] forKey:packet.tag];
+        NSString *tag = [MH6ShotsProtocol joinIDFromPacket:packet];
+        [self.joinMsgs setObject:packet forKey:tag];
+        [self.shouldForward setObject:[[NSNumber alloc] initWithBool:YES] forKey:tag];
         
         NSError *error;
         [self.cHandler sendData:[packet asNSData] toPeers:self.neighbourPeers error:&error];
@@ -100,22 +101,8 @@
     [packet.info setObject:@"-[leave-msg]-" forKey:@"message-type"];
     [packet.info setObject:groupName forKey:@"groupName"];
     
-    NSString *tag = @"";
-    NSArray *msgKeys = [self.joinMsgs allKeys];
-    for (id msgKey in msgKeys)
-    {
-        MHPacket *msg = [self.joinMsgs objectForKey:msgKey];
-        
-        if([msg.source isEqualToString:packet.source] &&
-           [[msg.info objectForKey:@"groupName"] isEqualToString:groupName])
-        {
-            tag = msg.tag;
-        }
-    }
-    
-    [packet.info setObject:tag forKey:@"tag"];
-    
     dispatch_async(dispatch_get_main_queue(), ^{
+        NSString *tag = [MH6ShotsProtocol joinIDFromPacket:packet];
         [self.shouldForward removeObjectForKey:tag];
         [self.joinMsgs removeObjectForKey:tag];
         
@@ -210,21 +197,22 @@
     {
         if (![packet.source isEqualToString:[self getOwnPeer]])
         {
-            if (![self.joinMsgs objectForKey:packet.tag])
+            NSString *tag = [MH6ShotsProtocol joinIDFromPacket:packet];
+            if (![self.joinMsgs objectForKey:tag])
             {
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    [self.joinMsgs setObject:packet forKey:packet.tag];
+                    [self.joinMsgs setObject:packet forKey:tag];
                     
                     int height = [[packet.info objectForKey:@"height"] intValue] + 1;
                     [packet.info setObject:[NSNumber numberWithInt:height] forKey:@"height"];
                     
                     [self.routingTable setObject:[NSNumber numberWithInt:height] forKey:packet.source];
-                    [self.shouldForward setObject:[NSNumber numberWithBool:YES] forKey:packet.tag];
+                    [self.shouldForward setObject:[NSNumber numberWithBool:YES] forKey:tag];
                     
                     
                     // Dispatch after y seconds
                     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)((arc4random_uniform(MH6SHOTS_JOINFORWARD_DELAY_RANGE) + MH6SHOTS_JOINFORWARD_DELAY_BASE) * NSEC_PER_MSEC)), dispatch_get_main_queue(), ^{
-                        if ([[self.shouldForward objectForKey:packet.tag] boolValue])
+                        if ([[self.shouldForward objectForKey:tag] boolValue])
                         {
                             NSError *error;
                             [self.cHandler sendData:[packet asNSData] toPeers:self.neighbourPeers error:&error];
@@ -235,16 +223,16 @@
             else
             {
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    [self.shouldForward setObject:[NSNumber numberWithBool:NO] forKey:packet.tag];
+                    [self.shouldForward setObject:[NSNumber numberWithBool:NO] forKey:tag];
                 });
             }
         }
     }
     else if (msgType != nil && [msgType isEqualToString:@"-[leave-msg]-"]) // it's a leave message
     {
-        NSString *tag = [packet.info objectForKey:@"tag"];
+        NSString *tag = [MH6ShotsProtocol joinIDFromPacket:packet];
         
-        if ([self.joinMsgs objectForKey:packet.tag])
+        if ([self.joinMsgs objectForKey:tag])
         {
             dispatch_async(dispatch_get_main_queue(), ^{
                 [self.joinMsgs removeObjectForKey:tag];
@@ -310,5 +298,11 @@
     });
 }
 
+
+#pragma mark - Helper methods
++ (NSString *)joinIDFromPacket:(MHPacket *)packet
+{
+    return [NSString stringWithFormat:@"%@-%@", packet.source, [packet.info objectForKey:@"groupName"]];
+}
 
 @end
