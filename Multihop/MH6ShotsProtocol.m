@@ -171,6 +171,19 @@
         [[MHLocationManager getSingleton] registerBeaconRegionWithUUID:peer];
         [self.neighbourPeers addObject:peer];
         [self.routingTable setObject:[NSNumber numberWithInt:1] forKey:peer];
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            NSArray *msgKeys = [self.joinMsgs allKeys];
+            for (id msgKey in msgKeys)
+            {
+                MHPacket *msg = [self.joinMsgs objectForKey:msgKey];
+                
+                NSError *error;
+                [self.cHandler sendData:[msg asNSData]
+                                toPeers:[[NSArray alloc] initWithObjects:peer, nil]
+                                  error:&error];
+            }
+        });
     });
 }
 
@@ -195,33 +208,36 @@
     NSString * msgType = [packet.info objectForKey:@"message-type"];
     if (msgType != nil && [msgType isEqualToString:@"-[join-msg]-"]) // it's a join message
     {
-        if (![self.joinMsgs objectForKey:packet.tag])
+        if (![packet.source isEqualToString:[self getOwnPeer]])
         {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [self.joinMsgs setObject:packet forKey:packet.tag];
-                
-                int height = [[packet.info objectForKey:@"height"] intValue] + 1;
-                [packet.info setObject:[NSNumber numberWithInt:height] forKey:@"height"];
-
-                [self.routingTable setObject:[NSNumber numberWithInt:height] forKey:packet.source];
-                [self.shouldForward setObject:[NSNumber numberWithBool:YES] forKey:packet.tag];
-                
-                
-                // Dispatch after y seconds
-                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)((arc4random_uniform(MH6SHOTS_JOINFORWARD_DELAY_RANGE) + MH6SHOTS_JOINFORWARD_DELAY_BASE) * NSEC_PER_MSEC)), dispatch_get_main_queue(), ^{
-                    if ([[self.shouldForward objectForKey:packet.tag] boolValue])
-                    {
-                        NSError *error;
-                        [self.cHandler sendData:[packet asNSData] toPeers:self.neighbourPeers error:&error];
-                    }
+            if (![self.joinMsgs objectForKey:packet.tag])
+            {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [self.joinMsgs setObject:packet forKey:packet.tag];
+                    
+                    int height = [[packet.info objectForKey:@"height"] intValue] + 1;
+                    [packet.info setObject:[NSNumber numberWithInt:height] forKey:@"height"];
+                    
+                    [self.routingTable setObject:[NSNumber numberWithInt:height] forKey:packet.source];
+                    [self.shouldForward setObject:[NSNumber numberWithBool:YES] forKey:packet.tag];
+                    
+                    
+                    // Dispatch after y seconds
+                    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)((arc4random_uniform(MH6SHOTS_JOINFORWARD_DELAY_RANGE) + MH6SHOTS_JOINFORWARD_DELAY_BASE) * NSEC_PER_MSEC)), dispatch_get_main_queue(), ^{
+                        if ([[self.shouldForward objectForKey:packet.tag] boolValue])
+                        {
+                            NSError *error;
+                            [self.cHandler sendData:[packet asNSData] toPeers:self.neighbourPeers error:&error];
+                        }
+                    });
                 });
-            });
-        }
-        else
-        {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [self.shouldForward setObject:[NSNumber numberWithBool:NO] forKey:packet.tag];
-            });
+            }
+            else
+            {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [self.shouldForward setObject:[NSNumber numberWithBool:NO] forKey:packet.tag];
+                });
+            }
         }
     }
     else if (msgType != nil && [msgType isEqualToString:@"-[leave-msg]-"]) // it's a leave message
