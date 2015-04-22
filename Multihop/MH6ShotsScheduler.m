@@ -125,7 +125,7 @@
                                                withDestinations:[[NSArray alloc] init]
                                                        withData:[@"" dataUsingEncoding:NSUTF8StringEncoding]];
             
-            [packet.info setObject:@"-[routingtable-msg]-" forKey:@"message-type"];
+            [packet.info setObject:MH6SHOTS_RT_MSG forKey:@"message-type"];
             [packet.info setObject:weakSelf.routingTable forKey:@"routing-table"];
             
             [weakSelf.delegate mhScheduler:weakSelf broadcastPacket:packet];

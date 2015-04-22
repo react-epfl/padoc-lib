@@ -77,7 +77,7 @@
                                        withDestinations:[[NSArray alloc] init]
                                                withData:[@"" dataUsingEncoding:NSUTF8StringEncoding]];
     
-    [packet.info setObject:@"-[join-msg]-" forKey:@"message-type"];
+    [packet.info setObject:MH6SHOTS_JOIN_MSG forKey:@"message-type"];
     [packet.info setObject:groupName forKey:@"groupName"];
     [packet.info setObject:[NSNumber numberWithInt:0] forKey:@"height"];
     
@@ -98,7 +98,7 @@
                                        withDestinations:[[NSArray alloc] init]
                                                withData:[@"" dataUsingEncoding:NSUTF8StringEncoding]];
     
-    [packet.info setObject:@"-[leave-msg]-" forKey:@"message-type"];
+    [packet.info setObject:MH6SHOTS_LEAVE_MSG forKey:@"message-type"];
     [packet.info setObject:groupName forKey:@"groupName"];
     
     dispatch_async(dispatch_get_main_queue(), ^{
@@ -193,7 +193,7 @@
     MHPacket *packet = [MHPacket fromNSData:data];
     
     NSString * msgType = [packet.info objectForKey:@"message-type"];
-    if (msgType != nil && [msgType isEqualToString:@"-[join-msg]-"]) // it's a join message
+    if (msgType != nil && [msgType isEqualToString:MH6SHOTS_JOIN_MSG]) // it's a join message
     {
         if (![packet.source isEqualToString:[self getOwnPeer]])
         {
@@ -228,7 +228,7 @@
             }
         }
     }
-    else if (msgType != nil && [msgType isEqualToString:@"-[leave-msg]-"]) // it's a leave message
+    else if (msgType != nil && [msgType isEqualToString:MH6SHOTS_LEAVE_MSG]) // it's a leave message
     {
         NSString *tag = [MH6ShotsProtocol joinIDFromPacket:packet];
         
@@ -246,7 +246,7 @@
             });
         }
     }
-    else if(msgType != nil && [msgType isEqualToString:@"-[routingtable-msg]-"]) // it's a neighbour routing table message
+    else if(msgType != nil && [msgType isEqualToString:MH6SHOTS_RT_MSG]) // it's a neighbour routing table message
     {
         NSMutableDictionary *someRT = [packet.info objectForKey:@"routing-table"];
         

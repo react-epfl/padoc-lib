@@ -26,6 +26,9 @@
 #define MH6SHOTS_GPS_FRACTION 0.3
 #define MH6SHOTS_IBEACONS_FRACTION 0.7
 
+#define MH6SHOTS_RT_MSG @"-[routingtable-msg]-"
+
+
 @protocol MH6ShotsSchedulerDelegate;
 
 @interface MH6ShotsScheduler : NSObject

@@ -17,6 +17,9 @@
 #define MH6SHOTS_JOINFORWARD_DELAY_RANGE 100
 #define MH6SHOTS_JOINFORWARD_DELAY_BASE 100
 
+#define MH6SHOTS_JOIN_MSG @"-[join-msg]-"
+#define MH6SHOTS_LEAVE_MSG @"-[leave-msg]-"
+
 @interface MH6ShotsProtocol : MHMulticastRoutingProtocol
 
 
