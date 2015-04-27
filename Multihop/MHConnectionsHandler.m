@@ -103,24 +103,28 @@
          toPeers:(NSArray *)peers
            error:(NSError **)error
 {
-    NSMutableArray *bufferedPeers = [[NSMutableArray alloc] initWithArray:peers copyItems:YES];
+    NSMutableArray *connectedPeers = [[NSMutableArray alloc] init];
     
-    for (id peerObj in bufferedPeers)
+    
+    for (id peerObj in peers)
     {
         NSString *peer = (NSString*)peerObj;
         MHConnectionBuffer *buf = [self.buffers objectForKey:peer];
         
         if (buf && buf.status == MHConnectionBufferBroken) // We bufferize
         {
-            [bufferedPeers removeObject:peerObj];
             [buf pushData:data];
+        }
+        else
+        {
+            [connectedPeers addObject:peerObj];
         }
     }
     
-    if (bufferedPeers.count > 0)
+    if (connectedPeers.count > 0)
     {
         [self.mcWrapper sendData:data
-                         toPeers:bufferedPeers
+                         toPeers:connectedPeers
                         reliable:YES
                            error:error];
     }
