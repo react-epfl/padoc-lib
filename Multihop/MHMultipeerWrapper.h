@@ -14,6 +14,8 @@
 #import <MultipeerConnectivity/MultipeerConnectivity.h>
 #import "MHPeer.h"
 
+#define MH_SERVICE_PREFIX @"mh-"
+
 @protocol MHMultipeerWrapperDelegate;
 
 @interface MHMultipeerWrapper : NSObject

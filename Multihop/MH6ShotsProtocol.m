@@ -192,40 +192,42 @@
 {
     MHPacket *packet = [MHPacket fromNSData:data];
     
+    if ([packet.source isEqualToString:[self getOwnPeer]])
+    {
+        return;
+    }
+    
     NSString * msgType = [packet.info objectForKey:@"message-type"];
     if (msgType != nil && [msgType isEqualToString:MH6SHOTS_JOIN_MSG]) // it's a join message
     {
-        if (![packet.source isEqualToString:[self getOwnPeer]])
+        NSString *tag = [MH6ShotsProtocol joinIDFromPacket:packet];
+        if (![self.joinMsgs objectForKey:tag])
         {
-            NSString *tag = [MH6ShotsProtocol joinIDFromPacket:packet];
-            if (![self.joinMsgs objectForKey:tag])
-            {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [self.joinMsgs setObject:packet forKey:tag];
-                    
-                    int height = [[packet.info objectForKey:@"height"] intValue] + 1;
-                    [packet.info setObject:[NSNumber numberWithInt:height] forKey:@"height"];
-                    
-                    [self.routingTable setObject:[NSNumber numberWithInt:height] forKey:packet.source];
-                    [self.shouldForward setObject:[NSNumber numberWithBool:YES] forKey:tag];
-                    
-                    
-                    // Dispatch after y seconds
-                    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)((arc4random_uniform(MH6SHOTS_JOINFORWARD_DELAY_RANGE) + MH6SHOTS_JOINFORWARD_DELAY_BASE) * NSEC_PER_MSEC)), dispatch_get_main_queue(), ^{
-                        if ([[self.shouldForward objectForKey:tag] boolValue])
-                        {
-                            NSError *error;
-                            [self.cHandler sendData:[packet asNSData] toPeers:self.neighbourPeers error:&error];
-                        }
-                    });
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self.joinMsgs setObject:packet forKey:tag];
+                
+                int height = [[packet.info objectForKey:@"height"] intValue] + 1;
+                [packet.info setObject:[NSNumber numberWithInt:height] forKey:@"height"];
+                
+                [self.routingTable setObject:[NSNumber numberWithInt:height] forKey:packet.source];
+                [self.shouldForward setObject:[NSNumber numberWithBool:YES] forKey:tag];
+                
+                
+                // Dispatch after y seconds
+                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)((arc4random_uniform(MH6SHOTS_JOINFORWARD_DELAY_RANGE) + MH6SHOTS_JOINFORWARD_DELAY_BASE) * NSEC_PER_MSEC)), dispatch_get_main_queue(), ^{
+                    if ([[self.shouldForward objectForKey:tag] boolValue])
+                    {
+                        NSError *error;
+                        [self.cHandler sendData:[packet asNSData] toPeers:self.neighbourPeers error:&error];
+                    }
                 });
-            }
-            else
-            {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [self.shouldForward setObject:[NSNumber numberWithBool:NO] forKey:tag];
-                });
-            }
+            });
+        }
+        else
+        {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self.shouldForward setObject:[NSNumber numberWithBool:NO] forKey:tag];
+            });
         }
     }
     else if (msgType != nil && [msgType isEqualToString:MH6SHOTS_LEAVE_MSG]) // it's a leave message

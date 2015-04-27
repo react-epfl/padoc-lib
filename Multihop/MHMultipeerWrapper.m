@@ -33,7 +33,7 @@
     self = [super init];
     if (self)
     {
-        self.serviceType = [NSString stringWithFormat:@"multihop-%@", serviceType];
+        self.serviceType = [NSString stringWithFormat:@"%@%@", MH_SERVICE_PREFIX, serviceType];
         self.mhPeer = [MHPeer getOwnMHPeerWithDisplayName:displayName];
         self.connectedPeers = [[NSMutableDictionary alloc] init];
     }
