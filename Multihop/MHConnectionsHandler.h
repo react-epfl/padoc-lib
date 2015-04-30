@@ -43,9 +43,9 @@
 - (instancetype)initWithServiceType:(NSString *)serviceType
                         displayName:(NSString *)displayName;
 
-- (void)connectToAll;
+- (void)connectToNeighbourhood;
 
-- (void)disconnectFromAll;
+- (void)disconnectFromNeighbourhood;
 
 
 - (void)sendData:(NSData *)data

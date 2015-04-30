@@ -98,18 +98,9 @@ typedef enum MHUnicastProtocol
                 withRoutingProtocol:(MHUnicastProtocol)protocol;
 
 
-/**
- Call this method to connect to all peers. It will automatically start searching for peers.
- 
- When you successfully connect to another peer, you will receive a delegate callback to:
- 
- - (void)mhUnicastSocket:(MHUnicastSocket *)mhUnicastSocket isDiscovered:(NSString *)info peer:(NSString *)peer displayName:(NSString *)displayName
- */
-- (void)discover;
-
 
 /**
- Call this method to disconnect from everyone. In order to restart the system, a new Multihop object
+ Call this method to disconnect from the neighbourhood. In order to restart the system, a new Multihop object
  should be reinstantiated.
  */
 - (void)disconnect;

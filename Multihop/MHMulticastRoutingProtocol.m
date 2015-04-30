@@ -45,7 +45,7 @@
 - (void)disconnect
 {
     [self.neighbourPeers removeAllObjects];
-    [self.cHandler disconnectFromAll];
+    [self.cHandler disconnectFromNeighbourhood];
 }
 
 - (NSString *)getOwnPeer
@@ -68,18 +68,17 @@
 
 - (void)joinGroup:(NSString *)groupName
 {
-    
-    
+    // Must be overridden
 }
 - (void)leaveGroup:(NSString *)groupName
 {
-    
+    // Must be overridden
 }
 
 - (void)sendPacket:(MHPacket *)packet
              error:(NSError **)error
 {
-    
+    // Must be overridden
 }
 
 
@@ -97,14 +96,14 @@
             peer:(NSString *)peer
      displayName:(NSString *)displayName
 {
-    
+    // Must be overridden
 }
 
 - (void)cHandler:(MHConnectionsHandler *)cHandler
  hasDisconnected:(NSString *)info
             peer:(NSString *)peer
 {
-    
+    // Must be overridden
 }
 
 
@@ -112,20 +111,20 @@
   didReceiveData:(NSData *)data
         fromPeer:(NSString *)peer
 {
-    
+    // Must be overridden
 }
 
 - (void)cHandler:(MHConnectionsHandler *)cHandler
   enteredStandby:(NSString *)info
             peer:(NSString *)peer
 {
-    
+    // Must be overridden
 }
 
 - (void)cHandler:(MHConnectionsHandler *)cHandler
    leavedStandby:(NSString *)info
             peer:(NSString *)peer
 {
-    
+    // Must be overridden
 }
 @end

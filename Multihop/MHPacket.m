@@ -30,7 +30,8 @@
     self = [super init];
     if (self)
     {
-        self.tag = [MHPacket makeUniqueStringFromPeer:source];
+        // Generate new packet id
+        self.tag = [MHComputation makeUniqueStringFromSource:source];
         self.source = source;
         self.destinations = destinations;
         self.data = data;
@@ -92,21 +93,5 @@
         return nil;
     }
 }
-
-
-#pragma mark - Helper methods
-
-+ (NSString *)makeUniqueStringFromPeer:(NSString *)peer
-{
-    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-    [dateFormatter setDateFormat:@"yyMMddHHmmss"];
-
-    NSString *dateString = [dateFormatter stringFromDate:[NSDate date]];
-    
-    int randomValue = arc4random() % 1000;
-
-    return [NSString stringWithFormat:@"%@%@%d",dateString, peer, randomValue];
-}
-
 
 @end

@@ -41,7 +41,7 @@
         
         MH6ShotsScheduler * __weak weakSelf = self;
         
-
+        // Set periodically executing functions
         [self setFctProcessSchedule:weakSelf];
         [self setFctOverlayMaintenance:weakSelf];
         [self setFctScheduleCleaning:weakSelf];
@@ -59,21 +59,26 @@
             NSTimeInterval currTime = [[NSDate date] timeIntervalSince1970];
             
             NSArray *scheduleKeys = [weakSelf.schedules allKeys];
-            
             for(id scheduleKey in scheduleKeys)
             {
                 MH6ShotsSchedule *schedule = [weakSelf.schedules objectForKey:scheduleKey];
                 
+                // If we can forward and the delay is reached
                 if(schedule.forward && schedule.time <= currTime)
                 {
+                    // Routes updating
                     [weakSelf updateRoutes:[schedule.packet.info objectForKey:@"routes"] withWeakSelf:weakSelf];
+                    
+                    
                     [schedule.packet.info setObject:[[MHLocationManager getSingleton] getMPosition] forKey:@"senderLocation"];
                     [schedule.packet.info setObject:weakSelf.localhost forKey:@"senderID"];
                     
+                    // Packet forwarding
                     dispatch_async(dispatch_get_main_queue(), ^{
                         [weakSelf.delegate mhScheduler:weakSelf broadcastPacket:schedule.packet];
                     });
                     
+                    // We do not forward anymore
                     schedule.forward = NO;
                 }
             }
@@ -97,6 +102,7 @@
                 {
                     NSNumber *g = [weakSelf.routingTable objectForKey:rtKey];
                     
+                    // We look for the least number of hops toward the specified peer
                     if([g intValue] != 0)
                     {
                         int newG = -1;
@@ -108,19 +114,21 @@
                             
                             NSNumber *gp = [nRoutingTable objectForKey:rtKey];
                             
+                            // If the new g is less than the previous saved one
                             if(gp != nil && ([gp intValue] < newG || newG == -1))
                             {
                                 newG = [gp intValue];
                             }
-                            
                         }
                         
+                        // We just increment by 1
                         [weakSelf.routingTable setObject:[NSNumber numberWithInt:newG+1] forKey:rtKey];
                     }
                 }
                 [weakSelf.neighbourRoutingTables removeAllObjects];
             }
             
+            // We broadcast the new routing table to all neighbour peers
             MHPacket *packet = [[MHPacket alloc] initWithSource:weakSelf.localhost
                                                withDestinations:[[NSArray alloc] init]
                                                        withData:[@"" dataUsingEncoding:NSUTF8StringEncoding]];
@@ -150,7 +158,8 @@
             {
                 MH6ShotsSchedule *schedule = [weakSelf.schedules objectForKey:scheduleKey];
                 
-            
+                // If the scheduled packet has already been forwarded and a critical delay reached,
+                // we throw it
                 if (!schedule.forward && currTime - schedule.time >= MH6SHOTS_CLEANING_DELAY)
                 {
                     [weakSelf.schedules removeObjectForKey:scheduleKey];
@@ -182,6 +191,7 @@
 - (void)setScheduleFromPacket:(MHPacket*)packet
 {
     dispatch_async(dispatch_get_main_queue(), ^{
+        // If this node is on route for a packet destination
         if ([self isOnRoute:[packet.info objectForKey:@"routes"]])
         {
             MH6ShotsSchedule *schedule = [self.schedules objectForKey:packet.tag];
@@ -203,6 +213,9 @@
 
 - (BOOL)isOnRoute:(NSDictionary*)routes
 {
+    // If, for a particular packet destination,
+    // our routing table contains a number of hops
+    // less than the one specified in the packet routes
     NSArray *routeKeys = [routes allKeys];
     for (id routeKey in routeKeys)
     {
@@ -227,6 +240,7 @@
     
     NSArray *targets = [self getTargets:[packet.info objectForKey:@"senderLocation"]];
     
+    // We find the target from which we are the least distant
     for(id targetObj in targets)
     {
         MHLocation *target = (MHLocation*)targetObj;
@@ -237,7 +251,7 @@
         }
     }
     
-    
+    // From this distance, we calculate a broadcast delay
     return [self calculateDelayForDist:d
                           withSenderID:[packet.info objectForKey:@"senderID"]];
 }
@@ -245,6 +259,9 @@
 - (NSTimeInterval)calculateDelayForDist:(double)dist
                       withSenderID:(NSString *)senderID
 {
+    // The delay is computed as a combination of both GPS
+    // and iBeacon parts
+    
     // GPS part
     if (dist > MH6SHOTS_RANGE) // There was a GPS problem (value not possible)
     {
@@ -255,7 +272,7 @@
     
     
 
-    // Ibeacons part
+    // iBeacons part
     CLProximity proximity = [[MHLocationManager getSingleton] getProximityForUUID:senderID];
     double ibeaconsDelay = 0.0;
     
@@ -290,6 +307,7 @@
 
 -(NSArray*)getTargets:(MHLocation*)senderLoc
 {
+    // We compute 6 targets around the sender node position
     NSMutableArray *targets = [[NSMutableArray alloc] init];
     
     for(int i = 0; i < 6; i++)
@@ -305,6 +323,8 @@
 
 -(void)updateRoutes:(NSMutableDictionary*)routes withWeakSelf:(MH6ShotsScheduler * __weak)weakSelf
 {
+    // We update the routes of the packet based on our
+    // routing table (we take the smallest for each destination)
     NSArray *routeKeys = [routes allKeys];
     for (id routeKey in routeKeys)
     {
@@ -324,6 +344,7 @@
 - (void)addNeighbourRoutingTable:(NSMutableDictionary*)routingTable
                       withSource:(NSString*)source
 {
+    // Add new neighbour routing table
     dispatch_async(dispatch_get_main_queue(), ^{
         if(![source isEqualToString:self.localhost])
         {

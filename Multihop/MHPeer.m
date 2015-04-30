@@ -75,6 +75,7 @@
             
             if (self.HeartbeatSender)
             {
+                // Sender side
                 self.processHeartbeat = ^{
                     weakSelf.nbHeartbeatFails++;
                     
@@ -103,6 +104,7 @@
             }
             else
             {
+                // Receiver side
                 self.processHeartbeat = ^{
                     weakSelf.nbHeartbeatFails++;
                     
@@ -190,6 +192,7 @@
             
             int delay = 0;
             
+            // After connection, start heartbeat mechanism
             if (self.HeartbeatSender)
             {
                 delay = arc4random_uniform(MHPEER_HEARTBEAT_TIME_RANGE) + MHPEER_HEARTBEAT_TIME_BASE;
@@ -207,22 +210,30 @@
 
 - (void)session:(MCSession *)session didReceiveData:(NSData *)data fromPeer:(MCPeerID *)peerID
 {
-    // TODO: find a faster way to check if it is the heartbeat msg
     NSString *dataStr = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
     
     if ([dataStr isEqualToString:MHPEER_HEARTBEAT_MSG])
     {
-        self.nbHeartbeatFails = 0;
-        
-        if (self.connected)
-        {
-            NSError *error;
-            [self.session sendData:[MHPEER_ACK_MSG dataUsingEncoding:NSUTF8StringEncoding] toPeers:self.session.connectedPeers withMode:MCSessionSendDataReliable error:&error];
-        }
+        dispatch_async(dispatch_get_main_queue(), ^{
+            self.nbHeartbeatFails = 0;
+            
+            if (self.connected)
+            {
+                // Heartbeat replication (ack)
+                NSError *error;
+                [self.session sendData:[MHPEER_ACK_MSG dataUsingEncoding:NSUTF8StringEncoding]
+                               toPeers:self.session.connectedPeers
+                              withMode:MCSessionSendDataReliable
+                                 error:&error];
+            }
+        });
     }
     else if ([dataStr isEqualToString:MHPEER_ACK_MSG])
     {
-        self.nbHeartbeatFails = 0;
+        dispatch_async(dispatch_get_main_queue(), ^{
+            // Reset the heartbeat fail counter
+            self.nbHeartbeatFails = 0;
+        });
     }
     else
     {
@@ -264,6 +275,7 @@
     
     if(mhPeerID == nil)
     {
+        // Generation of a new PeerID
         mhPeerID = [[NSUUID UUID] UUIDString];
         [[NSUserDefaults standardUserDefaults] setValue:mhPeerID forKey:@"MultihopID"];
         [[NSUserDefaults standardUserDefaults] synchronize];

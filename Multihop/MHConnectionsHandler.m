@@ -51,6 +51,7 @@
             
             [[UIApplication sharedApplication] endBackgroundTask:weakSelf.backgroundTask];
             
+            // A new background task is created
             weakSelf.backgroundTask = newTask;
         };
     }
@@ -59,12 +60,14 @@
 
 - (void)sendBackgroundSignal:(MHConnectionsHandler * __weak)weakSelf
 {
+    // Send signal
     NSError *error;
     [weakSelf.mcWrapper sendData:[MHCONNECTIONSHANDLER_BACKGROUND_SIGNAL dataUsingEncoding:NSUTF8StringEncoding]
                          toPeers:[weakSelf.buffers allKeys]
                         reliable:YES
                            error:&error];
     
+    // Set to Broken the connection status of all peers
     for (id peerKey in weakSelf.buffers)
     {
         MHConnectionBuffer *buf = [self.buffers objectForKey:peerKey];
@@ -87,15 +90,15 @@
 
 #pragma mark - Membership
 
-- (void)connectToAll
+- (void)connectToNeighbourhood
 {
-    [self.mcWrapper connectToAll];
+    [self.mcWrapper connectToNeighbourhood];
 }
 
 
-- (void)disconnectFromAll
+- (void)disconnectFromNeighbourhood
 {
-    [self.mcWrapper disconnectFromAll];
+    [self.mcWrapper disconnectFromNeighbourhood];
 }
 
 #pragma mark - Communicate
@@ -111,16 +114,24 @@
         NSString *peer = (NSString*)peerObj;
         MHConnectionBuffer *buf = [self.buffers objectForKey:peer];
         
-        if (buf && buf.status == MHConnectionBufferBroken) // We bufferize
+        // For each peer, if its connection is Broken, we bufferize instead
+        // of sending
+        if(buf != nil)
         {
-            [buf pushData:data];
-        }
-        else
-        {
-            [connectedPeers addObject:peerObj];
+            if (buf.status == MHConnectionBufferBroken) // We bufferize
+            {
+                // Data bufferization
+                [buf pushData:data];
+            }
+            else
+            {
+                [connectedPeers addObject:peerObj];
+            }
         }
     }
     
+    // The connectedPeers array contains only peers
+    // with an unbroken connection
     if (connectedPeers.count > 0)
     {
         [self.mcWrapper sendData:data
@@ -143,12 +154,14 @@
 
 - (void)applicationWillResignActive
 {
+    // Start background tasks
     self.backgroundTask = [[UIApplication sharedApplication] beginBackgroundTaskWithExpirationHandler:self.backgroundTaskEndHandler];
 }
 
 
 - (void)applicationDidBecomeActive
 {
+    // Stop background tasks
     self.backgroundTask = UIBackgroundTaskInvalid;
 }
 
@@ -171,6 +184,7 @@
         buf = [[MHConnectionBuffer alloc] initWithPeerID:peer
                                     withMultipeerWrapper:self.mcWrapper];
         
+        // Unbroken connection
         [buf setStatus:MHConnectionBufferConnected];
         
         [self.buffers setObject:buf forKey:peer];
@@ -201,23 +215,29 @@
 
     if (buf.status == MHConnectionBufferConnected)
     {
+        // The peer has disconnected for a cause other than background mode,
+        // thus remove from list
         [self.buffers removeObjectForKey:peer];
         
         dispatch_async(dispatch_get_main_queue(), ^{
             [self.delegate cHandler:self hasDisconnected:info peer:peer];
         });
     }
-    else if(buf.status == MHConnectionBufferBroken) // The background task has expirated
+    else if(buf.status == MHConnectionBufferBroken)
     {
+        // The peer has disconnected because of the expiration of
+        // the background task, thus bufferize messages
         MHConnectionsHandler * __weak weakSelf = self;
+        
         // Check after some seconds whether the peer has reconnected, otherwise notify the above layers
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(MHCONNECTIONSHANDLER_CHECK_TIME * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
             if (weakSelf && weakSelf.buffers)
             {
                 MHConnectionBuffer *buf = [weakSelf.buffers objectForKey:peer];
                 
-                if(buf != nil && buf.status == MHConnectionBufferBroken) // Still deconnected, then we remove it and notify
+                if(buf != nil && buf.status == MHConnectionBufferBroken)
                 {
+                    // Still disconnected, then we remove it and notify upper layers
                     [weakSelf.buffers removeObjectForKey:peer];
                     
                     dispatch_async(dispatch_get_main_queue(), ^{
@@ -243,11 +263,12 @@
    didReceiveData:(NSData *)data
          fromPeer:(NSString *)peer
 {
-    // TODO: find a faster way to check if it is the background signal
     NSString *dataStr = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
     
+    // Check if it is a background signal
     if ([dataStr isEqualToString:MHCONNECTIONSHANDLER_BACKGROUND_SIGNAL])
     {
+        // Set peer status to Broken
         MHConnectionBuffer *buf = [self.buffers objectForKey:peer];
         
         [buf setStatus:MHConnectionBufferBroken];
@@ -258,6 +279,7 @@
     }
     else
     {
+        // Notify above layers
         dispatch_async(dispatch_get_main_queue(), ^{
             [self.delegate cHandler:self didReceiveData:data fromPeer:peer];
         });

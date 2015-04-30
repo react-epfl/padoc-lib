@@ -45,6 +45,7 @@
         self.releaseMessages = ^{
             if (weakSelf && weakSelf.messages)
             {
+                // If connection is reestablished, then send data
                 if (weakSelf.status == MHConnectionBufferConnected)
                 {
                     NSData * data = [weakSelf popData];
@@ -64,7 +65,7 @@
             }
         };
         
-        // Check every 0.1 seconds for buffered messages
+        // Check every x seconds for buffered messages
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(MHCONNECTIONBUFFER_RELEASE_TIME * NSEC_PER_MSEC)), dispatch_get_main_queue(), self.releaseMessages);
     }
     return self;
@@ -97,6 +98,7 @@
 
 - (NSData *)popData
 {
+    // Pop first item and return
     if (self.messages.count > 0)
     {
         NSData *data = [self.messages objectAtIndex:0];

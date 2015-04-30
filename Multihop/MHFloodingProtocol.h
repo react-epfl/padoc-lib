@@ -11,6 +11,8 @@
 
 #import "MHUnicastRoutingProtocol.h"
 
+#define MH_FLOODING_TTL 10
+#define MH_FLOODING_DISCOVERME_MSG @"-[discoverme-msg]-"
 
 @interface MHFloodingProtocol : MHUnicastRoutingProtocol
 
@@ -21,8 +23,6 @@
 
 
 - (void)disconnect;
-
-- (void)discover;
 
 
 - (void)sendPacket:(MHPacket *)packet

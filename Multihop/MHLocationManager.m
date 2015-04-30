@@ -84,16 +84,17 @@ static NSString *beaconID = @"";
         self.locationManager = [[CLLocationManager alloc] init];
         self.locationManager.delegate = self;
         
+        // Request authorizations
         if ([self.locationManager respondsToSelector:@selector(requestWhenInUseAuthorization)]) {
             [self.locationManager requestWhenInUseAuthorization];
         }
         if ([self.locationManager respondsToSelector:@selector(requestAlwaysAuthorization)]) {
             [self.locationManager requestAlwaysAuthorization];
         }
-        self.locationManager.desiredAccuracy = kCLLocationAccuracyBest;
+        self.locationManager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters;
         
         
-        
+        // Setting initial position
         self.position = [[MHLocation alloc] init];
         
         CLLocation *curPos = self.locationManager.location;
@@ -110,7 +111,7 @@ static NSString *beaconID = @"";
         // Create the beacon region.
         self.ownBeaconRegion = [[CLBeaconRegion alloc]
                                 initWithProximityUUID:[[NSUUID alloc]initWithUUIDString:beaconID]
-                                           identifier:[MHIdGenerator makeUniqueStringFromSource:beaconID]];
+                                           identifier:[MHComputation makeUniqueStringFromSource:beaconID]];
         
         // Create a dictionary of advertisement data.
         self.beaconPeripheralData = [self.ownBeaconRegion peripheralDataWithMeasuredPower:nil];
@@ -133,11 +134,13 @@ static NSString *beaconID = @"";
 
 - (void)start
 {
+    // Start position updates
     if(self.useGPS)
     {
         [self.locationManager startUpdatingLocation];
     }
   
+    // Start monitoring all ibeaocn regions
     for (id beaconKey in self.beacons.allKeys)
     {
         CLBeaconRegion *beacon = [self.beacons objectForKey:beaconKey];
@@ -148,7 +151,7 @@ static NSString *beaconID = @"";
     
     if(self.beaconActive)
     {
-        // Start advertising the beacon's data.
+        // Start advertising the beacon's region
         [self.peripheralManager startAdvertising:self.beaconPeripheralData];
     }
     
@@ -157,11 +160,13 @@ static NSString *beaconID = @"";
 
 - (void)stop
 {
+    // Stop location updates
     if(self.useGPS)
     {
         [self.locationManager stopUpdatingLocation];
     }
     
+    // Stop monitoring all ibeaocn regions
     for (id beaconKey in self.beacons.allKeys)
     {
         CLBeaconRegion *beacon = [self.beacons objectForKey:beaconKey];
@@ -170,6 +175,7 @@ static NSString *beaconID = @"";
         [self.locationManager stopRangingBeaconsInRegion:beacon];
     }
     
+    // Stop advertise own ibeacon region
     [self.peripheralManager stopAdvertising];
     
     self.started = NO;
@@ -178,11 +184,10 @@ static NSString *beaconID = @"";
 
 - (void)registerBeaconRegionWithUUID:(NSString *)proximityUUID
 {
-    
-    // Create the beacon region to be monitored.
+    // Create the beacon region to be monitored
     CLBeaconRegion *beaconRegion = [[CLBeaconRegion alloc]
                                     initWithProximityUUID:[[NSUUID alloc] initWithUUIDString:proximityUUID]
-                                    identifier:[MHIdGenerator makeUniqueStringFromSource:proximityUUID]];
+                                    identifier:[MHComputation makeUniqueStringFromSource:proximityUUID]];
     
     [self.beacons setObject:beaconRegion forKey:proximityUUID];
     
@@ -191,7 +196,7 @@ static NSString *beaconID = @"";
 
     if(self.started)
     {
-        // Register the beacon region with the location manager.
+        // Register the beacon region with the location manager
         [self.locationManager startMonitoringForRegion:beaconRegion];
         [self.locationManager startRangingBeaconsInRegion:beaconRegion];
     }
@@ -201,12 +206,14 @@ static NSString *beaconID = @"";
 {
     CLBeaconRegion *beaconRegion = [self.beacons objectForKey:proximityUUID];
 
+    // Stop monitoring region
     if(self.started)
     {
         [self.locationManager stopMonitoringForRegion:beaconRegion];
         [self.locationManager stopRangingBeaconsInRegion:beaconRegion];
     }
     
+    // Remove region
     [self.beacons removeObjectForKey:proximityUUID];
     [self.beaconsProximity removeObjectForKey:proximityUUID];
 }
@@ -230,15 +237,15 @@ static NSString *beaconID = @"";
     
     MHLocation *target = [[MHLocation alloc] init];
     
-    // X
+    // Calculating x axis of GPS position in meters
     target.x = self.position.x;
     target.y = 0.0;
-    loc.x = [MHLocationManager getDistanceFromGPSLocation:origin toGPSLocation:target] * [MHLocationManager sign:self.position.x];
+    loc.x = [MHLocationManager getDistanceFromGPSLocation:origin toGPSLocation:target] * [MHComputation sign:self.position.x];
     
-    // Y
+    // Calculating y axis of GPS position in meters
     target.x = 0.0;
     target.y = self.position.y;
-    loc.y = [MHLocationManager getDistanceFromGPSLocation:origin toGPSLocation:target] * [MHLocationManager sign:self.position.y];
+    loc.y = [MHLocationManager getDistanceFromGPSLocation:origin toGPSLocation:target] * [MHComputation sign:self.position.y];
 
     
     return loc;
@@ -280,6 +287,7 @@ static NSString *beaconID = @"";
     if ([beacons count] > 0) {
         CLBeacon *nearestExhibit = [beacons firstObject];
 
+        // The proximity value for the specified region
         [self.beaconsProximity setObject:@(nearestExhibit.proximity) forKey:[region.proximityUUID UUIDString]];
     }
 }
@@ -295,7 +303,7 @@ static NSString *beaconID = @"";
     {
         if(self.started)
         {
-            // Start advertising the beacon's data.
+            // Start advertising the beacon's region (important to start only now)
             [self.peripheralManager startAdvertising:self.beaconPeripheralData];
         }
         
@@ -303,6 +311,7 @@ static NSString *beaconID = @"";
     }
     else if(peripheral.state == CBPeripheralManagerStatePoweredOff)
     {
+        // Stop advertising region
         if (self.started)
         {
             [self.peripheralManager stopAdvertising];
@@ -323,6 +332,7 @@ static NSString *beaconID = @"";
 {
     if (locationManager == nil)
     {
+        // Initialize location manager singleton
         locationManager = [[MHLocationManager alloc] initWithBeaconID:beaconID
                                                               withGPS:YES];
     }
@@ -344,10 +354,10 @@ static NSString *beaconID = @"";
 + (double)getDistanceFromGPSLocation:(MHLocation*)l1 toGPSLocation:(MHLocation*)l2
 {
     double R = 6371000.0; // Earth radius (m)
-    double dLat = [self toRad:(l2.y-l1.y)];
-    double dLon = [self toRad:(l2.x-l1.x)];
-    double lat1 = [self toRad:l1.y];
-    double lat2 = [self toRad:l2.y];
+    double dLat = [MHComputation toRad:(l2.y-l1.y)];
+    double dLon = [MHComputation toRad:(l2.x-l1.x)];
+    double lat1 = [MHComputation toRad:l1.y];
+    double lat2 = [MHComputation toRad:l2.y];
     
     double a = sin(dLat/2.0) * sin(dLat/2.0) + sin(dLon/2.0) * sin(dLon/2.0) * cos(lat1) * cos(lat2);
     double c = 2 * atan2(sqrt(a), sqrt(1.0-a));
@@ -356,20 +366,4 @@ static NSString *beaconID = @"";
     return d;
 }
 
-
-#pragma mark - GPS helper methods
-+ (double)sign:(double)value
-{
-    if (value >= 0)
-    {
-        return 1.0;
-    }
-    
-    return -1.0;
-}
-
-+ (double)toRad:(double)deg
-{
-    return deg * M_PI / 180.0;
-}
 @end

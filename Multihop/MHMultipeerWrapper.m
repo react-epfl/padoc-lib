@@ -43,12 +43,12 @@
 - (void)dealloc
 {
     // Will clean up the sessions and browsers properly
-    [self disconnectFromAll];
+    [self disconnectFromNeighbourhood];
 }
 
 #pragma mark - Membership
 
-- (void)connectToAll
+- (void)connectToNeighbourhood
 {
     // If we're already joined, then don't try again. This causes crashes.
     
@@ -75,13 +75,13 @@
     self.serviceStarted = NO;
 }
 
-- (void)disconnectFromAll
+- (void)disconnectFromNeighbourhood
 {
     if(self.serviceStarted)
     {
         [self stopService];
         
-        
+        // Disconnect every peer
         for (id peerObj in self.connectedPeers)
         {
             MHPeer *peer = [self getMHPeerFromId:(NSString *)peerObj];
@@ -100,6 +100,7 @@
         reliable:(BOOL)reliable
            error:(NSError **)error
 {
+    // Send data to all the specified peers, if available
     for (id peerKey in peers)
     {
         if ([self peerAvailable:peerKey])
@@ -184,7 +185,7 @@
         // We must restarting the service, otherwise
         // the advertiser and brower do not work properly
         [self stopService];
-        [self connectToAll];
+        [self connectToNeighbourhood];
         
         if (connected)
         {
@@ -219,11 +220,16 @@ didReceiveInvitationFromPeer:(MCPeerID *)peerID
     
     if (![self peerAvailable:[info objectForKey:@"MultihopID"]] && [self.mhPeer.mhPeerID compare:[info objectForKey:@"MultihopID"]] == NSOrderedDescending)
     {
-        MHPeer *peer = [[MHPeer alloc] initWithDisplayName:[info objectForKey:@"MultihopDisplayName"] withOwnMCPeerID:self.mhPeer.mcPeerID withOwnMHPeerID:self.mhPeer.mhPeerID withMCPeerID:peerID withMHPeerID:[info objectForKey:@"MultihopID"]];
+        MHPeer *peer = [[MHPeer alloc] initWithDisplayName:[info objectForKey:@"MultihopDisplayName"]
+                                           withOwnMCPeerID:self.mhPeer.mcPeerID
+                                           withOwnMHPeerID:self.mhPeer.mhPeerID
+                                              withMCPeerID:peerID
+                                              withMHPeerID:[info objectForKey:@"MultihopID"]];
         peer.delegate = self;
 
         [self.connectedPeers setObject:peer forKey:peer.mhPeerID];
         
+        // We accept the invitation
         invitationHandler(YES, peer.session);
     }
 }
@@ -244,12 +250,16 @@ didReceiveInvitationFromPeer:(MCPeerID *)peerID
     
     if (![self peerAvailable:[info objectForKey:@"MultihopID"]] && [self.mhPeer.mhPeerID compare:[info objectForKey:@"MultihopID"]] == NSOrderedAscending)
     {
-        MHPeer *peer = [[MHPeer alloc] initWithDisplayName:[info objectForKey:@"MultihopDisplayName"] withOwnMCPeerID:self.mhPeer.mcPeerID withOwnMHPeerID:self.mhPeer.mhPeerID withMCPeerID:peerID withMHPeerID:[info objectForKey:@"MultihopID"]];
+        MHPeer *peer = [[MHPeer alloc] initWithDisplayName:[info objectForKey:@"MultihopDisplayName"]
+                                           withOwnMCPeerID:self.mhPeer.mcPeerID
+                                           withOwnMHPeerID:self.mhPeer.mhPeerID
+                                              withMCPeerID:peerID
+                                              withMHPeerID:[info objectForKey:@"MultihopID"]];
         peer.delegate = self;
         
         [self.connectedPeers setObject:peer forKey:peer.mhPeerID];
         
-        
+        // We set the peer discovery information
         NSData *context = [NSKeyedArchiver archivedDataWithRootObject:self.dictInfo];
         
         [browser invitePeer:peerID
@@ -261,8 +271,7 @@ didReceiveInvitationFromPeer:(MCPeerID *)peerID
 
 - (void)browser:(MCNearbyServiceBrowser *)browser lostPeer:(MCPeerID *)peerID
 {
-    //NSLog(@"Lost a peer");
-    // Ignore this. We don't need it.
+    // Nothing to do
 }
 
 - (void)browser:(MCNearbyServiceBrowser *)browser didNotStartBrowsingForPeers:(NSError *)error

@@ -66,16 +66,11 @@
 
 #pragma mark - Membership
 
-- (void)discover
-{
-    [self.mhProtocol discover];
-}
-
-
 - (void)disconnect
 {
     [self.mhProtocol disconnect];
 }
+
 
 #pragma mark - Communicate
 

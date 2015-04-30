@@ -11,6 +11,7 @@
 
 
 #import <Foundation/Foundation.h>
+#import "MHComputation.h"
 
 
 @interface MHPacket : NSObject<NSCoding>
@@ -31,9 +32,6 @@
 
 
 + (MHPacket *)fromNSData:(NSData *)nsData;
-
-+ (NSString *)makeUniqueStringFromPeer:(NSString *)peer;
-
 @end
 
 

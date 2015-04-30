@@ -39,8 +39,6 @@
 #pragma mark - Overridable methods
 - (void)disconnect;
 
-- (void)discover;
-
 - (void)sendPacket:(MHPacket *)packet
              error:(NSError **)error;
 
