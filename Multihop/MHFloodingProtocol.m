@@ -16,8 +16,14 @@
 @property (nonatomic, strong) NSMutableArray *neighbourPeers;
 @property (nonatomic, strong) MHConnectionsHandler *cHandler;
 
-@property (nonatomic, strong) NSMutableArray *processedPackets;
 @property (nonatomic, strong) NSString *displayName;
+
+@property (nonatomic, strong) NSMutableArray *processedPackets;
+
+@property (nonatomic, strong) NSMutableDictionary *discoveryPackets;
+@property (nonatomic, strong) MHPacket *ownDiscoveryPacket;
+
+@property (copy) void (^processedPacketsCleaning)(void);
 
 @end
 
@@ -31,8 +37,12 @@
     if (self)
     {
         self.displayName = displayName;
+        self.discoveryPackets = [[NSMutableDictionary alloc] init];
         self.processedPackets = [[NSMutableArray alloc] init];
         [self.cHandler connectToNeighbourhood];
+        
+        MHFloodingProtocol * __weak weakSelf = self;
+        [self setFctProcessedPacketsCleaning:weakSelf];
     }
     return self;
 }
@@ -40,29 +50,49 @@
 - (void)dealloc
 {
     self.processedPackets = nil;
+    self.discoveryPackets = nil;
 }
 
 
 
-- (void)discover
+- (void)setFctProcessedPacketsCleaning:(MHFloodingProtocol * __weak)weakSelf
 {
-    MHPacket *discoverMeRequestPacket = [[MHPacket alloc] initWithSource:[self getOwnPeer]
-                                                        withDestinations:[[NSArray alloc] init]
-                                                                withData:[@"" dataUsingEncoding:NSUTF8StringEncoding]];
+    self.processedPacketsCleaning = ^{
+        if (weakSelf)
+        {
+            [weakSelf.processedPackets removeAllObjects];
+            
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(MH_FLOODING_SCHEDULECLEANING_DELAY * NSEC_PER_MSEC)), dispatch_get_main_queue(), weakSelf.processedPacketsCleaning);
+        }
+    };
     
-    [discoverMeRequestPacket.info setObject:@"YES" forKey:MH_FLOODING_DISCOVERME_MSG];
-    [discoverMeRequestPacket.info setObject:self.displayName forKey:@"displayname"];
+    // Every x seconds, we clean the processed packets list
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(MH_FLOODING_SCHEDULECLEANING_DELAY * NSEC_PER_MSEC)), dispatch_get_main_queue(), self.processedPacketsCleaning);
+}
+
+
+
+- (MHPacket*)ownDiscoveryPacket
+{
+    if (!_ownDiscoveryPacket)
+    {
+        _ownDiscoveryPacket = [[MHPacket alloc] initWithSource:[self getOwnPeer]
+                                              withDestinations:[[NSArray alloc] init]
+                                                      withData:[@"" dataUsingEncoding:NSUTF8StringEncoding]];
     
-    // Broadcast discovery-me request
-    dispatch_async(dispatch_get_main_queue(), ^{
-        NSError *error;
-        [self sendPacket:discoverMeRequestPacket error:&error];
-    });
+        // Adding discovery information and ttl
+        [_ownDiscoveryPacket.info setObject:@"YES" forKey:MH_FLOODING_DISCOVERME_MSG];
+        [_ownDiscoveryPacket.info setObject:self.displayName forKey:@"displayname"];
+        [_ownDiscoveryPacket.info setObject:[NSNumber numberWithInt:MH_FLOODING_TTL] forKey:@"ttl"];
+    }
+    
+    return _ownDiscoveryPacket;
 }
 
 - (void)disconnect
 {
     [self.processedPackets removeAllObjects];
+    [self.discoveryPackets removeAllObjects];
     [super disconnect];
 }
 
@@ -71,11 +101,6 @@
 {
     // Set ttl
     [packet.info setObject:[NSNumber numberWithInt:MH_FLOODING_TTL] forKey:@"ttl"];
-    
-    // Add to processed packets list
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [self.processedPackets addObject:packet.tag];
-    });
     
     // Broadcast
     dispatch_async(dispatch_get_main_queue(), ^{
@@ -93,6 +118,30 @@
      displayName:(NSString *)displayName
 {
     [self.neighbourPeers addObject:peer];
+    
+    // Sending of the own discovery packet
+    dispatch_async(dispatch_get_main_queue(), ^{
+        NSError *error;
+        [self.cHandler sendData:[[self ownDiscoveryPacket] asNSData]
+                        toPeers:[[NSArray alloc] initWithObjects:peer, nil]
+                          error:&error];
+    });
+    
+    // Forwarding of every stored discovery packet
+    dispatch_async(dispatch_get_main_queue(), ^{
+        NSArray *discPacketKeys = [self.discoveryPackets allKeys];
+        for (id discPacketKey in discPacketKeys)
+        {
+            MHPacket *discPacket = [self.discoveryPackets objectForKey:discPacketKey];
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                NSError *error;
+                [self.cHandler sendData:[discPacket asNSData]
+                                toPeers:[[NSArray alloc] initWithObjects:peer, nil]
+                                  error:&error];
+            });
+        }
+    });
 }
 
 - (void)cHandler:(MHConnectionsHandler *)cHandler
@@ -113,22 +162,48 @@
 {
     MHPacket *packet = [MHPacket fromNSData:data];
     
+    // Do not process packets whose source is this peer
+    if ([packet.source isEqualToString:[self getOwnPeer]])
+    {
+        return;
+    }
+    
+    // It's a discover-me request
+    if ([packet.info objectForKey:MH_FLOODING_DISCOVERME_MSG] != nil)
+    {
+        [self processDiscoveryPacket:packet];
+    }
+    else
+    {
+        [self processStandardPacket:packet];
+    }
+}
+
+
+-(void)processDiscoveryPacket:(MHPacket*)packet
+{
+    // Check if discovery packet already processed
+    if ([self.discoveryPackets objectForKey:packet.source] != nil)
+    {
+        // If not, we notify upper layers of the new discovery
+        // and forward it
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.discoveryPackets setObject:packet forKey:packet.source];
+            [self.delegate mhProtocol:self isDiscovered:@"Discovered" peer:packet.source displayName:[packet.info objectForKey:@"displayname"]];
+        });
+        
+        [self forwardPacket:packet];
+    }
+}
+
+-(void)processStandardPacket:(MHPacket*)packet
+{
     // If packet has not yet been processed
     if (![self.processedPackets containsObject:packet.tag])
     {
         dispatch_async(dispatch_get_main_queue(), ^{
             [self.processedPackets addObject:packet.tag];
         });
-        
-        
-        // It's a discover-me request
-        if ([packet.info objectForKey:MH_FLOODING_DISCOVERME_MSG] != nil)
-        {
-            // Notify upper layers of the new discovery
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [self.delegate mhProtocol:self isDiscovered:@"Discovered" peer:packet.source displayName:[packet.info objectForKey:@"displayname"]];
-            });
-        }
         
         if ([packet.destinations containsObject:[self getOwnPeer]])
         {
@@ -138,11 +213,11 @@
             });
         }
         
-        
         // For any packet, forwarding phase
         [self forwardPacket:packet];
     }
 }
+
 
 - (void)forwardPacket:(MHPacket*)packet
 {
