@@ -10,15 +10,8 @@
 #define Multihop_MHMulticastSocket_h
 
 #import <Foundation/Foundation.h>
-#import "MH6ShotsProtocol.h"
-#import "MHMulticastRoutingProtocol.h"
-#import "MHPacket.h"
+#import "MHMulticastController.h"
 
-
-typedef enum MHMulticastProtocol
-{
-    MHMulticast6ShotsProtocol
-}MHMulticastProtocol;
 
 @protocol MHMulticastSocketDelegate;
 
@@ -122,18 +115,20 @@ typedef enum MHMulticastProtocol
 
 
 /**
- Sends a packet to selected peers.
+ Sends a message to selected groups.
  
  They will receive the data with the delegate callback:
  
- - (void)mhUnicastSocket:(MHUnicastSocket *)mhUnicastSocket didReceivePacket:(MHPacket *)packet
+ - (void)mhMulticastSocket:(MHMulticastSocket *)mhMulticastSocket didReceiveMessage:(NSData *)data fromPeer:(NSString *)peer
  
- @param packet packet to send.
+ @param data message data to send.
+ @param destinations list of multicast groups to which send the message
  @param error The address of an NSError pointer where an error object should be stored upon error.
  
  */
-- (void)sendPacket:(MHPacket *)packet
-             error:(NSError **)error;
+- (void)sendMessage:(NSData *)data
+     toDestinations:(NSArray *)destinations
+              error:(NSError **)error;
 
 
 - (NSString *)getOwnPeer;
@@ -165,7 +160,8 @@ typedef enum MHMulticastProtocol
 
 @optional
 - (void)mhMulticastSocket:(MHMulticastSocket *)mhMulticastSocket
-         didReceivePacket:(MHPacket *)packet;
+        didReceiveMessage:(NSData *)data
+                 fromPeer:(NSString *)peer;
 @end
 
 #endif

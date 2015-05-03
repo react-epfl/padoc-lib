@@ -9,9 +9,9 @@
 #import "MHUnicastSocket.h"
 
 
-@interface MHUnicastSocket () <MHUnicastRoutingProtocolDelegate>
+@interface MHUnicastSocket () <MHUnicastControllerDelegate>
 
-@property (nonatomic, strong) MHUnicastRoutingProtocol *mhProtocol;
+@property (nonatomic, strong) MHUnicastController *mhController;
 @end
 
 @implementation MHUnicastSocket
@@ -42,47 +42,42 @@
     self = [super init];
     if (self)
     {
-        switch (protocol) {
-            case MHUnicastFloodingProtocol:
-                self.mhProtocol = [[MHFloodingProtocol alloc] initWithServiceType:serviceType
-                                                                      displayName:displayName];
-                break;
-                
-            default:
-                self.mhProtocol = [[MHFloodingProtocol alloc] initWithServiceType:serviceType
-                                                                      displayName:displayName];
-                break;
-        }
+        self.mhController = [[MHUnicastController alloc] initWithServiceType:serviceType
+                                                                 displayName:displayName
+                                                         withRoutingProtocol:protocol];
 
-        self.mhProtocol.delegate = self;
+        self.mhController.delegate = self;
     }
     return self;
 }
 
 - (void)dealloc
 {
-    self.mhProtocol  = nil;
+    self.mhController  = nil;
 }
 
 #pragma mark - Membership
 
 - (void)disconnect
 {
-    [self.mhProtocol disconnect];
+    [self.mhController disconnect];
 }
 
 
 #pragma mark - Communicate
 
-- (void)sendPacket:(MHPacket *)packet
-             error:(NSError **)error
+- (void)sendMessage:(NSData *)data
+     toDestinations:(NSArray *)destinations
+              error:(NSError **)error
 {
-    [self.mhProtocol sendPacket:packet error:error];
+    MHMessage *message = [[MHMessage alloc] initWithData:data];
+    
+    [self.mhController sendMessage:message toDestinations:destinations error:error];
 }
 
 - (NSString *)getOwnPeer
 {
-    return [self.mhProtocol getOwnPeer];
+    return [self.mhController getOwnPeer];
 }
 
 
@@ -90,11 +85,11 @@
 
 #pragma mark - Background Mode methods
 - (void)applicationWillResignActive {
-    [self.mhProtocol applicationWillResignActive];
+    [self.mhController applicationWillResignActive];
 }
 
 - (void)applicationDidBecomeActive{
-    [self.mhProtocol applicationDidBecomeActive];
+    [self.mhController applicationDidBecomeActive];
 }
 
 
@@ -107,42 +102,42 @@
 
 
 
-#pragma mark - MHUnicastRoutingProtocol Delegates
-
-- (void)mhProtocol:(MHUnicastRoutingProtocol *)mhProtocol
-      isDiscovered:(NSString *)info
-              peer:(NSString *)peer
-       displayName:(NSString *)displayName
+#pragma mark - MHUnicastController Delegates
+- (void)mhUnicastController:(MHUnicastController *)mhUnicastController
+               isDiscovered:(NSString *)info
+                       peer:(NSString *)peer
+                displayName:(NSString *)displayName
 {
     dispatch_async(dispatch_get_main_queue(), ^{
         [self.delegate mhUnicastSocket:self isDiscovered:info peer:peer displayName:displayName];
     });
 }
 
-- (void)mhProtocol:(MHUnicastRoutingProtocol *)mhProtocol
-   hasDisconnected:(NSString *)info
-              peer:(NSString *)peer
+- (void)mhUnicastController:(MHUnicastController *)mhUnicastController
+            hasDisconnected:(NSString *)info
+                       peer:(NSString *)peer
 {
     dispatch_async(dispatch_get_main_queue(), ^{
         [self.delegate mhUnicastSocket:self hasDisconnected:info peer:peer];
     });
 }
 
-- (void)mhProtocol:(MHUnicastRoutingProtocol *)mhProtocol
-   failedToConnect:(NSError *)error
+- (void)mhUnicastController:(MHUnicastController *)mhUnicastController
+            failedToConnect:(NSError *)error
 {
     dispatch_async(dispatch_get_main_queue(), ^{
         [self.delegate mhUnicastSocket:self failedToConnect:error];
     });
 }
 
-- (void)mhProtocol:(MHUnicastRoutingProtocol *)mhProtocol
-  didReceivePacket:(MHPacket *)packet
+- (void)mhUnicastController:(MHUnicastController *)mhUnicastController
+          didReceiveMessage:(MHMessage *)message
+                   fromPeer:(NSString *)peer
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        if ([self.delegate respondsToSelector:@selector(mhUnicastSocket:didReceivePacket:)])
+        if ([self.delegate respondsToSelector:@selector(mhUnicastSocket:didReceiveMessage:fromPeer:)])
         {
-            [self.delegate mhUnicastSocket:self didReceivePacket:packet];
+            [self.delegate mhUnicastSocket:self didReceiveMessage:message.data fromPeer:peer];
         }
     });
 }

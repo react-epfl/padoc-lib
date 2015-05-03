@@ -10,9 +10,9 @@
 #import "MHMulticastSocket.h"
 
 
-@interface MHMulticastSocket () <MHMulticastRoutingProtocolDelegate>
+@interface MHMulticastSocket () <MHMulticastControllerDelegate>
 
-@property (nonatomic, strong) MHMulticastRoutingProtocol *mhProtocol;
+@property (nonatomic, strong) MHMulticastController *mhController;
 @end
 
 @implementation MHMulticastSocket
@@ -43,56 +43,51 @@
     self = [super init];
     if (self)
     {
-        switch (protocol) {
-            case MHMulticast6ShotsProtocol:
-                self.mhProtocol = [[MH6ShotsProtocol alloc] initWithServiceType:serviceType
-                                                                    displayName:displayName];
-                break;
-                
-            default:
-                self.mhProtocol = [[MH6ShotsProtocol alloc] initWithServiceType:serviceType
-                                                                    displayName:displayName];
-                break;
-        }
+        self.mhController = [[MHMulticastController alloc] initWithServiceType:serviceType
+                                                                   displayName:displayName
+                                                           withRoutingProtocol:protocol];
         
-        self.mhProtocol.delegate = self;
+        self.mhController.delegate = self;
     }
     return self;
 }
 
 - (void)dealloc
 {
-    self.mhProtocol  = nil;
+    self.mhController  = nil;
 }
 
 #pragma mark - Membership
 
 - (void)disconnect
 {
-    [self.mhProtocol disconnect];
+    [self.mhController disconnect];
 }
 
 #pragma mark - Communicate
 
 - (void)joinGroup:(NSString *)groupName
 {
-    [self.mhProtocol joinGroup:groupName];
+    [self.mhController joinGroup:groupName];
 }
 
 - (void)leaveGroup:(NSString *)groupName
 {
-    [self.mhProtocol leaveGroup:groupName];
+    [self.mhController leaveGroup:groupName];
 }
 
-- (void)sendPacket:(MHPacket *)packet
-             error:(NSError **)error
+- (void)sendMessage:(NSData *)data
+     toDestinations:(NSArray *)destinations
+              error:(NSError **)error;
 {
-    [self.mhProtocol sendPacket:packet error:error];
+    MHMessage *message = [[MHMessage alloc] initWithData:data];
+    
+    [self.mhController sendMessage:message toDestinations:destinations error:error];
 }
 
 - (NSString *)getOwnPeer
 {
-    return [self.mhProtocol getOwnPeer];
+    return [self.mhController getOwnPeer];
 }
 
 
@@ -100,11 +95,11 @@
 
 #pragma mark - Background Mode methods
 - (void)applicationWillResignActive {
-    [self.mhProtocol applicationWillResignActive];
+    [self.mhController applicationWillResignActive];
 }
 
 - (void)applicationDidBecomeActive{
-    [self.mhProtocol applicationDidBecomeActive];
+    [self.mhController applicationDidBecomeActive];
 }
 
 
@@ -119,21 +114,22 @@
 
 #pragma mark - MHUnicastRoutingProtocol Delegates
 
-- (void)mhProtocol:(MHMulticastRoutingProtocol *)mhProtocol
-   failedToConnect:(NSError *)error
+- (void)mhMulticastController:(MHMulticastController *)mhMulticastController
+              failedToConnect:(NSError *)error
 {
     dispatch_async(dispatch_get_main_queue(), ^{
         [self.delegate mhMulticastSocket:self failedToConnect:error];
     });
 }
 
-- (void)mhProtocol:(MHMulticastRoutingProtocol *)mhProtocol
-  didReceivePacket:(MHPacket *)packet
+- (void)mhMulticastController:(MHMulticastController *)mhMulticastController
+            didReceiveMessage:(MHMessage *)message
+                     fromPeer:(NSString *)peer
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        if ([self.delegate respondsToSelector:@selector(mhMulticastSocket:didReceivePacket:)])
+        if ([self.delegate respondsToSelector:@selector(mhMulticastSocket:didReceiveMessage:fromPeer:)])
         {
-            [self.delegate mhMulticastSocket:self didReceivePacket:packet];
+            [self.delegate mhMulticastSocket:self didReceiveMessage:message.data fromPeer:peer];
         }
     });
 }

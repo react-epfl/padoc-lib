@@ -10,15 +10,9 @@
 #define Multihop_MHUnicastSocket_h
 
 #import <Foundation/Foundation.h>
-#import "MHFloodingProtocol.h"
-#import "MHUnicastRoutingProtocol.h"
-#import "MHPacket.h"
+#import "MHUnicastController.h"
 
 
-typedef enum MHUnicastProtocol
-{
-    MHUnicastFloodingProtocol
-}MHUnicastProtocol;
 
 @protocol MHUnicastSocketDelegate;
 
@@ -107,18 +101,20 @@ typedef enum MHUnicastProtocol
 
 
 /**
- Sends a packet to selected peers.
+ Sends a message to selected peers.
  
  They will receive the data with the delegate callback:
  
  - (void)mhUnicastSocket:(MHUnicastSocket *)mhUnicastSocket didReceivePacket:(MHPacket *)packet
- 
- @param packet packet to send.
+
+ @param data message data to send.
+ @param destinations list of peers to which send the message
  @param error The address of an NSError pointer where an error object should be stored upon error.
  
  */
-- (void)sendPacket:(MHPacket *)packet
-             error:(NSError **)error;
+- (void)sendMessage:(NSData *)data
+     toDestinations:(NSArray *)destinations
+              error:(NSError **)error;
 
 
 - (NSString *)getOwnPeer;
@@ -160,7 +156,8 @@ typedef enum MHUnicastProtocol
 
 @optional
 - (void)mhUnicastSocket:(MHUnicastSocket *)mhUnicastSocket
-       didReceivePacket:(MHPacket *)packet;
+      didReceiveMessage:(NSData *)data
+               fromPeer:(NSString *)peer;
 @end
 
 
