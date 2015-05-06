@@ -69,6 +69,11 @@
     // Must be overridden
 }
 
+- (int)hopsCountFromPeer:(NSString*)peer
+{
+    // Must be overridden
+    return 0;
+}
 
 
 #pragma mark - Connectionshandler delegate methods

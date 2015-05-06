@@ -133,7 +133,7 @@
 
 - (NSString *)getOwnPeer;
 
-
+- (int)hopsCountFromPeer:(NSString*)peer;
 
 
 // Background Mode methods
@@ -161,7 +161,8 @@
 @optional
 - (void)mhMulticastSocket:(MHMulticastSocket *)mhMulticastSocket
         didReceiveMessage:(NSData *)data
-                 fromPeer:(NSString *)peer;
+                 fromPeer:(NSString *)peer
+            withTraceInfo:(NSArray *)traceInfo;
 @end
 
 #endif

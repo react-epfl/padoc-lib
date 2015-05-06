@@ -51,6 +51,7 @@ typedef enum MHMulticastProtocol
 
 - (NSString *)getOwnPeer;
 
+- (int)hopsCountFromPeer:(NSString*)peer;
 
 
 
@@ -78,7 +79,8 @@ typedef enum MHMulticastProtocol
 
 - (void)mhMulticastController:(MHMulticastController *)mhMulticastController
         didReceiveMessage:(NSData *)data
-                 fromPeer:(NSString *)peer;
+                 fromPeer:(NSString *)peer
+            withTraceInfo:(NSArray *)traceInfo;
 @end
 
 

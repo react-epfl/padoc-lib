@@ -73,6 +73,10 @@
     return [self.mhProtocol getOwnPeer];
 }
 
+- (int)hopsCountFromPeer:(NSString*)peer
+{
+    return [self.mhProtocol hopsCountFromPeer:peer];
+}
 
 
 
@@ -126,6 +130,7 @@
 
 - (void)mhProtocol:(MHUnicastRoutingProtocol *)mhProtocol
   didReceivePacket:(MHPacket *)packet
+     withTraceInfo:(NSArray *)traceInfo
 {
     dispatch_async(dispatch_get_main_queue(), ^{
         // Unarchive message data
@@ -133,7 +138,7 @@
         
         if ([message isKindOfClass:[MHMessage class]])
         {
-            [self.delegate mhUnicastController:self didReceiveMessage:message fromPeer:packet.source];
+            [self.delegate mhUnicastController:self didReceiveMessage:message fromPeer:packet.source withTraceInfo:traceInfo];
         }
     });
 }

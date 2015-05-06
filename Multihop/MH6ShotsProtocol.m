@@ -123,6 +123,9 @@
 - (void)sendPacket:(MHPacket *)packet
              error:(NSError **)error
 {
+    // Diagnostics: trace
+    [[MHDiagnostics getSingleton] addTraceRoute:packet withNextPeer:[self getOwnPeer]];
+    
     if([packet.info objectForKey:@"routes"] == nil)
     {
         [packet.info setObject:[[NSMutableDictionary alloc] init] forKey:@"routes"];
@@ -158,6 +161,17 @@
 }
 
 
+- (int)hopsCountFromPeer:(NSString*)peer
+{
+    NSNumber *g =[self.routingTable objectForKey:peer];
+    
+    if (g != nil)
+    {
+        return [g intValue];
+    }
+    
+    return 1000;
+}
 
 
 #pragma mark - ConnectionsHandler methods
@@ -209,6 +223,9 @@
         fromPeer:(NSString *)peer
 {
     MHPacket *packet = [MHPacket fromNSData:data];
+    
+    // Diagnostics: trace
+    [[MHDiagnostics getSingleton] addTraceRoute:packet withNextPeer:[self getOwnPeer]];
     
     // If the packet came from the own peer, we discard it
     if ([packet.source isEqualToString:[self getOwnPeer]])
@@ -301,7 +318,7 @@
                 
                 // Notify upper layers
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    [self.delegate mhProtocol:self didReceivePacket:packet];
+                    [self.delegate mhProtocol:self didReceivePacket:packet withTraceInfo:[[MHDiagnostics getSingleton] tracePacket:packet]];
                 });
             }
         }

@@ -90,6 +90,10 @@
     return [self.mhController getOwnPeer];
 }
 
+- (int)hopsCountFromPeer:(NSString*)peer
+{
+    return [self.mhController hopsCountFromPeer:peer];
+}
 
 
 
@@ -125,11 +129,12 @@
 - (void)mhMulticastController:(MHMulticastController *)mhMulticastController
             didReceiveMessage:(MHMessage *)message
                      fromPeer:(NSString *)peer
+                withTraceInfo:(NSArray *)traceInfo
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        if ([self.delegate respondsToSelector:@selector(mhMulticastSocket:didReceiveMessage:fromPeer:)])
+        if ([self.delegate respondsToSelector:@selector(mhMulticastSocket:didReceiveMessage:fromPeer:withTraceInfo:)])
         {
-            [self.delegate mhMulticastSocket:self didReceiveMessage:message.data fromPeer:peer];
+            [self.delegate mhMulticastSocket:self didReceiveMessage:message.data fromPeer:peer withTraceInfo:traceInfo];
         }
     });
 }

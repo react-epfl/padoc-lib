@@ -12,6 +12,7 @@
 @interface MHUnicastSocket () <MHUnicastControllerDelegate>
 
 @property (nonatomic, strong) MHUnicastController *mhController;
+
 @end
 
 @implementation MHUnicastSocket
@@ -80,6 +81,10 @@
     return [self.mhController getOwnPeer];
 }
 
+- (int)hopsCountFromPeer:(NSString*)peer
+{
+    return [self.mhController hopsCountFromPeer:peer];
+}
 
 
 
@@ -133,11 +138,12 @@
 - (void)mhUnicastController:(MHUnicastController *)mhUnicastController
           didReceiveMessage:(MHMessage *)message
                    fromPeer:(NSString *)peer
+              withTraceInfo:(NSArray *)traceInfo
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        if ([self.delegate respondsToSelector:@selector(mhUnicastSocket:didReceiveMessage:fromPeer:)])
+        if ([self.delegate respondsToSelector:@selector(mhUnicastSocket:didReceiveMessage:fromPeer:withTraceInfo:)])
         {
-            [self.delegate mhUnicastSocket:self didReceiveMessage:message.data fromPeer:peer];
+            [self.delegate mhUnicastSocket:self didReceiveMessage:message.data fromPeer:peer withTraceInfo:traceInfo];
         }
     });
 }

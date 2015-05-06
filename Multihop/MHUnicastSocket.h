@@ -119,7 +119,7 @@
 
 - (NSString *)getOwnPeer;
 
-
+- (int)hopsCountFromPeer:(NSString*)peer;
 
 
 // Background Mode methods
@@ -157,7 +157,8 @@
 @optional
 - (void)mhUnicastSocket:(MHUnicastSocket *)mhUnicastSocket
       didReceiveMessage:(NSData *)data
-               fromPeer:(NSString *)peer;
+               fromPeer:(NSString *)peer
+          withTraceInfo:(NSArray *)traceInfo;
 @end
 
 

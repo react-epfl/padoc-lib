@@ -14,6 +14,9 @@
 #import "MHConnectionsHandler.h"
 #import "MHPacket.h"
 
+// Diagnostics
+#import "MHDiagnostics.h"
+
 
 @protocol MHUnicastRoutingProtocolDelegate;
 
@@ -42,6 +45,8 @@
 - (void)sendPacket:(MHPacket *)packet
              error:(NSError **)error;
 
+- (int)hopsCountFromPeer:(NSString*)peer;
+
 @end
 
 
@@ -61,7 +66,8 @@
    failedToConnect:(NSError *)error;
 
 - (void)mhProtocol:(MHUnicastRoutingProtocol *)mhProtocol
-  didReceivePacket:(MHPacket *)packet;
+  didReceivePacket:(MHPacket *)packet
+     withTraceInfo:(NSArray *)traceInfo;
 @end
 
 

@@ -99,6 +99,9 @@
 - (void)sendPacket:(MHPacket *)packet
              error:(NSError **)error
 {
+    // Diagnostics: trace
+    [[MHDiagnostics getSingleton] addTraceRoute:packet withNextPeer:[self getOwnPeer]];
+    
     // Set ttl
     [packet.info setObject:[NSNumber numberWithInt:MH_FLOODING_TTL] forKey:@"ttl"];
     
@@ -109,6 +112,10 @@
 }
 
 
+- (int)hopsCountFromPeer:(NSString*)peer
+{
+    
+}
 
 
 #pragma mark - ConnectionsHandler delegate methods
@@ -162,6 +169,9 @@
 {
     MHPacket *packet = [MHPacket fromNSData:data];
     
+    // Diagnostics: trace
+    [[MHDiagnostics getSingleton] addTraceRoute:packet withNextPeer:[self getOwnPeer]];
+    
     // Do not process packets whose source is this peer
     if ([packet.source isEqualToString:[self getOwnPeer]])
     {
@@ -209,7 +219,7 @@
         {
             // Notify upper layers that a new packet is received
             dispatch_async(dispatch_get_main_queue(), ^{
-                [self.delegate mhProtocol:self didReceivePacket:packet];
+                [self.delegate mhProtocol:self didReceivePacket:packet withTraceInfo:[[MHDiagnostics getSingleton] tracePacket:packet]];
             });
         }
         

@@ -48,7 +48,7 @@ typedef enum MHUnicastProtocol
 
 - (NSString *)getOwnPeer;
 
-
+- (int)hopsCountFromPeer:(NSString*)peer;
 
 
 // Background Mode methods
@@ -84,7 +84,8 @@ typedef enum MHUnicastProtocol
 
 - (void)mhUnicastController:(MHUnicastController *)mhUnicastController
           didReceiveMessage:(MHMessage *)message
-                   fromPeer:(NSString *)peer;
+                   fromPeer:(NSString *)peer
+              withTraceInfo:(NSArray *)traceInfo;
 @end
 
 
