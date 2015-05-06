@@ -305,6 +305,9 @@
     }
     else // A normal packet
     {
+        // Diagnostics: retransmission
+        [[MHDiagnostics getSingleton] increaseReceivedPackets];
+        
         NSMutableDictionary *routes = [packet.info objectForKey:@"routes"];
         NSArray *routeKeys = [routes allKeys];
         for (id routeKey in routeKeys)

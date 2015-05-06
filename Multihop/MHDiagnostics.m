@@ -12,6 +12,9 @@
 
 @interface MHDiagnostics ()
 
+@property (atomic) int receivedPackets;
+@property (atomic) int retransmittedPackets;
+
 @end
 
 
@@ -30,6 +33,10 @@ static MHDiagnostics *diagnostics = nil;
     if(self)
     {
         self.useTraceInfo = NO;
+        self.useRetransmissionInfo = NO;
+        
+        self.receivedPackets = 0;
+        self.retransmittedPackets = 0;
     }
     return self;
 }
@@ -79,6 +86,40 @@ static MHDiagnostics *diagnostics = nil;
     }
     
     return nil;
+}
+
+
+
+#pragma mark - Retransmission methods
+- (void)increaseReceivedPackets
+{
+    if (self.useRetransmissionInfo)
+    {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            self.receivedPackets++;
+        });
+    }
+}
+
+- (void)increaseRetransmittedPackets
+{
+    if (self.useRetransmissionInfo)
+    {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            self.retransmittedPackets++;
+        });
+    }
+}
+
+// Callable by developer
+- (double)getRetransmissionRatio
+{
+    if (self.useRetransmissionInfo && self.receivedPackets > 0)
+    {
+        return (double)self.retransmittedPackets / (double)self.receivedPackets;
+    }
+
+    return -1.0;
 }
 
 @end

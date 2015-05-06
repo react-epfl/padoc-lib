@@ -19,6 +19,7 @@
 @interface MHDiagnostics : NSObject
 
 @property (nonatomic, readwrite) BOOL useTraceInfo;
+@property (nonatomic, readwrite) BOOL useRetransmissionInfo;
 
 - (instancetype)init;
 
@@ -27,6 +28,15 @@
 #pragma mark - Tracing methods
 - (void)addTraceRoute:(MHPacket*)packet withNextPeer:(NSString*)peer;
 - (NSArray *)tracePacket:(MHPacket*)packet;
+
+
+#pragma mark - Retransmission methods
+- (void)increaseReceivedPackets;
+- (void)increaseRetransmittedPackets;
+
+// Callable by developer
+- (double)getRetransmissionRatio;
+
 
 @end
 

@@ -114,7 +114,7 @@
 
 - (int)hopsCountFromPeer:(NSString*)peer
 {
-    
+    return 0;
 }
 
 
@@ -208,6 +208,9 @@
 
 -(void)processStandardPacket:(MHPacket*)packet
 {
+    // Diagnostics: retransmission
+    [[MHDiagnostics getSingleton] increaseReceivedPackets];
+    
     // If packet has not yet been processed
     if (![self.processedPackets containsObject:packet.tag])
     {
@@ -231,6 +234,9 @@
 
 - (void)forwardPacket:(MHPacket*)packet
 {
+    // Diagnostics: retransmission
+    [[MHDiagnostics getSingleton] increaseRetransmittedPackets];
+    
     // Decrease the ttl
     int ttl = [[packet.info objectForKey:@"ttl"] intValue];
     ttl--;

@@ -10,6 +10,7 @@
 #define Multihop_MH6ShotsScheduler_h
 
 #import <Foundation/Foundation.h>
+#import "MHDiagnostics.h"
 #import "MHLocationManager.h"
 #import "MH6ShotsSchedule.h"
 #import "MHPacket.h"
