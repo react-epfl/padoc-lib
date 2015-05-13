@@ -47,13 +47,20 @@
 #pragma mark - Communicate
 - (void)sendMessage:(MHMessage *)message
 {
-    
+    // Dummy procedure
+    [self.delegate MHUnicastTransportConnection:self
+                                    sendMessage:message
+                                         toPeer:self.targetPeer];
 }
 
 
-- (void)processIncomingMessage:(MHMessage *)message
+- (void)processIncomingMessage:(MHMessage *)message withTraceInfo:(NSArray *)traceInfo
 {
-    
+    // Dummy procedure
+    [self.delegate MHUnicastTransportConnection:self
+                              didReceiveMessage:message
+                                       fromPeer:self.targetPeer
+                                  withTraceInfo:traceInfo];
 }
 
 
@@ -81,7 +88,7 @@
         }
         else // It's a normal message
         {
-            [self processIncomingMessage:message];
+            [self processIncomingMessage:message withTraceInfo:traceInfo];
         }
     }
 }
@@ -90,6 +97,9 @@
 #pragma mark - Handshake protocol
 - (void)handshake
 {
+    // Dummy return
+    return;
+    
     if (!self.handshakeInitiated && !self.connected)
     {
         MHMessage *synMessage = [[MHMessage alloc] initWithData:[MHComputation emptyData]];
