@@ -169,15 +169,6 @@
 {
     MHPacket *packet = [MHPacket fromNSData:data];
     
-    // Diagnostics: trace
-    [[MHDiagnostics getSingleton] addTraceRoute:packet withNextPeer:[self getOwnPeer]];
-    
-    // Do not process packets whose source is this peer
-    if ([packet.source isEqualToString:[self getOwnPeer]])
-    {
-        return;
-    }
-    
     // It's a discover-me request
     if ([packet.info objectForKey:MH_FLOODING_DISCOVERME_MSG] != nil)
     {
@@ -192,8 +183,14 @@
 
 -(void)processDiscoveryPacket:(MHPacket*)packet
 {
+    // Do not process packets whose source is this peer
+    if ([packet.source isEqualToString:[self getOwnPeer]])
+    {
+        return;
+    }
+    
     // Check if discovery packet already processed
-    if ([self.discoveryPackets objectForKey:packet.source] != nil)
+    if ([self.discoveryPackets objectForKey:packet.source] == nil)
     {
         // If not, we notify upper layers of the new discovery
         // and forward it
@@ -208,8 +205,17 @@
 
 -(void)processStandardPacket:(MHPacket*)packet
 {
+    // Diagnostics: trace
+    [[MHDiagnostics getSingleton] addTraceRoute:packet withNextPeer:[self getOwnPeer]];
+    
     // Diagnostics: retransmission
     [[MHDiagnostics getSingleton] increaseReceivedPackets];
+    
+    // Do not process packets whose source is this peer
+    if ([packet.source isEqualToString:[self getOwnPeer]])
+    {
+        return;
+    }
     
     // If packet has not yet been processed
     if (![self.processedPackets containsObject:packet.tag])
@@ -226,6 +232,9 @@
             });
         }
         
+        // Diagnostics: retransmission
+        [[MHDiagnostics getSingleton] increaseRetransmittedPackets];
+        
         // For any packet, forwarding phase
         [self forwardPacket:packet];
     }
@@ -234,9 +243,6 @@
 
 - (void)forwardPacket:(MHPacket*)packet
 {
-    // Diagnostics: retransmission
-    [[MHDiagnostics getSingleton] increaseRetransmittedPackets];
-    
     // Decrease the ttl
     int ttl = [[packet.info objectForKey:@"ttl"] intValue];
     ttl--;

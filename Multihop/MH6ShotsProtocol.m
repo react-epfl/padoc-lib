@@ -224,8 +224,124 @@
 {
     MHPacket *packet = [MHPacket fromNSData:data];
     
+
+    
+    // Check what type of message it is
+    NSString * msgType = [packet.info objectForKey:@"message-type"];
+    if (msgType != nil && [msgType isEqualToString:MH6SHOTS_JOIN_MSG]) // it's a join message
+    {
+        [self processJoinPacket:packet];
+    }
+    else if (msgType != nil && [msgType isEqualToString:MH6SHOTS_LEAVE_MSG]) // it's a leave message
+    {
+        [self processLeavePacket:packet];
+    }
+    else if(msgType != nil && [msgType isEqualToString:MH6SHOTS_RT_MSG]) // it's a neighbour routing table message
+    {
+        [self processRTPacket:packet];
+    }
+    else // A normal packet
+    {
+        [self processNormalPacket:packet];
+    }
+}
+
+
+- (void)processJoinPacket:(MHPacket *)packet
+{
+    // If the packet came from the own peer, we discard it
+    if ([packet.source isEqualToString:[self getOwnPeer]])
+    {
+        return;
+    }
+    
+    NSString *tag = [MH6ShotsProtocol joinIDFromPacket:packet];
+    if (![self.joinMsgs objectForKey:tag])
+    {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.joinMsgs setObject:packet forKey:tag];
+            
+            // Increment the height and update packet
+            int height = [[packet.info objectForKey:@"height"] intValue] + 1;
+            [packet.info setObject:[NSNumber numberWithInt:height] forKey:@"height"];
+            
+            // Add joinMsg peer in routing table
+            [self.routingTable setObject:[NSNumber numberWithInt:height] forKey:packet.source];
+            [self.shouldForward setObject:[NSNumber numberWithBool:YES] forKey:tag];
+            
+            
+            // Dispatch after y seconds
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)((arc4random_uniform(MH6SHOTS_JOINFORWARD_DELAY_RANGE) + MH6SHOTS_JOINFORWARD_DELAY_BASE) * NSEC_PER_MSEC)), dispatch_get_main_queue(), ^{
+                // If we can still forward, we do it
+                if ([[self.shouldForward objectForKey:tag] boolValue])
+                {
+                    NSError *error;
+                    [self.cHandler sendData:[packet asNSData] toPeers:self.neighbourPeers error:&error];
+                }
+            });
+        });
+    }
+    else
+    {
+        // We already received the same joinMsg, thus we do not forward it
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.shouldForward setObject:[NSNumber numberWithBool:NO] forKey:tag];
+        });
+    }
+}
+
+- (void)processLeavePacket:(MHPacket *)packet
+{
+    // If the packet came from the own peer, we discard it
+    if ([packet.source isEqualToString:[self getOwnPeer]])
+    {
+        return;
+    }
+    
+    NSString *tag = [MH6ShotsProtocol joinIDFromPacket:packet];
+    
+    // Check if the joinMsg exist in the list
+    if ([self.joinMsgs objectForKey:tag])
+    {
+        // The group does exist and we haven't received yet any
+        // other leave message
+        dispatch_async(dispatch_get_main_queue(), ^{
+            // Remove from joinMsg list
+            [self.joinMsgs removeObjectForKey:tag];
+            [self.shouldForward removeObjectForKey:tag];
+            
+            // Dispatch after y seconds
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)((arc4random_uniform(MH6SHOTS_JOINFORWARD_DELAY_RANGE) + MH6SHOTS_JOINFORWARD_DELAY_BASE) * NSEC_PER_MSEC)), dispatch_get_main_queue(), ^{
+                // Broadcast to neighbourhood
+                NSError *error;
+                [self.cHandler sendData:[packet asNSData] toPeers:self.neighbourPeers error:&error];
+            });
+        });
+    }
+}
+
+- (void)processRTPacket:(MHPacket *)packet
+{
+    // If the packet came from the own peer, we discard it
+    if ([packet.source isEqualToString:[self getOwnPeer]])
+    {
+        return;
+    }
+    
+    // Add neighbour routing table
+    NSMutableDictionary *someRT = [packet.info objectForKey:@"routing-table"];
+    
+    [self.scheduler addNeighbourRoutingTable:someRT
+                                  withSource:packet.source];
+}
+
+- (void)processNormalPacket:(MHPacket *)packet
+{
     // Diagnostics: trace
     [[MHDiagnostics getSingleton] addTraceRoute:packet withNextPeer:[self getOwnPeer]];
+    
+    // Diagnostics: retransmission
+    [[MHDiagnostics getSingleton] increaseReceivedPackets];
     
     // If the packet came from the own peer, we discard it
     if ([packet.source isEqualToString:[self getOwnPeer]])
@@ -233,103 +349,30 @@
         return;
     }
     
-    // Check what type of message it is
+    NSMutableDictionary *routes = [packet.info objectForKey:@"routes"];
+    NSArray *routeKeys = [routes allKeys];
+    for (id routeKey in routeKeys)
+    {
+        // Check if one of the packet destinations
+        // is the current peer
+        if ([routeKey isEqualToString:[self getOwnPeer]])
+        {
+            // Remove route because packet is delivered
+            [routes removeObjectForKey:routeKey];
+            
+            // Notify upper layers
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self.delegate mhProtocol:self didReceivePacket:packet withTraceInfo:[[MHDiagnostics getSingleton] tracePacket:packet]];
+            });
+        }
+    }
     
-    NSString * msgType = [packet.info objectForKey:@"message-type"];
-    if (msgType != nil && [msgType isEqualToString:MH6SHOTS_JOIN_MSG]) // it's a join message
-    {
-        NSString *tag = [MH6ShotsProtocol joinIDFromPacket:packet];
-        if (![self.joinMsgs objectForKey:tag])
-        {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [self.joinMsgs setObject:packet forKey:tag];
-                
-                // Increment the height and update packet
-                int height = [[packet.info objectForKey:@"height"] intValue] + 1;
-                [packet.info setObject:[NSNumber numberWithInt:height] forKey:@"height"];
-                
-                // Add joinMsg peer in routing table
-                [self.routingTable setObject:[NSNumber numberWithInt:height] forKey:packet.source];
-                [self.shouldForward setObject:[NSNumber numberWithBool:YES] forKey:tag];
-                
-                
-                // Dispatch after y seconds
-                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)((arc4random_uniform(MH6SHOTS_JOINFORWARD_DELAY_RANGE) + MH6SHOTS_JOINFORWARD_DELAY_BASE) * NSEC_PER_MSEC)), dispatch_get_main_queue(), ^{
-                    // If we can still forward, we do it
-                    if ([[self.shouldForward objectForKey:tag] boolValue])
-                    {
-                        NSError *error;
-                        [self.cHandler sendData:[packet asNSData] toPeers:self.neighbourPeers error:&error];
-                    }
-                });
-            });
-        }
-        else
-        {
-            // We already received the same joinMsg, thus we do not forward it
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [self.shouldForward setObject:[NSNumber numberWithBool:NO] forKey:tag];
-            });
-        }
-    }
-    else if (msgType != nil && [msgType isEqualToString:MH6SHOTS_LEAVE_MSG]) // it's a leave message
-    {
-        NSString *tag = [MH6ShotsProtocol joinIDFromPacket:packet];
-        
-        // Check if the joinMsg exist in the list
-        if ([self.joinMsgs objectForKey:tag])
-        {
-            // The group does exist and we haven't received yet any
-            // other leave message
-            dispatch_async(dispatch_get_main_queue(), ^{
-                // Remove from joinMsg list
-                [self.joinMsgs removeObjectForKey:tag];
-                [self.shouldForward removeObjectForKey:tag];
-                
-                // Dispatch after y seconds
-                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)((arc4random_uniform(MH6SHOTS_JOINFORWARD_DELAY_RANGE) + MH6SHOTS_JOINFORWARD_DELAY_BASE) * NSEC_PER_MSEC)), dispatch_get_main_queue(), ^{
-                    // Broadcast to neighbourhood
-                    NSError *error;
-                    [self.cHandler sendData:[packet asNSData] toPeers:self.neighbourPeers error:&error];
-                });
-            });
-        }
-    }
-    else if(msgType != nil && [msgType isEqualToString:MH6SHOTS_RT_MSG]) // it's a neighbour routing table message
-    {
-        // Add neighbour routing table
-        NSMutableDictionary *someRT = [packet.info objectForKey:@"routing-table"];
-        
-        [self.scheduler addNeighbourRoutingTable:someRT
-                                      withSource:packet.source];
-    }
-    else // A normal packet
-    {
-        // Diagnostics: retransmission
-        [[MHDiagnostics getSingleton] increaseReceivedPackets];
-        
-        NSMutableDictionary *routes = [packet.info objectForKey:@"routes"];
-        NSArray *routeKeys = [routes allKeys];
-        for (id routeKey in routeKeys)
-        {
-            // Check if one of the packet destinations
-            // is the current peer
-            if ([routeKey isEqualToString:[self getOwnPeer]])
-            {
-                // Remove route because packet is delivered
-                [routes removeObjectForKey:routeKey];
-                
-                // Notify upper layers
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [self.delegate mhProtocol:self didReceivePacket:packet withTraceInfo:[[MHDiagnostics getSingleton] tracePacket:packet]];
-                });
-            }
-        }
-
-        // Set for scheduling
-        [self.scheduler setScheduleFromPacket:packet];
-    }
+    // Set for scheduling
+    [self.scheduler setScheduleFromPacket:packet];
 }
+
+
+
 
 - (void)cHandler:(MHConnectionsHandler *)cHandler
   enteredStandby:(NSString *)info

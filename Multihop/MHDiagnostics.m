@@ -35,8 +35,7 @@ static MHDiagnostics *diagnostics = nil;
         self.useTraceInfo = NO;
         self.useRetransmissionInfo = NO;
         
-        self.receivedPackets = 0;
-        self.retransmittedPackets = 0;
+        [self reset];
     }
     return self;
 }
@@ -44,6 +43,12 @@ static MHDiagnostics *diagnostics = nil;
 - (void)dealloc
 {
     
+}
+
+- (void)reset
+{
+    self.receivedPackets = 0;
+    self.retransmittedPackets = 0;
 }
 
 #pragma mark - Singleton methods

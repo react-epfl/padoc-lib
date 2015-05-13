@@ -30,6 +30,8 @@
                                                               displayName:displayName];
         
         self.cHandler.delegate = self;
+        
+        [[MHDiagnostics getSingleton] reset];
     }
     return self;
 }

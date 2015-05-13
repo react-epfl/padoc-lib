@@ -25,6 +25,8 @@
 
 + (MHDiagnostics*)getSingleton;
 
+- (void)reset;
+
 #pragma mark - Tracing methods
 - (void)addTraceRoute:(MHPacket*)packet withNextPeer:(NSString*)peer;
 - (NSArray *)tracePacket:(MHPacket*)packet;
