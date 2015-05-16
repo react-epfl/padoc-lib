@@ -14,8 +14,11 @@
 @interface MHMessage : NSObject<NSCoding>
 
 @property (nonatomic, readonly, strong) NSData *data;
+@property (nonatomic, readwrite) NSUInteger seqNumber;
+@property (nonatomic, readwrite) NSUInteger ackNumber;
+@property (nonatomic, readwrite) BOOL sin;
+@property (nonatomic, readwrite) BOOL ack;
 
-// other info...
 
 - (instancetype)initWithData:(NSData *)data;
 

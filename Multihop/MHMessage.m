@@ -22,6 +22,10 @@
     if (self)
     {
         self.data = data;
+        self.sin = NO;
+        self.ack = NO;
+        self.seqNumber = 0;
+        self.ackNumber = 0;
     }
     return self;
 }
@@ -29,12 +33,20 @@
 - (id)initWithCoder:(NSCoder *)decoder {
     if (self = [super init]) {
         self.data = [decoder decodeObjectForKey:@"data"];
+        self.seqNumber = [decoder decodeIntegerForKey:@"seqNumber"];
+        self.ackNumber = [decoder decodeIntegerForKey:@"ackNumber"];
+        self.sin = [decoder decodeBoolForKey:@"sin"];
+        self.ack = [decoder decodeBoolForKey:@"ack"];
     }
     return self;
 }
 
 - (void)encodeWithCoder:(NSCoder *)encoder {
     [encoder encodeObject:self.data forKey:@"data"];
+    [encoder encodeInteger:self.seqNumber forKey:@"seqNumber"];
+    [encoder encodeInteger:self.ackNumber forKey:@"ackNumber"];
+    [encoder encodeBool:self.sin forKey:@"sin"];
+    [encoder encodeBool:self.ack forKey:@"ack"];
 }
 
 

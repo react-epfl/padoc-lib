@@ -10,9 +10,10 @@
 #import "MHUnicastController.h"
 
 
-@interface MHUnicastController () <MHUnicastRoutingProtocolDelegate>
+@interface MHUnicastController () <MHUnicastRoutingProtocolDelegate, MHUnicastConnectionDelegate>
 
 @property (nonatomic, strong) MHUnicastRoutingProtocol *mhProtocol;
+@property (nonatomic, strong) NSMutableDictionary *connections;
 @end
 
 @implementation MHUnicastController
@@ -38,6 +39,7 @@
         }
         
         self.mhProtocol.delegate = self;
+        self.connections = [[NSMutableDictionary alloc] init];
     }
     return self;
 }
@@ -45,6 +47,7 @@
 - (void)dealloc
 {
     self.mhProtocol  = nil;
+    self.connections = nil;
 }
 
 #pragma mark - Membership
@@ -52,6 +55,7 @@
 - (void)disconnect
 {
     [self.mhProtocol disconnect];
+    [self.connections removeAllObjects];
 }
 
 
@@ -61,11 +65,26 @@
      toDestinations:(NSArray *)destinations
               error:(NSError **)error
 {
-    MHPacket *packet = [[MHPacket alloc] initWithSource:[self getOwnPeer]
-                                       withDestinations:destinations
-                                               withData:[NSKeyedArchiver archivedDataWithRootObject:message]];
-    
-    [self.mhProtocol sendPacket:packet error:error];
+    for (id dest in destinations)
+    {
+        MHUnicastConnection *connection = [self.connections objectForKey:dest];
+        
+        // Create a new reliable connection
+        if (connection == nil)
+        {
+            connection = [[MHUnicastConnection alloc] initWithRoutingProtocol:self.mhProtocol
+                                                                  withOwnPeer:[self getOwnPeer]
+                                                               withTargetPeer:dest];
+            
+            // Initiate handshaking
+            [connection handshake];
+            
+            [self.connections setObject:connection forKey:dest];
+        }
+        
+        NSError *err;
+        [connection sendMessage:message error:&err];
+    }
 }
 
 - (NSString *)getOwnPeer
@@ -132,15 +151,44 @@
   didReceivePacket:(MHPacket *)packet
      withTraceInfo:(NSArray *)traceInfo
 {
-    dispatch_async(dispatch_get_main_queue(), ^{
-        // Unarchive message data
-        id message = [NSKeyedUnarchiver unarchiveObjectWithData:packet.data];
+    MHUnicastConnection *connection = [self.connections objectForKey:packet.source];
+    
+    // Create a new reliable connection
+    if (connection == nil)
+    {
+        connection = [[MHUnicastConnection alloc] initWithRoutingProtocol:self.mhProtocol
+                                                              withOwnPeer:[self getOwnPeer]
+                                                           withTargetPeer:packet.source];
         
-        if ([message isKindOfClass:[MHMessage class]])
-        {
-            [self.delegate mhUnicastController:self didReceiveMessage:message fromPeer:packet.source withTraceInfo:traceInfo];
-        }
-    });
+        
+        [self.connections setObject:connection forKey:packet.source];
+    }
+
+    // Unarchive message data
+    id message = [NSKeyedUnarchiver unarchiveObjectWithData:packet.data];
+    
+    if ([message isKindOfClass:[MHMessage class]])
+    {
+        [connection messageReceived:message withTraceInfo:traceInfo];
+    }
 }
 
+
+#pragma mark - MHUnicastConnection Delegates
+- (void)mhUnicastConnection:(MHUnicastConnection *)mhUnicastConnection
+             isDisconnected:(NSString *)info
+                       peer:(NSString *)peer
+{
+    
+}
+
+- (void)mhUnicastConnection:(MHUnicastConnection *)mhUnicastConnection
+          didReceiveMessage:(MHMessage *)message
+                   fromPeer:(NSString *)peer
+              withTraceInfo:(NSArray *)traceInfo
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.delegate mhUnicastController:self didReceiveMessage:message fromPeer:peer withTraceInfo:traceInfo];
+    });
+}
 @end
