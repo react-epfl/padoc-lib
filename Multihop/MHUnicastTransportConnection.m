@@ -13,6 +13,11 @@
 @interface MHUnicastTransportConnection ()
 
 @property (nonatomic, strong) NSString *targetPeer;
+
+@property (nonatomic) BOOL connected;
+@property (nonatomic) BOOL handshakeInitiated;
+
+@property (nonatomic) NSUInteger seqNumber;
 @end
 
 @implementation MHUnicastTransportConnection
@@ -24,6 +29,11 @@
     if (self)
     {
         self.targetPeer = targetPeer;
+        
+        self.connected = NO;
+        self.handshakeInitiated = NO;
+        
+        self.seqNumber = 0;
     }
     return self;
 }
@@ -35,27 +45,160 @@
 
 
 #pragma mark - Communicate
-
-- (void)handshake
-{
-    MHMessage *synMessage = [[MHMessage alloc] initWithData:[MHComputation emptyData]];
-    synMessage.sin = YES;
-    synMessage.seqNumber = arc4random_uniform(MH_SUATP_MAX_INITIAL_SEQ_NUMBER);
-    
-    [self.delegate MHUnicastTransportConnection:self
-                                    sendMessage:synMessage
-                                         toPeer:self.targetPeer];
-}
-
 - (void)sendMessage:(MHMessage *)message
 {
-
+    
 }
 
+
+- (void)processIncomingMessage:(MHMessage *)message
+{
+    
+}
+
+
+# pragma mark - Dispatching between handshake or normal messages
 - (void)messageReceived:(MHMessage *)message
           withTraceInfo:(NSArray *)traceInfo
 {
+    if (message.sin)
+    {
+        // It's a sin message
+        if (!self.handshakeInitiated)
+        {
+            [self sinReceived:message];
+        }
+        else // It's a sinack message
+        {
+            [self sinackReceived:message];
+        }
+    }
+    else
+    {
+        if (!self.connected) // It's a ack message
+        {
+            [self ackReceived:message];
+        }
+        else // It's a normal message
+        {
+            [self processIncomingMessage:message];
+        }
+    }
+}
+
+
+#pragma mark - Handshake protocol
+- (void)handshake
+{
+    if (!self.handshakeInitiated && !self.connected)
+    {
+        MHMessage *synMessage = [[MHMessage alloc] initWithData:[MHComputation emptyData]];
+        
+        synMessage.sin = YES;
+        self.seqNumber = arc4random_uniform(MH_SUATP_MAX_INITIAL_SEQ_NUMBER);
+        synMessage.seqNumber = self.seqNumber;
+        
+        self.handshakeInitiated = YES;
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.delegate MHUnicastTransportConnection:self
+                                            sendMessage:synMessage
+                                                 toPeer:self.targetPeer];
+        });
+        
+        // No errors occurred
+        return;
+    }
     
+    // An error occurred
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.delegate MHUnicastTransportConnection:self
+                                     isDisconnected:@"Handshake failure"
+                                               peer:self.targetPeer];
+    });
+}
+
+- (void)sinReceived:(MHMessage *)message
+{
+    if (!self.connected)
+    {
+        MHMessage *synackMessage = [[MHMessage alloc] initWithData:[MHComputation emptyData]];
+        
+        synackMessage.sin = YES;
+        self.seqNumber = arc4random_uniform(MH_SUATP_MAX_INITIAL_SEQ_NUMBER);
+        synackMessage.seqNumber = self.seqNumber;
+        synackMessage.ackNumber = message.seqNumber + 1;
+        
+        self.handshakeInitiated = YES;
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.delegate MHUnicastTransportConnection:self
+                                            sendMessage:synackMessage
+                                                 toPeer:self.targetPeer];
+        });
+        
+        // No errors occurred
+        return;
+    }
+
+    // An error occurred
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.delegate MHUnicastTransportConnection:self
+                                     isDisconnected:@"Handshake failure"
+                                               peer:self.targetPeer];
+    });
+}
+
+- (void)sinackReceived:(MHMessage *)message
+{
+    if (!self.connected)
+    {
+        if (message.ackNumber == self.seqNumber + 1)
+        {
+            MHMessage *ackMessage = [[MHMessage alloc] initWithData:[MHComputation emptyData]];
+            
+            ackMessage.sin = NO;
+            self.seqNumber = message.ackNumber;
+            ackMessage.seqNumber = self.seqNumber;
+            ackMessage.ackNumber = message.seqNumber + 1;
+            
+            self.connected = true;
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self.delegate MHUnicastTransportConnection:self
+                                                sendMessage:ackMessage
+                                                     toPeer:self.targetPeer];
+            });
+            
+            // No errors occurred
+            return;
+        }
+    }
+
+    // An error occurred
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.delegate MHUnicastTransportConnection:self
+                                     isDisconnected:@"Handshake failure"
+                                               peer:self.targetPeer];
+    });
+}
+
+- (void)ackReceived:(MHMessage *)message
+{
+    if (message.ackNumber == self.seqNumber + 1)
+    {
+        self.connected = true;
+        
+        // No errors occurred
+        return;
+    }
+    
+    // An error occurred
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.delegate MHUnicastTransportConnection:self
+                                     isDisconnected:@"Handshake failure"
+                                               peer:self.targetPeer];
+    });
 }
 
 @end
