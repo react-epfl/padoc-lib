@@ -134,7 +134,7 @@
             // We broadcast the new routing table to all neighbour peers
             MHPacket *packet = [[MHPacket alloc] initWithSource:weakSelf.localhost
                                                withDestinations:[[NSArray alloc] init]
-                                                       withData:[@"" dataUsingEncoding:NSUTF8StringEncoding]];
+                                                       withData:[MHComputation emptyData]];
             
             [packet.info setObject:MH6SHOTS_RT_MSG forKey:@"message-type"];
             [packet.info setObject:weakSelf.routingTable forKey:@"routing-table"];

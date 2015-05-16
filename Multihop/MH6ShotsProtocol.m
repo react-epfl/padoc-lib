@@ -76,7 +76,7 @@
 {
     MHPacket *packet = [[MHPacket alloc] initWithSource:[self getOwnPeer]
                                        withDestinations:[[NSArray alloc] init]
-                                               withData:[@"" dataUsingEncoding:NSUTF8StringEncoding]];
+                                               withData:[MHComputation emptyData]];
     
     // Add group infomation
     [packet.info setObject:MH6SHOTS_JOIN_MSG forKey:@"message-type"];
@@ -99,7 +99,7 @@
 {
     MHPacket *packet = [[MHPacket alloc] initWithSource:[self getOwnPeer]
                                        withDestinations:[[NSArray alloc] init]
-                                               withData:[@"" dataUsingEncoding:NSUTF8StringEncoding]];
+                                               withData:[MHComputation emptyData]];
     
     // Add group infomation
     [packet.info setObject:MH6SHOTS_LEAVE_MSG forKey:@"message-type"];

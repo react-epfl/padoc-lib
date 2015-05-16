@@ -21,6 +21,10 @@
 
 + (double)toRad:(double)deg;
 
+
+#pragma mark - Data helper methods
++ (NSData*)emptyData;
+
 @end
 
 

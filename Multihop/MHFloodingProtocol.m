@@ -78,7 +78,7 @@
     {
         _ownDiscoveryPacket = [[MHPacket alloc] initWithSource:[self getOwnPeer]
                                               withDestinations:[[NSArray alloc] init]
-                                                      withData:[@"" dataUsingEncoding:NSUTF8StringEncoding]];
+                                                      withData:[MHComputation emptyData]];
     
         // Adding discovery information and ttl
         [_ownDiscoveryPacket.info setObject:@"YES" forKey:MH_FLOODING_DISCOVERME_MSG];

@@ -48,4 +48,10 @@
     return deg * M_PI / 180.0;
 }
 
+#pragma mark - Data helper methods
++ (NSData*)emptyData
+{
+    return [@"" dataUsingEncoding:NSUTF8StringEncoding];
+}
+
 @end
