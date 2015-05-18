@@ -72,7 +72,6 @@
     [self processIncomingMessage:message withTraceInfo:traceInfo];
     return;
     
-    
     if (message.sin)
     {
         // It's a sin message
