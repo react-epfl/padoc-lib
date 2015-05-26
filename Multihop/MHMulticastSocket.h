@@ -160,6 +160,11 @@
 
 @optional
 - (void)mhMulticastSocket:(MHMulticastSocket *)mhMulticastSocket
+              joinedGroup:(NSString *)info
+                     peer:(NSString *)peer
+                    group:(NSString *)group;
+
+- (void)mhMulticastSocket:(MHMulticastSocket *)mhMulticastSocket
         didReceiveMessage:(NSData *)data
                  fromPeer:(NSString *)peer
             withTraceInfo:(NSArray *)traceInfo;

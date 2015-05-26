@@ -269,7 +269,14 @@
             [self.routingTable setObject:[NSNumber numberWithInt:height] forKey:packet.source];
             [self.shouldForward setObject:[NSNumber numberWithBool:YES] forKey:tag];
             
-            
+            // Notify upper layers
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self.delegate mhProtocol:self
+                              joinedGroup:@"Joined group"
+                                     peer:packet.source
+                                    group:[packet.info objectForKey:@"groupName"]];
+            });
+                           
             // Dispatch after y seconds
             dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)((arc4random_uniform(MH6SHOTS_JOINFORWARD_DELAY_RANGE) + MH6SHOTS_JOINFORWARD_DELAY_BASE) * NSEC_PER_MSEC)), dispatch_get_main_queue(), ^{
                 // If we can still forward, we do it

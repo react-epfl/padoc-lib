@@ -119,6 +119,19 @@
 #pragma mark - MHUnicastRoutingProtocol Delegates
 
 - (void)mhMulticastController:(MHMulticastController *)mhMulticastController
+                  joinedGroup:(NSString *)info
+                         peer:(NSString *)peer
+                        group:(NSString *)group
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if ([self.delegate respondsToSelector:@selector(mhMulticastSocket:joinedGroup:peer:group:)])
+        {
+            [self.delegate mhMulticastSocket:self joinedGroup:info peer:peer group:group];
+        }
+    });
+}
+
+- (void)mhMulticastController:(MHMulticastController *)mhMulticastController
               failedToConnect:(NSError *)error
 {
     dispatch_async(dispatch_get_main_queue(), ^{

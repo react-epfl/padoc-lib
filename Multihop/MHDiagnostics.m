@@ -78,6 +78,8 @@ static MHDiagnostics *diagnostics = nil;
             traceInfo = [[NSMutableArray alloc] init];
             [packet.info setObject:traceInfo forKey:MH_DIAGNOSTICS_TRACE];
         }
+        
+        [traceInfo addObject:peer];
     }
 }
 

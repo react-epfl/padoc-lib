@@ -75,6 +75,11 @@ typedef enum MHMulticastProtocol
 
 @required
 - (void)mhMulticastController:(MHMulticastController *)mhMulticastController
+                  joinedGroup:(NSString *)info
+                         peer:(NSString *)peer
+                        group:(NSString *)group;
+
+- (void)mhMulticastController:(MHMulticastController *)mhMulticastController
           failedToConnect:(NSError *)error;
 
 - (void)mhMulticastController:(MHMulticastController *)mhMulticastController
