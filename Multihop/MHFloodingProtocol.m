@@ -141,6 +141,15 @@
         {
             MHPacket *discPacket = [self.discoveryPackets objectForKey:discPacketKey];
             
+            // Diagnostics
+            if ([MHDiagnostics getSingleton].useNetworkLayerInfoCallbacks &&
+                [MHDiagnostics getSingleton].useNetworkDiscoveryForwardingInfoCallbacks)
+            {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [self.delegate mhProtocol:self forwardPacket:@"Discovery forwarding" fromSource:discPacket.source];
+                });
+            }
+            
             dispatch_async(dispatch_get_main_queue(), ^{
                 NSError *error;
                 [self.cHandler sendData:[discPacket asNSData]
@@ -199,6 +208,15 @@
             [self.delegate mhProtocol:self isDiscovered:@"Discovered" peer:packet.source displayName:[packet.info objectForKey:@"displayname"]];
         });
         
+        // Diagnostics
+        if ([MHDiagnostics getSingleton].useNetworkLayerInfoCallbacks &&
+            [MHDiagnostics getSingleton].useNetworkDiscoveryForwardingInfoCallbacks)
+        {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self.delegate mhProtocol:self forwardPacket:@"Discovery forwarding" fromSource:packet.source];
+            });
+        }
+        
         [self forwardPacket:packet];
     }
 }
@@ -236,6 +254,14 @@
         [[MHDiagnostics getSingleton] increaseRetransmittedPackets];
         
         // For any packet, forwarding phase
+        // Diagnostics
+        if ([MHDiagnostics getSingleton].useNetworkLayerInfoCallbacks)
+        {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self.delegate mhProtocol:self forwardPacket:@"Packet forwarding" fromSource:packet.source];
+            });
+        }
+        
         [self forwardPacket:packet];
     }
 }

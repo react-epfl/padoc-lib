@@ -59,16 +59,21 @@
 
 @required
 - (void)mhProtocol:(MHMulticastRoutingProtocol *)mhProtocol
-       joinedGroup:(NSString *)info
-              peer:(NSString *)peer
-             group:(NSString *)group;
-
-- (void)mhProtocol:(MHMulticastRoutingProtocol *)mhProtocol
    failedToConnect:(NSError *)error;
 
 - (void)mhProtocol:(MHMulticastRoutingProtocol *)mhProtocol
   didReceivePacket:(MHPacket *)packet
      withTraceInfo:(NSArray *)traceInfo;
+
+#pragma mark - Diagnostics info callbacks
+- (void)mhProtocol:(MHMulticastRoutingProtocol *)mhProtocol
+       joinedGroup:(NSString *)info
+              peer:(NSString *)peer
+             group:(NSString *)group;
+
+- (void)mhProtocol:(MHMulticastRoutingProtocol *)mhProtocol
+     forwardPacket:(NSString *)info
+        fromSource:(NSString *)peer;
 @end
 
 #endif

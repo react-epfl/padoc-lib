@@ -195,6 +195,15 @@
             {
                 MHPacket *msg = [self.joinMsgs objectForKey:msgKey];
                 
+                // Diagnostics
+                if ([MHDiagnostics getSingleton].useNetworkLayerInfoCallbacks &&
+                    [MHDiagnostics getSingleton].useNetworkDiscoveryForwardingInfoCallbacks)
+                {
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        [self.delegate mhProtocol:self forwardPacket:@"Group joining forwarding forwarding" fromSource:msg.source];
+                    });
+                }
+                
                 NSError *error;
                 [self.cHandler sendData:[msg asNSData]
                                 toPeers:[[NSArray alloc] initWithObjects:peer, nil]
@@ -270,18 +279,30 @@
             [self.shouldForward setObject:[NSNumber numberWithBool:YES] forKey:tag];
             
             // Notify upper layers
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [self.delegate mhProtocol:self
-                              joinedGroup:@"Joined group"
-                                     peer:packet.source
-                                    group:[packet.info objectForKey:@"groupName"]];
-            });
-                           
+            if ([MHDiagnostics getSingleton].useNetworkLayerInfoCallbacks)
+            {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [self.delegate mhProtocol:self
+                                  joinedGroup:@"Joined group"
+                                         peer:packet.source
+                                        group:[packet.info objectForKey:@"groupName"]];
+                });
+            }
+            
             // Dispatch after y seconds
             dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)((arc4random_uniform(MH6SHOTS_JOINFORWARD_DELAY_RANGE) + MH6SHOTS_JOINFORWARD_DELAY_BASE) * NSEC_PER_MSEC)), dispatch_get_main_queue(), ^{
                 // If we can still forward, we do it
                 if ([[self.shouldForward objectForKey:tag] boolValue])
                 {
+                    // Diagnostics
+                    if ([MHDiagnostics getSingleton].useNetworkLayerInfoCallbacks &&
+                        [MHDiagnostics getSingleton].useNetworkDiscoveryForwardingInfoCallbacks)
+                    {
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            [self.delegate mhProtocol:self forwardPacket:@"Group joining forwarding" fromSource:packet.source];
+                        });
+                    }
+                    
                     NSError *error;
                     [self.cHandler sendData:[packet asNSData] toPeers:self.neighbourPeers error:&error];
                 }
@@ -319,6 +340,15 @@
             
             // Dispatch after y seconds
             dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)((arc4random_uniform(MH6SHOTS_JOINFORWARD_DELAY_RANGE) + MH6SHOTS_JOINFORWARD_DELAY_BASE) * NSEC_PER_MSEC)), dispatch_get_main_queue(), ^{
+                // Diagnostics
+                if ([MHDiagnostics getSingleton].useNetworkLayerInfoCallbacks &&
+                    [MHDiagnostics getSingleton].useNetworkDiscoveryForwardingInfoCallbacks)
+                {
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        [self.delegate mhProtocol:self forwardPacket:@"Group leaving forwarding" fromSource:packet.source];
+                    });
+                }
+                
                 // Broadcast to neighbourhood
                 NSError *error;
                 [self.cHandler sendData:[packet asNSData] toPeers:self.neighbourPeers error:&error];
@@ -402,6 +432,13 @@
     dispatch_async(dispatch_get_main_queue(), ^{
         NSError *error;
         [self.cHandler sendData:[packet asNSData] toPeers:self.neighbourPeers error:&error];
+    });
+}
+
+- (void)mhScheduler:(MH6ShotsScheduler *)mhScheduler forwardPacket:(NSString *)info fromSource:(NSString *)peer
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.delegate mhProtocol:self forwardPacket:info fromSource:peer];
     });
 }
 

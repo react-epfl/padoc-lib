@@ -160,14 +160,19 @@
 
 @optional
 - (void)mhMulticastSocket:(MHMulticastSocket *)mhMulticastSocket
+        didReceiveMessage:(NSData *)data
+                 fromPeer:(NSString *)peer
+            withTraceInfo:(NSArray *)traceInfo;
+
+#pragma mark - Diagnostics info callbacks
+- (void)mhMulticastSocket:(MHMulticastSocket *)mhMulticastSocket
               joinedGroup:(NSString *)info
                      peer:(NSString *)peer
                     group:(NSString *)group;
 
 - (void)mhMulticastSocket:(MHMulticastSocket *)mhMulticastSocket
-        didReceiveMessage:(NSData *)data
-                 fromPeer:(NSString *)peer
-            withTraceInfo:(NSArray *)traceInfo;
+            forwardPacket:(NSString *)info
+               fromSource:(NSString *)peer;
 @end
 
 #endif

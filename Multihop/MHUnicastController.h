@@ -88,6 +88,11 @@ typedef enum MHUnicastProtocol
           didReceiveMessage:(MHMessage *)message
                    fromPeer:(NSString *)peer
               withTraceInfo:(NSArray *)traceInfo;
+
+#pragma mark - Diagnostics info callbacks
+- (void)mhUnicastController:(MHUnicastController *)mhUnicastController
+              forwardPacket:(NSString *)info
+                 fromSource:(NSString *)peer;
 @end
 
 

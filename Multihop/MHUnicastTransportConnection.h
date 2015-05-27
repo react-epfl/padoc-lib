@@ -47,8 +47,8 @@
 
 @required
 - (void)MHUnicastTransportConnection:(MHUnicastTransportConnection *)MHUnicastTransportConnection
-             isDisconnected:(NSString *)info
-                       peer:(NSString *)peer;
+                      isDisconnected:(NSString *)info
+                                peer:(NSString *)peer;
 
 // Tells the lower layers to send a packet containing the specified message
 - (void)MHUnicastTransportConnection:(MHUnicastTransportConnection *)MHUnicastTransportConnection
@@ -57,9 +57,9 @@
 
 // Needs to be directly forwarded to upper layers
 - (void)MHUnicastTransportConnection:(MHUnicastTransportConnection *)MHUnicastTransportConnection
-          didReceiveMessage:(MHMessage *)message
-                   fromPeer:(NSString *)peer
-              withTraceInfo:(NSArray *)traceInfo;
+                   didReceiveMessage:(MHMessage *)message
+                            fromPeer:(NSString *)peer
+                       withTraceInfo:(NSArray *)traceInfo;
 @end
 
 

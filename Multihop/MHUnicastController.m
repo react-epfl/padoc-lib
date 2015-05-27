@@ -175,6 +175,18 @@
 }
 
 
+#pragma mark - Diagnostics info callbacks
+- (void)mhProtocol:(MHUnicastRoutingProtocol *)mhProtocol
+     forwardPacket:(NSString *)info
+        fromSource:(NSString *)peer
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.delegate mhUnicastController:self forwardPacket:info fromSource:peer];
+    });
+}
+
+
+
 #pragma mark - MHUnicastTransportConnection Delegates
 - (void)MHUnicastTransportConnection:(MHUnicastTransportConnection *)MHUnicastTransportConnection
              isDisconnected:(NSString *)info
@@ -209,4 +221,6 @@
         [self.mhProtocol sendPacket:packet error:&error];
     });
 }
+
+
 @end

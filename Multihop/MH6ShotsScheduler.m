@@ -76,6 +76,14 @@
                     [schedule.packet.info setObject:[[MHLocationManager getSingleton] getMPosition] forKey:@"senderLocation"];
                     [schedule.packet.info setObject:weakSelf.localhost forKey:@"senderID"];
                     
+                    // Diagnostics
+                    if ([MHDiagnostics getSingleton].useNetworkLayerInfoCallbacks)
+                    {
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            [weakSelf.delegate mhScheduler:weakSelf forwardPacket:@"Packet forwarding" fromSource:schedule.packet.source];
+                        });
+                    }
+                    
                     // Packet forwarding
                     dispatch_async(dispatch_get_main_queue(), ^{
                         [weakSelf.delegate mhScheduler:weakSelf broadcastPacket:schedule.packet];

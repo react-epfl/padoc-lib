@@ -148,4 +148,17 @@
     });
 }
 
+
+#pragma mark - Diagnostics info callbacks
+- (void)mhUnicastController:(MHUnicastController *)mhUnicastController
+              forwardPacket:(NSString *)info
+                 fromSource:(NSString *)peer
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if ([self.delegate respondsToSelector:@selector(mhUnicastSocket:forwardPacket:fromSource:)])
+        {
+            [self.delegate mhUnicastSocket:self forwardPacket:info fromSource:peer];
+        }
+    });
+}
 @end

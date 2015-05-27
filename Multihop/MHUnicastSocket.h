@@ -159,6 +159,12 @@
       didReceiveMessage:(NSData *)data
                fromPeer:(NSString *)peer
           withTraceInfo:(NSArray *)traceInfo;
+
+
+#pragma mark - Diagnostics info callbacks
+- (void)mhUnicastSocket:(MHUnicastSocket *)mhUnicastSocket
+          forwardPacket:(NSString *)info
+             fromSource:(NSString *)peer;
 @end
 
 

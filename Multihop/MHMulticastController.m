@@ -108,15 +108,6 @@
 
 
 #pragma mark - MHUnicastRoutingProtocol Delegates
-- (void)mhProtocol:(MHMulticastRoutingProtocol *)mhProtocol
-       joinedGroup:(NSString *)info
-              peer:(NSString *)peer
-             group:(NSString *)group
-{
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [self.delegate mhMulticastController:self joinedGroup:info peer:peer group:group];
-    });
-}
 
 - (void)mhProtocol:(MHMulticastRoutingProtocol *)mhProtocol
    failedToConnect:(NSError *)error
@@ -141,4 +132,23 @@
     });
 }
 
+#pragma mark - Diagnostics info callbacks
+- (void)mhProtocol:(MHMulticastRoutingProtocol *)mhProtocol
+       joinedGroup:(NSString *)info
+              peer:(NSString *)peer
+             group:(NSString *)group
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.delegate mhMulticastController:self joinedGroup:info peer:peer group:group];
+    });
+}
+
+- (void)mhProtocol:(MHMulticastRoutingProtocol *)mhProtocol
+     forwardPacket:(NSString *)info
+        fromSource:(NSString *)peer
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.delegate mhMulticastController:self forwardPacket:info fromSource:peer];
+    });
+}
 @end

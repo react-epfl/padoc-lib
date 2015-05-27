@@ -68,6 +68,11 @@
 - (void)mhProtocol:(MHUnicastRoutingProtocol *)mhProtocol
   didReceivePacket:(MHPacket *)packet
      withTraceInfo:(NSArray *)traceInfo;
+
+#pragma mark - Diagnostics info callbacks
+- (void)mhProtocol:(MHUnicastRoutingProtocol *)mhProtocol
+     forwardPacket:(NSString *)info
+        fromSource:(NSString *)peer;
 @end
 
 
