@@ -165,6 +165,7 @@
             peer:(NSString *)peer
 {
     [self.neighbourPeers removeObject:peer];
+    [self.discoveryPackets removeObjectForKey:peer];
     
     dispatch_async(dispatch_get_main_queue(), ^{
         [self.delegate mhProtocol:self hasDisconnected:info peer:peer];

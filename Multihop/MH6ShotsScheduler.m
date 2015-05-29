@@ -116,7 +116,7 @@
                     // We look for the least number of hops toward the specified peer
                     if([g intValue] != 0)
                     {
-                        int newG = -1;
+                        int newG = 1000;
                         
                         NSArray *nrtKeys = [weakSelf.neighbourRoutingTables allKeys];
                         for(id nrtKey in nrtKeys)
@@ -126,7 +126,7 @@
                             NSNumber *gp = [nRoutingTable objectForKey:rtKey];
                             
                             // If the new g is less than the previous saved one
-                            if(gp != nil && ([gp intValue] < newG || newG == -1))
+                            if(gp != nil && ([gp intValue] < newG || newG == 1000))
                             {
                                 newG = [gp intValue];
                             }

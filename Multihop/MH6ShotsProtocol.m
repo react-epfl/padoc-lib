@@ -200,7 +200,7 @@
                     [MHDiagnostics getSingleton].useNetworkDiscoveryForwardingInfoCallbacks)
                 {
                     dispatch_async(dispatch_get_main_queue(), ^{
-                        [self.delegate mhProtocol:self forwardPacket:@"Group joining forwarding forwarding" fromSource:msg.source];
+                        [self.delegate mhProtocol:self forwardPacket:@"Group joining forwarding" fromSource:msg.source];
                     });
                 }
                 
