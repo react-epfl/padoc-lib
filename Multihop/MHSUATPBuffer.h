@@ -22,13 +22,16 @@
 @property (nonatomic, weak) id<MHSUATPBufferDelegate> delegate;
 
 #pragma mark - Initialization
-- (instancetype)init;
+- (instancetype)initWithName:(NSString *)name;
 
 
 
-- (void)pushMessage:(NSData *)data withTraceInfo:(NSarray *)traceInfo;
+- (void)pushMessage:(MHMessage *)message withTraceInfo:(NSArray *)traceInfo;
 - (void)popMessage;
 
+#pragma mark - Control methods
+- (void)clearUntil:(NSUInteger)seqNumber;
+- (NSUInteger)lastElement;
 
 @end
 
@@ -39,7 +42,8 @@
 @protocol MHSUATPBufferDelegate <NSObject>
 
 @required
-- (void)MHSUATPBuffer:(MHSUATPBuffer *)MHSUATPBuffer
+- (void)mhSUATPBuffer:(MHSUATPBuffer *)MHSUATPBuffer
+                 name:(NSString *)name
            popMessage:(MHMessage *)message
         withTraceInfo:(NSArray *)traceInfo;
 

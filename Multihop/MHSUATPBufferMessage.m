@@ -17,14 +17,12 @@
 
 - (instancetype)initWithMessage:(MHMessage *)message
                   withTraceInfo:(NSArray *)traceInfo
-                   withPriority:(NSUInteger)priority
 {
     self = [super init];
     if (self)
     {
         self.message = message;
         self.traceInfo = traceInfo;
-        self.priority = priority;
     }
     return self;
 }

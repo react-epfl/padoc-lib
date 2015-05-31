@@ -16,13 +16,11 @@
 
 @property (nonatomic, readwrite) MHMessage *message;
 @property (nonatomic, readwrite) NSArray *traceInfo;
-@property (nonatomic, readwrite) NSUInteger priority;
 
 
 
 - (instancetype)initWithMessage:(MHMessage *)message
-                  withTraceInfo:(NSArray *)traceInfo
-                   withPriority:(NSUInteger)priority;
+                  withTraceInfo:(NSArray *)traceInfo;
 
 @end
 
