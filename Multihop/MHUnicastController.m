@@ -10,7 +10,7 @@
 #import "MHUnicastController.h"
 
 
-@interface MHUnicastController () <MHUnicastRoutingProtocolDelegate, MHUnicastTransportConnectionDelegate>
+@interface MHUnicastController () <MHUnicastRoutingProtocolDelegate, MHSUATPConnectionDelegate>
 
 @property (nonatomic, strong) MHUnicastRoutingProtocol *mhProtocol;
 @property (nonatomic, strong) NSMutableDictionary *connections;
@@ -68,12 +68,12 @@
     dispatch_async(dispatch_get_main_queue(), ^{
         for (id dest in destinations)
         {
-            MHUnicastTransportConnection *connection = [self.connections objectForKey:dest];
+            MHSUATPConnection *connection = [self.connections objectForKey:dest];
             
             // Create a new reliable connection
             if (connection == nil)
             {
-                connection = [[MHUnicastTransportConnection alloc] initWithTargetPeer:dest];
+                connection = [[MHSUATPConnection alloc] initWithTargetPeer:dest];
                 connection.delegate = self;
                 
                 // Initiate handshaking
@@ -152,12 +152,12 @@
      withTraceInfo:(NSArray *)traceInfo
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        MHUnicastTransportConnection *connection = [self.connections objectForKey:packet.source];
+        MHSUATPConnection *connection = [self.connections objectForKey:packet.source];
         
         // Create a new reliable connection
         if (connection == nil)
         {
-            connection = [[MHUnicastTransportConnection alloc] initWithTargetPeer:packet.source];
+            connection = [[MHSUATPConnection alloc] initWithTargetPeer:packet.source];
             connection.delegate = self;
             
             [self.connections setObject:connection forKey:packet.source];
@@ -187,8 +187,8 @@
 
 
 
-#pragma mark - MHUnicastTransportConnection Delegates
-- (void)MHUnicastTransportConnection:(MHUnicastTransportConnection *)MHUnicastTransportConnection
+#pragma mark - MHSUATPConnection Delegates
+- (void)MHSUATPConnection:(MHSUATPConnection *)MHSUATPConnection
              isDisconnected:(NSString *)info
                        peer:(NSString *)peer
 {
@@ -197,7 +197,7 @@
     });
 }
 
-- (void)MHUnicastTransportConnection:(MHUnicastTransportConnection *)MHUnicastTransportConnection
+- (void)MHSUATPConnection:(MHSUATPConnection *)MHSUATPConnection
           didReceiveMessage:(MHMessage *)message
                    fromPeer:(NSString *)peer
               withTraceInfo:(NSArray *)traceInfo
@@ -207,7 +207,7 @@
     });
 }
 
-- (void)MHUnicastTransportConnection:(MHUnicastTransportConnection *)MHUnicastTransportConnection
+- (void)MHSUATPConnection:(MHSUATPConnection *)MHSUATPConnection
                          sendMessage:(MHMessage *)message
                               toPeer:(NSString *)peer
 {

@@ -1,13 +1,13 @@
 //
-//  MHUnicastTransportConnection.h
+//  MHSUATPConnection.h
 //  Multihop
 //
 //  Created by quarta on 16/05/15.
 //  Copyright (c) 2015 quarta. All rights reserved.
 //
 
-#ifndef Multihop_MHUnicastTransportConnection_h
-#define Multihop_MHUnicastTransportConnection_h
+#ifndef Multihop_MHSUATPConnection_h
+#define Multihop_MHSUATPConnection_h
 
 
 #import <Foundation/Foundation.h>
@@ -15,15 +15,17 @@
 #import "MHMessage.h"
 
 #define MH_SUATP_MAX_INITIAL_SEQ_NUMBER 100000
+#define MH_SUATP_TIMEOUT_MS 3000
 
-@protocol MHUnicastTransportConnectionDelegate;
 
-@interface MHUnicastTransportConnection : NSObject
+@protocol MHSUATPConnectionDelegate;
+
+@interface MHSUATPConnection : NSObject
 
 #pragma mark - Properties
 
 
-@property (nonatomic, weak) id<MHUnicastTransportConnectionDelegate> delegate;
+@property (nonatomic, weak) id<MHSUATPConnectionDelegate> delegate;
 
 
 #pragma mark - Initialization
@@ -41,22 +43,22 @@
 @end
 
 /**
- The delegate for the MHUnicastTransportConnection class.
+ The delegate for the MHSUATPConnection class.
  */
-@protocol MHUnicastTransportConnectionDelegate <NSObject>
+@protocol MHSUATPConnectionDelegate <NSObject>
 
 @required
-- (void)MHUnicastTransportConnection:(MHUnicastTransportConnection *)MHUnicastTransportConnection
+- (void)MHSUATPConnection:(MHSUATPConnection *)MHSUATPConnection
                       isDisconnected:(NSString *)info
                                 peer:(NSString *)peer;
 
 // Tells the lower layers to send a packet containing the specified message
-- (void)MHUnicastTransportConnection:(MHUnicastTransportConnection *)MHUnicastTransportConnection
+- (void)MHSUATPConnection:(MHSUATPConnection *)MHSUATPConnection
                          sendMessage:(MHMessage *)message
                               toPeer:(NSString *)peer;
 
 // Needs to be directly forwarded to upper layers
-- (void)MHUnicastTransportConnection:(MHUnicastTransportConnection *)MHUnicastTransportConnection
+- (void)MHSUATPConnection:(MHSUATPConnection *)MHSUATPConnection
                    didReceiveMessage:(MHMessage *)message
                             fromPeer:(NSString *)peer
                        withTraceInfo:(NSArray *)traceInfo;

@@ -15,7 +15,7 @@
 #import "MHUnicastRoutingProtocol.h"
 #import "MHMessage.h"
 
-#import "MHUnicastTransportConnection.h"
+#import "MHSUATPConnection.h"
 
 
 typedef enum MHUnicastProtocol
