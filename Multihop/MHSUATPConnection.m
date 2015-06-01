@@ -8,9 +8,9 @@
 
 #import "MHSUATPConnection.h"
 
+// TODO: what if no ack is never received???
 
-
-@interface MHSUATPConnection () <MHSUATPBufferDelegate>
+@interface MHSUATPConnection ()
 
 @property (nonatomic, strong) NSString *targetPeer;
 
@@ -63,14 +63,11 @@
         self.tempMessagesBuffer = [[NSMutableArray alloc] init];
         
         // Buffers initialization
-        self.transmittedBuffer = [[MHSUATPBuffer alloc] initWithName:MH_SUATP_BUFFER_TRANSMITTED];
-        self.transmittedBuffer.delegate = self;
+        self.transmittedBuffer = [[MHSUATPBuffer alloc] init];
         
-        self.queuedSendingBuffer = [[MHSUATPBuffer alloc] initWithName:MH_SUATP_BUFFER_QUEUED_SND];
-        self.queuedSendingBuffer.delegate = self;
+        self.queuedSendingBuffer = [[MHSUATPBuffer alloc] init];
         
-        self.retransmittingBuffer = [[MHSUATPBuffer alloc] initWithName:MH_SUATP_BUFFER_RETRANSMISSION];
-        self.retransmittingBuffer.delegate = self;
+        self.retransmittingBuffer = [[MHSUATPBuffer alloc] init];
         
         
         // Congestion
@@ -103,14 +100,20 @@
     self.dequeueSendingMessages = ^{
         if (weakSelf)
         {
-            if (!weakSelf.retransmittingBuffer.isEmpty)
-            {
-                [weakSelf.retransmittingBuffer popMessage];
-            }
-            else
-            {
-                [weakSelf.queuedSendingBuffer popMessage];
-            }
+            dispatch_async(dispatch_get_main_queue(), ^{
+                if (!weakSelf.retransmittingBuffer.isEmpty)
+                {
+                    [weakSelf processSendingMessage:[weakSelf.retransmittingBuffer popMessage].message
+                                       withWeakSelf:weakSelf];
+                }
+                else
+                {
+                    [weakSelf processSendingMessage:[weakSelf.queuedSendingBuffer popMessage].message
+                                       withWeakSelf:weakSelf];
+                }
+                
+                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(MH_SUATP_DEFAULT_SENDING_DELAY * NSEC_PER_MSEC)), dispatch_get_main_queue(), weakSelf.dequeueSendingMessages);
+            });
         }
     };
     
@@ -282,8 +285,8 @@
         
         dispatch_async(dispatch_get_main_queue(), ^{
             [self.delegate MHSUATPConnection:self
-                                            sendMessage:synackMessage
-                                                 toPeer:self.targetPeer];
+                                 sendMessage:synackMessage
+                                      toPeer:self.targetPeer];
         });
         
         
@@ -294,8 +297,8 @@
                 // An error occurred
                 dispatch_async(dispatch_get_main_queue(), ^{
                     [self.delegate MHSUATPConnection:self
-                                                 isDisconnected:@"Handshake failure"
-                                                           peer:self.targetPeer];
+                                      isDisconnected:@"Handshake failure"
+                                                peer:self.targetPeer];
                 });
             }
         });
@@ -387,57 +390,53 @@
 
 
 
-#pragma mark - MHSUATPBuffer delegate methods
-- (void)mhSUATPBuffer:(MHSUATPBuffer *)MHSUATPBuffer
-                 name:(NSString *)name
-           gotMessage:(MHMessage *)message
-        withTraceInfo:(NSArray *)traceInfo
-{
-    if ([name isEqualToString:MH_SUATP_BUFFER_QUEUED_SND])
-    {
-        [self processSendingMessage:message];
-    }
-    else if ([name isEqualToString:MH_SUATP_BUFFER_RETRANSMISSION]) // Same behaviour as normal queue
-    {
-        [self processSendingMessage:message];
-    }
-    else if([name isEqualToString:MH_SUATP_BUFFER_TRANSMITTED])
-    {
-        [self processTrasmittedMessage:message];
-    }
-}
-
-
-- (void)mhSUATPBuffer:(MHSUATPBuffer *)MHSUATPBuffer
-                 name:(NSString *)name
-           noMessages:(NSString *)info
-{
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(MH_SUATP_DEFAULT_SENDING_DELAY * NSEC_PER_MSEC)), dispatch_get_main_queue(), self.dequeueSendingMessages);
-}
-
 
 #pragma mark - Sending buffers logic
 - (void)processSendingMessage:(MHMessage *)message
+                 withWeakSelf:(MHSUATPConnection * __weak)weakSelf
 {
-    // We send to target peer, but we put into trasmitted buffer
-    // if a retransmission is needed
-    [self.delegate MHSUATPConnection:self sendMessage:message toPeer:self.targetPeer];
-    
-    [self.transmittedBuffer pushMessage:message withTraceInfo:nil];
-    
-    
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(MH_SUATP_DEFAULT_SENDING_DELAY * NSEC_PER_MSEC)), dispatch_get_main_queue(), self.dequeueSendingMessages);
-}
-
-- (void)processTrasmittedMessage:(MHMessage *)message
-{
-    
+    if (message != nil)
+    {
+        // We send to target peer, but we put into trasmitted buffer
+        // if a retransmission is needed
+        [weakSelf.delegate MHSUATPConnection:weakSelf sendMessage:message toPeer:weakSelf.targetPeer];
+        
+        [weakSelf.transmittedBuffer pushMessage:message withTraceInfo:nil];
+    }
 }
 
 
 #pragma mark - Receiving message logic
 - (void)processAckMessage:(MHMessage *)message
 {
+    MHSUATPAckMessageContent *content = [NSKeyedUnarchiver unarchiveObjectWithData:message.data];
     
+    dispatch_async(dispatch_get_main_queue(), ^{
+        // ClearUntil is not async!!
+        if (content.missingMessages.count > 0)
+        {
+            NSUInteger firstMissing = [content.missingMessages[0] integerValue];
+            
+            [self.transmittedBuffer clearUntil:firstMissing - 1]; // We do not erase the first missing message as well!
+        }
+        else
+        {
+            [self.transmittedBuffer clearUntil:content.lastReceivedMessage];
+        }
+        
+        MHSUATPBufferMessage *transmittedMsg = [self.transmittedBuffer popMessage];
+        
+        while (transmittedMsg != nil)
+        {
+            if([content.missingMessages containsObject:[NSNumber numberWithUnsignedInteger:transmittedMsg.message.seqNumber]] || transmittedMsg.message.seqNumber > content.lastReceivedMessage)
+            {
+                // We put into retransmission buffer if the message is one
+                // of the missing ones or the receiver does not know that it exists
+                [self.retransmittingBuffer pushMessage:transmittedMsg.message withTraceInfo:transmittedMsg.traceInfo];
+            }
+            
+            transmittedMsg = [self.transmittedBuffer popMessage];
+        }
+    });
 }
 @end

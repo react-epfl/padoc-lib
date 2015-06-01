@@ -14,8 +14,6 @@
 
 @property (nonatomic, strong) NSMutableDictionary *messages;
 
-@property (nonatomic, strong) NSString *name;
-
 @property (nonatomic) NSInteger last;
 
 @end
@@ -24,13 +22,12 @@
 
 #pragma mark - Life Cycle
 
-- (instancetype)initWithName:(NSString *)name
+- (instancetype)init
 {
     self = [super init];
     if (self)
     {
         self.messages = [[NSMutableDictionary alloc] init];
-        self.name = name;
         self.last = -1;
     }
     return self;
@@ -46,7 +43,7 @@
 - (BOOL)isEmpty
 {
     // Concurrency problems???
-    return self.messages.count == 0;
+    return self.last == -1;
 }
 
 - (void)pushMessage:(MHMessage *)message withTraceInfo:(NSArray *)traceInfo
@@ -67,38 +64,27 @@
     });
 }
 
-- (void)popMessage
+- (MHSUATPBufferMessage *)popMessage
 {
-    dispatch_async(dispatch_get_main_queue(), ^{
-
-        if (self.messages.count > 0)
+    if (self.messages.count > 0)
+    {
+        NSNumber *min=[[self.messages allKeys] valueForKeyPath:@"@min.self"];
+        
+        MHSUATPBufferMessage *msg = [self.messages objectForKey:min];
+        [self.messages removeObjectForKey:min];
+        
+        
+        if (self.messages.count == 0)
         {
-            NSNumber *min=[[self.messages allKeys] valueForKeyPath:@"@min.self"];
-            
-            MHSUATPBufferMessage *msg = [self.messages objectForKey:min];
-            [self.messages removeObjectForKey:min];
-            
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [self.delegate mhSUATPBuffer:self
-                                        name:self.name
-                                  gotMessage:msg.message
-                               withTraceInfo:msg.traceInfo];
-            });
-            
-            if (self.messages.count == 0)
-            {
-                self.last = -1;
-            }
+            self.last = -1;
         }
-        else
-        {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [self.delegate mhSUATPBuffer:self
-                                        name:self.name
-                                  noMessages:@"Buffer is empty"];
-            });
-        }
-    });
+        
+        return msg;
+    }
+    else
+    {
+        return nil;
+    }
 }
 
 
@@ -116,8 +102,7 @@
         {
             [self.messages removeObjectForKey:msgKey];
         }
-        
-        if(msgNo == seqNumber)
+        else
         {
             break;
         }
