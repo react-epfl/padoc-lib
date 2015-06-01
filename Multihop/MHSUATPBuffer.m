@@ -42,6 +42,13 @@
     self.messages = nil;
 }
 
+
+- (BOOL)isEmpty
+{
+    // Concurrency problems???
+    return self.messages.count == 0;
+}
+
 - (void)pushMessage:(MHMessage *)message withTraceInfo:(NSArray *)traceInfo
 {
     dispatch_async(dispatch_get_main_queue(), ^{
@@ -74,7 +81,7 @@
             dispatch_async(dispatch_get_main_queue(), ^{
                 [self.delegate mhSUATPBuffer:self
                                         name:self.name
-                                  popMessage:msg.message
+                                  gotMessage:msg.message
                                withTraceInfo:msg.traceInfo];
             });
             
@@ -82,6 +89,14 @@
             {
                 self.last = -1;
             }
+        }
+        else
+        {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self.delegate mhSUATPBuffer:self
+                                        name:self.name
+                                  noMessages:@"Buffer is empty"];
+            });
         }
     });
 }

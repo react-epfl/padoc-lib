@@ -245,8 +245,15 @@ didReceiveInvitationFromPeer:(MCPeerID *)peerID
 
 - (void)browser:(MCNearbyServiceBrowser *)browser foundPeer:(MCPeerID *)peerID withDiscoveryInfo:(NSDictionary *)info
 {
-    if(([self.mhPeer.mhPeerID hasPrefix:@"E271"] && [[info objectForKey:@"MultihopID"] hasPrefix:@"1280"]) ||
-       ([self.mhPeer.mhPeerID hasPrefix:@"1280"] && [[info objectForKey:@"MultihopID"] hasPrefix:@"E271"]))
+    // Hooks for testing
+    // TODO: remove them!!!
+    if(([self.mhPeer.mhPeerID hasPrefix:@"845A"] && ([[info objectForKey:@"MultihopID"] hasPrefix:@"E271"] || [[info objectForKey:@"MultihopID"] hasPrefix:@"1280"])) ||
+       
+       ([self.mhPeer.mhPeerID hasPrefix:@"19FD"] && [[info objectForKey:@"MultihopID"] hasPrefix:@"1280"]) ||
+       
+       ([self.mhPeer.mhPeerID hasPrefix:@"E271"] && [[info objectForKey:@"MultihopID"] hasPrefix:@"845A"]) ||
+       
+       ([self.mhPeer.mhPeerID hasPrefix:@"1280"] && ([[info objectForKey:@"MultihopID"] hasPrefix:@"19FD"] || [[info objectForKey:@"MultihopID"] hasPrefix:@"845A"])))
     {
         return;
     }

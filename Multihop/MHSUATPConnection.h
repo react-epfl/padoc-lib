@@ -13,9 +13,20 @@
 #import <Foundation/Foundation.h>
 #import "MHComputation.h"
 #import "MHMessage.h"
+#import "MHSUATPBuffer.h"
 
 #define MH_SUATP_MAX_INITIAL_SEQ_NUMBER 100000
 #define MH_SUATP_TIMEOUT_MS 3000
+
+#define MH_SUATP_BUFFER_TRANSMITTED @"Transmitted"
+#define MH_SUATP_BUFFER_QUEUED_SND @"SendingQueue"
+#define MH_SUATP_BUFFER_RETRANSMISSION @"Retransmission"
+
+#define MH_SUATP_BUFFER_QUEUD_RCV @"ReceivedQueue"
+
+
+#define MH_SUATP_DEFAULT_SENDING_DELAY 20
+//#define MH_SUATP_DEFAULT_RECEIVING_DELAY 20
 
 
 @protocol MHSUATPConnectionDelegate;

@@ -29,6 +29,8 @@
 - (void)pushMessage:(MHMessage *)message withTraceInfo:(NSArray *)traceInfo;
 - (void)popMessage;
 
+- (BOOL)isEmpty;
+
 #pragma mark - Control methods
 - (void)clearUntil:(NSUInteger)seqNumber;
 - (NSUInteger)lastElement;
@@ -44,8 +46,12 @@
 @required
 - (void)mhSUATPBuffer:(MHSUATPBuffer *)MHSUATPBuffer
                  name:(NSString *)name
-           popMessage:(MHMessage *)message
+           gotMessage:(MHMessage *)message
         withTraceInfo:(NSArray *)traceInfo;
+
+- (void)mhSUATPBuffer:(MHSUATPBuffer *)MHSUATPBuffer
+                 name:(NSString *)name
+           noMessages:(NSString *)info;
 
 @end
 

@@ -31,6 +31,7 @@
 		2BBE61FC1AF6A0CB009D9896 /* MHUnicastController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BBE61FB1AF6A0CB009D9896 /* MHUnicastController.m */; };
 		2BBE61FF1AF6A0E9009D9896 /* MHMulticastController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BBE61FE1AF6A0E9009D9896 /* MHMulticastController.m */; };
 		2BD7D4BD1B07B29C00DDA0AA /* MHSUATPConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BD7D4BC1B07B29C00DDA0AA /* MHSUATPConnection.m */; };
+		2BE24C7F1B1C945F00472AC2 /* MHSUATPAckMessageContent.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BE24C7E1B1C945F00472AC2 /* MHSUATPAckMessageContent.m */; };
 		2BF4C58A1ACF2664005B8481 /* MHFloodingProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BF4C5891ACF2664005B8481 /* MHFloodingProtocol.m */; };
 		2BF4C5901ACF5CD5005B8481 /* MH6ShotsProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BF4C58F1ACF5CD5005B8481 /* MH6ShotsProtocol.m */; };
 		2BF4C5991ACF652E005B8481 /* MH6ShotsSchedule.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BF4C5981ACF652E005B8481 /* MH6ShotsSchedule.m */; };
@@ -101,6 +102,8 @@
 		2BBE61FE1AF6A0E9009D9896 /* MHMulticastController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MHMulticastController.m; sourceTree = "<group>"; };
 		2BD7D4BB1B07B25600DDA0AA /* MHSUATPConnection.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MHSUATPConnection.h; sourceTree = "<group>"; };
 		2BD7D4BC1B07B29C00DDA0AA /* MHSUATPConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MHSUATPConnection.m; sourceTree = "<group>"; };
+		2BE24C7D1B1C944300472AC2 /* MHSUATPAckMessageContent.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MHSUATPAckMessageContent.h; sourceTree = "<group>"; };
+		2BE24C7E1B1C945F00472AC2 /* MHSUATPAckMessageContent.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MHSUATPAckMessageContent.m; sourceTree = "<group>"; };
 		2BF4C5881ACF2650005B8481 /* MHFloodingProtocol.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MHFloodingProtocol.h; sourceTree = "<group>"; };
 		2BF4C5891ACF2664005B8481 /* MHFloodingProtocol.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MHFloodingProtocol.m; sourceTree = "<group>"; };
 		2BF4C58E1ACF5CC3005B8481 /* MH6ShotsProtocol.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MH6ShotsProtocol.h; sourceTree = "<group>"; };
@@ -172,6 +175,8 @@
 				2B5D44B91B1B51A40084E780 /* MHSUATPBuffer.m */,
 				2B5D44BB1B1B540A0084E780 /* MHSUATPBufferMessage.h */,
 				2B5D44BC1B1B541D0084E780 /* MHSUATPBufferMessage.m */,
+				2BE24C7D1B1C944300472AC2 /* MHSUATPAckMessageContent.h */,
+				2BE24C7E1B1C945F00472AC2 /* MHSUATPAckMessageContent.m */,
 			);
 			name = SUATP;
 			sourceTree = "<group>";
@@ -432,6 +437,7 @@
 			files = (
 				2BBE61F91AF6A093009D9896 /* MHMessage.m in Sources */,
 				2B8093131AB726170059F89D /* MHMultipeerWrapper.m in Sources */,
+				2BE24C7F1B1C945F00472AC2 /* MHSUATPAckMessageContent.m in Sources */,
 				2B5D44BD1B1B541D0084E780 /* MHSUATPBufferMessage.m in Sources */,
 				2BA459E61AF919550052E0FB /* MHDiagnostics.m in Sources */,
 				2BA5EAAE1AF26FE300F01FB3 /* MHComputation.m in Sources */,

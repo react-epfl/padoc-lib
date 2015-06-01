@@ -10,7 +10,7 @@
 
 
 
-@interface MHSUATPConnection ()
+@interface MHSUATPConnection () <MHSUATPBufferDelegate>
 
 @property (nonatomic, strong) NSString *targetPeer;
 
@@ -24,6 +24,24 @@
 
 @property (nonatomic, strong) NSMutableArray *tempMessagesBuffer;
 
+// Message sending buffers
+@property (nonatomic, strong) MHSUATPBuffer *transmittedBuffer;
+@property (nonatomic, strong) MHSUATPBuffer *queuedSendingBuffer; // Normal priority
+@property (nonatomic, strong) MHSUATPBuffer *retransmittingBuffer; // High priority
+
+// Message receiving buffers
+//@property (nonatomic, strong) MHSUATPBuffer *queuedReceivingBuffer; // Normal received buffer
+//@property (nonatomic, strong) MHSUATPBuffer *stockedBuffer; //
+
+
+// Congestion parameters
+@property (nonatomic) NSUInteger sendDelay;
+@property (nonatomic) NSUInteger receiveDelay;
+
+
+// Loop functions
+@property (copy) void (^dequeueSendingMessages)(void);
+//@property (copy) void (^dequeueReceivingMessages)(void);
 @end
 
 @implementation MHSUATPConnection
@@ -43,6 +61,26 @@
         self.targetSeqNumber = 0;
         
         self.tempMessagesBuffer = [[NSMutableArray alloc] init];
+        
+        // Buffers initialization
+        self.transmittedBuffer = [[MHSUATPBuffer alloc] initWithName:MH_SUATP_BUFFER_TRANSMITTED];
+        self.transmittedBuffer.delegate = self;
+        
+        self.queuedSendingBuffer = [[MHSUATPBuffer alloc] initWithName:MH_SUATP_BUFFER_QUEUED_SND];
+        self.queuedSendingBuffer.delegate = self;
+        
+        self.retransmittingBuffer = [[MHSUATPBuffer alloc] initWithName:MH_SUATP_BUFFER_RETRANSMISSION];
+        self.retransmittingBuffer.delegate = self;
+        
+        
+        // Congestion
+        self.sendDelay = MH_SUATP_DEFAULT_SENDING_DELAY;
+        //self.receiveDelay = MH_SUATP_DEFAULT_RECEIVING_DELAY;
+        
+        // Loop functions
+        MHSUATPConnection * __weak weakSelf = self;
+        [self setFctDequeueSendingMessages:weakSelf];
+        //[self setFctDequeueReceivingMessages:weakSelf];
     }
     return self;
 }
@@ -51,31 +89,73 @@
 {
     [self.tempMessagesBuffer removeAllObjects];
     self.tempMessagesBuffer = nil;
+    
+    self.transmittedBuffer = nil;
+    self.queuedSendingBuffer = nil;
+    self.retransmittingBuffer = nil;
 }
 
 
+#pragma mark - Loop functions
+
+- (void)setFctDequeueSendingMessages:(MHSUATPConnection * __weak)weakSelf
+{
+    self.dequeueSendingMessages = ^{
+        if (weakSelf)
+        {
+            if (!weakSelf.retransmittingBuffer.isEmpty)
+            {
+                [weakSelf.retransmittingBuffer popMessage];
+            }
+            else
+            {
+                [weakSelf.queuedSendingBuffer popMessage];
+            }
+        }
+    };
+    
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(MH_SUATP_DEFAULT_SENDING_DELAY * NSEC_PER_MSEC)), dispatch_get_main_queue(), self.dequeueSendingMessages);
+}
+
+/*
+- (void)setFctDequeueReceivingMessages:(MHSUATPConnection * __weak)weakSelf
+{
+    self.dequeueReceivingMessages = ^{
+        if (weakSelf)
+        {
+            [self.qu]
+            
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(MH_FLOODING_SCHEDULECLEANING_DELAY * NSEC_PER_MSEC)), dispatch_get_main_queue(), weakSelf.processedPacketsCleaning);
+        }
+    };
+    
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(MH_SUATP_DEFAULT_RECEIVING_DELAY * NSEC_PER_MSEC)), dispatch_get_main_queue(), self.dequeueReceivingMessages);
+}
+*/
+ 
+ 
 #pragma mark - Communicate
 - (void)sendMessage:(MHMessage *)message
 {
     // Dummy procedure
     [self.delegate MHSUATPConnection:self
-                                    sendMessage:message
-                                         toPeer:self.targetPeer];
+                         sendMessage:message
+                              toPeer:self.targetPeer];
     return;
     
     dispatch_async(dispatch_get_main_queue(), ^{
+        self.seqNumber++;
+        message.seqNumber = self.seqNumber;
+        
         if(!self.connected) // if still not connected, put into temporary buffer
         {
             [self.tempMessagesBuffer addObject:message];
         }
         else
         {
-            
+            [self.queuedSendingBuffer pushMessage:message withTraceInfo:nil];
         }
     });
-    
-    //self.seqNumber++;
-    //message.seqNumber = self.seqNumber;
 }
 
 
@@ -83,10 +163,21 @@
 {
     // Dummy procedure
     [self.delegate MHSUATPConnection:self
-                              didReceiveMessage:message
-                                       fromPeer:self.targetPeer
-                                  withTraceInfo:traceInfo];
+                   didReceiveMessage:message
+                            fromPeer:self.targetPeer
+                       withTraceInfo:traceInfo];
     return;
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (message.ack == YES) // Ack message
+        {
+            [self processAckMessage:message];
+        }
+        else // Normal packet
+        {
+            // TODO
+        }
+    });
 }
 
 
@@ -282,11 +373,71 @@
 
 - (void)setConnectionEnabled
 {
-    
-    
     dispatch_async(dispatch_get_main_queue(), ^{
+        for (id msg in self.tempMessagesBuffer)
+        {
+            [self.queuedSendingBuffer pushMessage:msg withTraceInfo:nil];
+        }
+        
+        [self.tempMessagesBuffer removeAllObjects];
+        
         self.connected = true;
     });
 }
 
+
+
+#pragma mark - MHSUATPBuffer delegate methods
+- (void)mhSUATPBuffer:(MHSUATPBuffer *)MHSUATPBuffer
+                 name:(NSString *)name
+           gotMessage:(MHMessage *)message
+        withTraceInfo:(NSArray *)traceInfo
+{
+    if ([name isEqualToString:MH_SUATP_BUFFER_QUEUED_SND])
+    {
+        [self processSendingMessage:message];
+    }
+    else if ([name isEqualToString:MH_SUATP_BUFFER_RETRANSMISSION]) // Same behaviour as normal queue
+    {
+        [self processSendingMessage:message];
+    }
+    else if([name isEqualToString:MH_SUATP_BUFFER_TRANSMITTED])
+    {
+        [self processTrasmittedMessage:message];
+    }
+}
+
+
+- (void)mhSUATPBuffer:(MHSUATPBuffer *)MHSUATPBuffer
+                 name:(NSString *)name
+           noMessages:(NSString *)info
+{
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(MH_SUATP_DEFAULT_SENDING_DELAY * NSEC_PER_MSEC)), dispatch_get_main_queue(), self.dequeueSendingMessages);
+}
+
+
+#pragma mark - Sending buffers logic
+- (void)processSendingMessage:(MHMessage *)message
+{
+    // We send to target peer, but we put into trasmitted buffer
+    // if a retransmission is needed
+    [self.delegate MHSUATPConnection:self sendMessage:message toPeer:self.targetPeer];
+    
+    [self.transmittedBuffer pushMessage:message withTraceInfo:nil];
+    
+    
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(MH_SUATP_DEFAULT_SENDING_DELAY * NSEC_PER_MSEC)), dispatch_get_main_queue(), self.dequeueSendingMessages);
+}
+
+- (void)processTrasmittedMessage:(MHMessage *)message
+{
+    
+}
+
+
+#pragma mark - Receiving message logic
+- (void)processAckMessage:(MHMessage *)message
+{
+    
+}
 @end
