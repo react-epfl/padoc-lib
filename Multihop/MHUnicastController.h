@@ -13,55 +13,19 @@
 #import <Foundation/Foundation.h>
 #import "MHFloodingProtocol.h"
 #import "MHUnicastRoutingProtocol.h"
-#import "MHMessage.h"
+#import "MHController.h"
 
-#import "MHSUATPConnection.h"
-
-
-typedef enum MHUnicastProtocol
-{
-    MHUnicastFloodingProtocol
-}MHUnicastProtocol;
 
 @protocol MHUnicastControllerDelegate;
 
-@interface MHUnicastController : NSObject
+@interface MHUnicastController : MHController
 
-#pragma mark - Properties
-
-
-@property (nonatomic, weak) id<MHUnicastControllerDelegate> delegate;
 
 
 #pragma mark - Initialization
 - (instancetype)initWithServiceType:(NSString *)serviceType
                         displayName:(NSString *)displayName
-                withRoutingProtocol:(MHUnicastProtocol)protocol;
-
-
-
-- (void)disconnect;
-
-
-- (void)sendMessage:(MHMessage *)message
-     toDestinations:(NSArray *)destinations
-              error:(NSError **)error;
-
-
-- (NSString *)getOwnPeer;
-
-- (int)hopsCountFromPeer:(NSString*)peer;
-
-
-// Background Mode methods
-- (void)applicationWillResignActive;
-
-- (void)applicationDidBecomeActive;
-
-// Termination method
-- (void)applicationWillTerminate;
-
-
+                withRoutingProtocol:(MHRoutingProtocols)protocol;
 
 
 @end
@@ -69,7 +33,7 @@ typedef enum MHUnicastProtocol
 /**
  The delegate for the MHUnicastController class.
  */
-@protocol MHUnicastControllerDelegate <NSObject>
+@protocol MHUnicastControllerDelegate <MHControllerDelegate>
 
 @required
 - (void)mhUnicastController:(MHUnicastController *)mhUnicastController
@@ -80,19 +44,6 @@ typedef enum MHUnicastProtocol
 - (void)mhUnicastController:(MHUnicastController *)mhUnicastController
             hasDisconnected:(NSString *)info
                        peer:(NSString *)peer;
-
-- (void)mhUnicastController:(MHUnicastController *)mhUnicastController
-            failedToConnect:(NSError *)error;
-
-- (void)mhUnicastController:(MHUnicastController *)mhUnicastController
-          didReceiveMessage:(MHMessage *)message
-                   fromPeer:(NSString *)peer
-              withTraceInfo:(NSArray *)traceInfo;
-
-#pragma mark - Diagnostics info callbacks
-- (void)mhUnicastController:(MHUnicastController *)mhUnicastController
-              forwardPacket:(NSString *)info
-                 fromSource:(NSString *)peer;
 @end
 
 

@@ -11,33 +11,17 @@
 
 
 #import <Foundation/Foundation.h>
-#import "MHConnectionsHandler.h"
-#import "MHPacket.h"
-
-// Diagnostics
-#import "MHDiagnostics.h"
-
+#import "MHRoutingProtocol.h"
 
 
 @protocol MHMulticastRoutingProtocolDelegate;
 
-@interface MHMulticastRoutingProtocol : NSObject
-
-#pragma mark - Properties
-
-@property (nonatomic, weak) id<MHMulticastRoutingProtocolDelegate> delegate;
-
+@interface MHMulticastRoutingProtocol : MHRoutingProtocol
 
 #pragma mark - Initialization
 - (instancetype)initWithServiceType:(NSString *)serviceType
                         displayName:(NSString *)displayName;
 
-- (NSString *)getOwnPeer;
-
-
-- (void)applicationWillResignActive;
-
-- (void)applicationDidBecomeActive;
 
 
 #pragma mark - Overridable methods
@@ -55,25 +39,14 @@
 @end
 
 
-@protocol MHMulticastRoutingProtocolDelegate <NSObject>
+@protocol MHMulticastRoutingProtocolDelegate <MHRoutingProtocolDelegate>
 
 @required
-- (void)mhProtocol:(MHMulticastRoutingProtocol *)mhProtocol
-   failedToConnect:(NSError *)error;
-
-- (void)mhProtocol:(MHMulticastRoutingProtocol *)mhProtocol
-  didReceivePacket:(MHPacket *)packet
-     withTraceInfo:(NSArray *)traceInfo;
-
 #pragma mark - Diagnostics info callbacks
 - (void)mhProtocol:(MHMulticastRoutingProtocol *)mhProtocol
        joinedGroup:(NSString *)info
               peer:(NSString *)peer
              group:(NSString *)group;
-
-- (void)mhProtocol:(MHMulticastRoutingProtocol *)mhProtocol
-     forwardPacket:(NSString *)info
-        fromSource:(NSString *)peer;
 @end
 
 #endif

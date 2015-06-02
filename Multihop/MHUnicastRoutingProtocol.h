@@ -11,33 +11,17 @@
 
 
 #import <Foundation/Foundation.h>
-#import "MHConnectionsHandler.h"
-#import "MHPacket.h"
-
-// Diagnostics
-#import "MHDiagnostics.h"
+#import "MHRoutingProtocol.h"
 
 
 @protocol MHUnicastRoutingProtocolDelegate;
 
-@interface MHUnicastRoutingProtocol : NSObject
-
-#pragma mark - Properties
-
-@property (nonatomic, weak) id<MHUnicastRoutingProtocolDelegate> delegate;
+@interface MHUnicastRoutingProtocol : MHRoutingProtocol
 
 
 #pragma mark - Initialization
 - (instancetype)initWithServiceType:(NSString *)serviceType
                         displayName:(NSString *)displayName;
-
-- (NSString *)getOwnPeer;
-
-
-- (void)applicationWillResignActive;
-
-- (void)applicationDidBecomeActive;
-
 
 #pragma mark - Overridable methods
 - (void)disconnect;
@@ -50,7 +34,7 @@
 @end
 
 
-@protocol MHUnicastRoutingProtocolDelegate <NSObject>
+@protocol MHUnicastRoutingProtocolDelegate <MHRoutingProtocolDelegate>
 
 @required
 - (void)mhProtocol:(MHUnicastRoutingProtocol *)mhProtocol
@@ -61,18 +45,6 @@
 - (void)mhProtocol:(MHUnicastRoutingProtocol *)mhProtocol
    hasDisconnected:(NSString *)info
               peer:(NSString *)peer;
-
-- (void)mhProtocol:(MHUnicastRoutingProtocol *)mhProtocol
-   failedToConnect:(NSError *)error;
-
-- (void)mhProtocol:(MHUnicastRoutingProtocol *)mhProtocol
-  didReceivePacket:(MHPacket *)packet
-     withTraceInfo:(NSArray *)traceInfo;
-
-#pragma mark - Diagnostics info callbacks
-- (void)mhProtocol:(MHUnicastRoutingProtocol *)mhProtocol
-     forwardPacket:(NSString *)info
-        fromSource:(NSString *)peer;
 @end
 
 

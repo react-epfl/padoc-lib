@@ -168,7 +168,7 @@
     [self.discoveryPackets removeObjectForKey:peer];
     
     dispatch_async(dispatch_get_main_queue(), ^{
-        [self.delegate mhProtocol:self hasDisconnected:info peer:peer];
+        [(id<MHUnicastRoutingProtocolDelegate>)self.delegate mhProtocol:self hasDisconnected:info peer:peer];
     });
 }
 
@@ -206,7 +206,10 @@
         // and forward it
         dispatch_async(dispatch_get_main_queue(), ^{
             [self.discoveryPackets setObject:packet forKey:packet.source];
-            [self.delegate mhProtocol:self isDiscovered:@"Discovered" peer:packet.source displayName:[packet.info objectForKey:@"displayname"]];
+            [(id<MHUnicastRoutingProtocolDelegate>)self.delegate mhProtocol:self
+                                                               isDiscovered:@"Discovered"
+                                                                       peer:packet.source
+                                                                displayName:[packet.info objectForKey:@"displayname"]];
         });
         
         // Diagnostics
@@ -287,20 +290,5 @@
         });
     }
 }
-
-- (void)cHandler:(MHConnectionsHandler *)cHandler
-  enteredStandby:(NSString *)info
-            peer:(NSString *)peer
-{
-    // We do not care about
-}
-
-- (void)cHandler:(MHConnectionsHandler *)cHandler
-   leavedStandby:(NSString *)info
-            peer:(NSString *)peer
-{
-    // We do not care about
-}
-
 
 @end

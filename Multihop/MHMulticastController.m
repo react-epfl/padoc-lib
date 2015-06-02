@@ -10,7 +10,7 @@
 
 @interface MHMulticastController () <MHMulticastRoutingProtocolDelegate>
 
-@property (nonatomic, strong) MHMulticastRoutingProtocol *mhProtocol;
+@property (nonatomic, strong) MHRoutingProtocol *mhProtocol;
 @end
 
 @implementation MHMulticastController
@@ -19,7 +19,7 @@
 
 - (instancetype)initWithServiceType:(NSString *)serviceType
                         displayName:(NSString *)displayName
-                withRoutingProtocol:(MHMulticastProtocol)protocol
+                withRoutingProtocol:(MHRoutingProtocols)protocol
 {
     self = [super init];
     if (self)
@@ -43,94 +43,24 @@
 
 - (void)dealloc
 {
-    self.mhProtocol  = nil;
-}
 
-#pragma mark - Membership
-
-- (void)disconnect
-{
-    [self.mhProtocol disconnect];
 }
 
 #pragma mark - Communicate
 
 - (void)joinGroup:(NSString *)groupName
 {
-    [self.mhProtocol joinGroup:groupName];
+    [(MHMulticastRoutingProtocol*)self.mhProtocol joinGroup:groupName];
 }
 
 - (void)leaveGroup:(NSString *)groupName
 {
-    [self.mhProtocol leaveGroup:groupName];
-}
-
-- (void)sendMessage:(MHMessage *)message
-     toDestinations:(NSArray *)destinations
-              error:(NSError **)error;
-{
-    MHPacket *packet = [[MHPacket alloc] initWithSource:[self getOwnPeer]
-                                       withDestinations:destinations
-                                               withData:[NSKeyedArchiver archivedDataWithRootObject:message]];
-    
-    [self.mhProtocol sendPacket:packet error:error];
-}
-
-- (NSString *)getOwnPeer
-{
-    return [self.mhProtocol getOwnPeer];
-}
-
-- (int)hopsCountFromPeer:(NSString*)peer
-{
-    return [self.mhProtocol hopsCountFromPeer:peer];
+    [(MHMulticastRoutingProtocol*)self.mhProtocol leaveGroup:groupName];
 }
 
 
 
-#pragma mark - Background Mode methods
-- (void)applicationWillResignActive {
-    [self.mhProtocol applicationWillResignActive];
-}
-
-- (void)applicationDidBecomeActive{
-    [self.mhProtocol applicationDidBecomeActive];
-}
-
-
-
-# pragma mark - Termination method
-- (void)applicationWillTerminate {
-    [self disconnect];
-}
-
-
-
-
-#pragma mark - MHUnicastRoutingProtocol Delegates
-
-- (void)mhProtocol:(MHMulticastRoutingProtocol *)mhProtocol
-   failedToConnect:(NSError *)error
-{
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [self.delegate mhMulticastController:self failedToConnect:error];
-    });
-}
-
-- (void)mhProtocol:(MHMulticastRoutingProtocol *)mhProtocol
-  didReceivePacket:(MHPacket *)packet
-     withTraceInfo:(NSArray *)traceInfo
-{
-    dispatch_async(dispatch_get_main_queue(), ^{
-        // Unarchive message data
-        id message = [NSKeyedUnarchiver unarchiveObjectWithData:packet.data];
-        
-        if ([message isKindOfClass:[MHMessage class]])
-        {
-            [self.delegate mhMulticastController:self didReceiveMessage:message fromPeer:packet.source withTraceInfo:traceInfo];
-        }
-    });
-}
+#pragma mark - MHMulticastRoutingProtocol Delegates
 
 #pragma mark - Diagnostics info callbacks
 - (void)mhProtocol:(MHMulticastRoutingProtocol *)mhProtocol
@@ -139,16 +69,11 @@
              group:(NSString *)group
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        [self.delegate mhMulticastController:self joinedGroup:info peer:peer group:group];
+        [(id<MHMulticastControllerDelegate>)self.delegate mhMulticastController:self
+                                                                    joinedGroup:info
+                                                                           peer:peer
+                                                                          group:group];
     });
 }
 
-- (void)mhProtocol:(MHMulticastRoutingProtocol *)mhProtocol
-     forwardPacket:(NSString *)info
-        fromSource:(NSString *)peer
-{
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [self.delegate mhMulticastController:self forwardPacket:info fromSource:peer];
-    });
-}
 @end

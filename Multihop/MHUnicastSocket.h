@@ -11,17 +11,13 @@
 
 #import <Foundation/Foundation.h>
 #import "MHUnicastController.h"
+#import "MHSocket.h"
 
 
 
 @protocol MHUnicastSocketDelegate;
 
-@interface MHUnicastSocket : NSObject
-
-#pragma mark - Properties
-
-/// Delegate for the MHMultihop methods
-@property (nonatomic, weak) id<MHUnicastSocketDelegate> delegate;
+@interface MHUnicastSocket : MHSocket
 
 
 #pragma mark - Initialization
@@ -66,7 +62,7 @@
  @param protocol The routing protocol used.
  */
 - (instancetype)initWithServiceType:(NSString *)serviceType
-                withRoutingProtocol:(MHUnicastProtocol)protocol;
+                withRoutingProtocol:(MHRoutingProtocols)protocol;
 
 
 /**
@@ -89,48 +85,7 @@
  */
 - (instancetype)initWithServiceType:(NSString *)serviceType
                         displayName:(NSString *)displayName
-                withRoutingProtocol:(MHUnicastProtocol)protocol;
-
-
-
-/**
- Call this method to disconnect from the neighbourhood. In order to restart the system, a new Multihop object
- should be reinstantiated.
- */
-- (void)disconnect;
-
-
-/**
- Sends a message to selected peers.
- 
- They will receive the data with the delegate callback:
- 
- - (void)mhUnicastSocket:(MHUnicastSocket *)mhUnicastSocket didReceivePacket:(MHPacket *)packet
-
- @param data message data to send.
- @param destinations list of peers to which send the message
- @param error The address of an NSError pointer where an error object should be stored upon error.
- 
- */
-- (void)sendMessage:(NSData *)data
-     toDestinations:(NSArray *)destinations
-              error:(NSError **)error;
-
-
-- (NSString *)getOwnPeer;
-
-- (int)hopsCountFromPeer:(NSString*)peer;
-
-
-// Background Mode methods
-- (void)applicationWillResignActive;
-
-- (void)applicationDidBecomeActive;
-
-// Termination method
-- (void)applicationWillTerminate;
-
-
+                withRoutingProtocol:(MHRoutingProtocols)protocol;
 
 
 @end
@@ -138,7 +93,7 @@
 /**
  The delegate for the MHUnicastSocket class.
  */
-@protocol MHUnicastSocketDelegate <NSObject>
+@protocol MHUnicastSocketDelegate <MHSocketDelegate>
 
 @required
 - (void)mhUnicastSocket:(MHUnicastSocket *)mhUnicastSocket
@@ -146,25 +101,10 @@
                    peer:(NSString *)peer
             displayName:(NSString *)displayName;
 
-@required
 - (void)mhUnicastSocket:(MHUnicastSocket *)mhUnicastSocket
         hasDisconnected:(NSString *)info
                    peer:(NSString *)peer;
 
-- (void)mhUnicastSocket:(MHUnicastSocket *)mhUnicastSocket
-        failedToConnect:(NSError *)error;
-
-@optional
-- (void)mhUnicastSocket:(MHUnicastSocket *)mhUnicastSocket
-      didReceiveMessage:(NSData *)data
-               fromPeer:(NSString *)peer
-          withTraceInfo:(NSArray *)traceInfo;
-
-
-#pragma mark - Diagnostics info callbacks
-- (void)mhUnicastSocket:(MHUnicastSocket *)mhUnicastSocket
-          forwardPacket:(NSString *)info
-             fromSource:(NSString *)peer;
 @end
 
 

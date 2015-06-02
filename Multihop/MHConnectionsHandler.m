@@ -175,7 +175,6 @@
              peer:(NSString *)peer
       displayName:(NSString *)displayName
 {
-    NSLog([NSString stringWithFormat:@"Peer connected %@", peer]);
     MHConnectionBuffer *buf = [self.buffers objectForKey:peer];
     
     // A peer connects for the first time, we notify the above layers
@@ -209,7 +208,6 @@
   hasDisconnected:(NSString *)info
              peer:(NSString *)peer
 {
-    NSLog([NSString stringWithFormat:@"Peer disconnected: %@", info]);
     MHConnectionBuffer *buf = [self.buffers objectForKey:peer];
     
 

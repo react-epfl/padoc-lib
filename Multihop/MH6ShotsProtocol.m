@@ -282,10 +282,10 @@
             if ([MHDiagnostics getSingleton].useNetworkLayerInfoCallbacks)
             {
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    [self.delegate mhProtocol:self
-                                  joinedGroup:@"Joined group"
-                                         peer:packet.source
-                                        group:[packet.info objectForKey:@"groupName"]];
+                    [(id<MHMulticastRoutingProtocolDelegate>)self.delegate mhProtocol:self
+                                                                          joinedGroup:@"Joined group"
+                                                                                 peer:packet.source
+                                                                                group:[packet.info objectForKey:@"groupName"]];
                 });
             }
             
@@ -410,20 +410,6 @@
 
 
 
-
-- (void)cHandler:(MHConnectionsHandler *)cHandler
-  enteredStandby:(NSString *)info
-            peer:(NSString *)peer
-{
-    // We do not care about
-}
-
-- (void)cHandler:(MHConnectionsHandler *)cHandler
-   leavedStandby:(NSString *)info
-            peer:(NSString *)peer
-{
-    // We do not care about
-}
 
 #pragma mark - MH6ShotsSchedulerDelegate methods
 - (void)mhScheduler:(MH6ShotsScheduler *)mhScheduler

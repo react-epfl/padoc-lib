@@ -13,56 +13,23 @@
 #import <Foundation/Foundation.h>
 #import "MH6ShotsProtocol.h"
 #import "MHMulticastRoutingProtocol.h"
-#import "MHMessage.h"
+#import "MHController.h"
 
 
-typedef enum MHMulticastProtocol
-{
-    MHMulticast6ShotsProtocol
-}MHMulticastProtocol;
 
 @protocol MHMulticastControllerDelegate;
 
-@interface MHMulticastController : NSObject
-
-#pragma mark - Properties
-
-
-@property (nonatomic, weak) id<MHMulticastControllerDelegate> delegate;
+@interface MHMulticastController : MHController
 
 
 #pragma mark - Initialization
 - (instancetype)initWithServiceType:(NSString *)serviceType
                         displayName:(NSString *)displayName
-                withRoutingProtocol:(MHMulticastProtocol)protocol;
+                withRoutingProtocol:(MHRoutingProtocols)protocol;
 
 - (void)joinGroup:(NSString *)groupName;
 
 - (void)leaveGroup:(NSString *)groupName;
-
-
-- (void)disconnect;
-
-
-- (void)sendMessage:(MHMessage *)message
-     toDestinations:(NSArray *)destinations
-              error:(NSError **)error;
-
-
-- (NSString *)getOwnPeer;
-
-- (int)hopsCountFromPeer:(NSString*)peer;
-
-
-
-// Background Mode methods
-- (void)applicationWillResignActive;
-
-- (void)applicationDidBecomeActive;
-
-// Termination method
-- (void)applicationWillTerminate;
-
 
 
 
@@ -71,27 +38,14 @@ typedef enum MHMulticastProtocol
 /**
  The delegate for the MHMulticastController class.
  */
-@protocol MHMulticastControllerDelegate <NSObject>
+@protocol MHMulticastControllerDelegate <MHControllerDelegate>
 
 @required
-- (void)mhMulticastController:(MHMulticastController *)mhMulticastController
-          failedToConnect:(NSError *)error;
-
-- (void)mhMulticastController:(MHMulticastController *)mhMulticastController
-        didReceiveMessage:(NSData *)data
-                 fromPeer:(NSString *)peer
-            withTraceInfo:(NSArray *)traceInfo;
-
 #pragma mark - Diagnostics info callbacks
 - (void)mhMulticastController:(MHMulticastController *)mhMulticastController
                   joinedGroup:(NSString *)info
                          peer:(NSString *)peer
                         group:(NSString *)group;
-
-
-- (void)mhMulticastController:(MHMulticastController *)mhMulticastController
-                forwardPacket:(NSString *)info
-                   fromSource:(NSString *)peer;
 @end
 
 
