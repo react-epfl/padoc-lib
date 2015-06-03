@@ -124,6 +124,14 @@
             peer:(NSString *)peer
      displayName:(NSString *)displayName
 {
+    // Diagnostics: neighbour info
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if([MHDiagnostics getSingleton].useNeighbourInformartion)
+        {
+            [self.delegate mhProtocol:self neighbourConnected:@"Neighbour connected" peer:peer displayName:displayName];
+        }
+    });
+    
     [self.neighbourPeers addObject:peer];
     
     // Sending of the own discovery packet
@@ -164,6 +172,14 @@
  hasDisconnected:(NSString *)info
             peer:(NSString *)peer
 {
+    // Diagnostics: neighbour info
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if([MHDiagnostics getSingleton].useNeighbourInformartion)
+        {
+            [self.delegate mhProtocol:self neighbourDisconnected:@"Neighbour disconnected" peer:peer];
+        }
+    });
+    
     [self.neighbourPeers removeObject:peer];
     [self.discoveryPackets removeObjectForKey:peer];
     

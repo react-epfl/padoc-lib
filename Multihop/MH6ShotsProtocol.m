@@ -181,6 +181,13 @@
      displayName:(NSString *)displayName
 {
     dispatch_async(dispatch_get_main_queue(), ^{
+        // Diagnostics: neighbour info
+        if([MHDiagnostics getSingleton].useNeighbourInformartion)
+        {
+            [self.delegate mhProtocol:self neighbourConnected:@"Neighbour connected" peer:peer displayName:displayName];
+        }
+        
+        
         // Register iBeacon region for the new neighbour peer
         [[MHLocationManager getSingleton] registerBeaconRegionWithUUID:peer];
         [self.neighbourPeers addObject:peer];
@@ -218,6 +225,12 @@
             peer:(NSString *)peer
 {
     dispatch_async(dispatch_get_main_queue(), ^{
+        // Diagnostics: neighbour info
+        if([MHDiagnostics getSingleton].useNeighbourInformartion)
+        {
+            [self.delegate mhProtocol:self neighbourDisconnected:@"Neighbour disconnected" peer:peer];
+        }
+        
         // Unregister the peer iBeacon region
         [[MHLocationManager getSingleton] unregisterBeaconRegionWithUUID:peer];
         [self.neighbourPeers removeObject:peer];

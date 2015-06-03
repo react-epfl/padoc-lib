@@ -34,6 +34,7 @@ static MHDiagnostics *diagnostics = nil;
     {
         self.useTraceInfo = NO;
         self.useRetransmissionInfo = NO;
+        self.useNeighbourInformartion = NO;
         self.useNetworkLayerInfoCallbacks = NO;
         self.useNetworkDiscoveryForwardingInfoCallbacks = NO;
         

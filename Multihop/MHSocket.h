@@ -105,6 +105,15 @@ didReceiveMessage:(NSData *)data
 - (void)mhSocket:(MHSocket *)mhSocket
    forwardPacket:(NSString *)info
       fromSource:(NSString *)peer;
+
+- (void)mhSocket:(MHSocket *)mhSocket
+neighbourConnected:(NSString *)info
+            peer:(NSString *)peer
+     displayName:(NSString *)displayName;
+
+- (void)mhSocket:(MHSocket *)mhSocket
+neighbourDisconnected:(NSString *)info
+            peer:(NSString *)peer;
 @end
 
 #endif

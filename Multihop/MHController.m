@@ -120,4 +120,24 @@
         [self.delegate mhController:self forwardPacket:info fromSource:peer];
     });
 }
+
+- (void)mhProtocol:(MHRoutingProtocol *)mhProtocol
+  neighbourConnected:(NSString *)info
+              peer:(NSString *)peer
+       displayName:(NSString *)displayName
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.delegate mhController:self neighbourConnected:info peer:peer displayName:displayName];
+    });
+}
+
+- (void)mhProtocol:(MHRoutingProtocol *)mhProtocol
+neighbourDisconnected:(NSString *)info
+              peer:(NSString *)peer
+
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.delegate mhController:self neighbourDisconnected:info peer:peer];
+    });
+}
 @end

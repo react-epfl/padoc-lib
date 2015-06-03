@@ -135,4 +135,31 @@
         }
     });
 }
+
+- (void)mhController:(MHController *)mhController
+  neighbourConnected:(NSString *)info
+                peer:(NSString *)peer
+         displayName:(NSString *)displayName
+
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if ([self.delegate respondsToSelector:@selector(mhSocket:neighbourConnected:peer:displayName:)])
+        {
+            [self.delegate mhSocket:self neighbourConnected:info peer:peer displayName:displayName];
+        }
+    });
+}
+
+- (void)mhController:(MHController *)mhController
+neighbourDisconnected:(NSString *)info
+                peer:(NSString *)peer
+
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if ([self.delegate respondsToSelector:@selector(mhSocket:neighbourDisconnected:peer:)])
+        {
+            [self.delegate mhSocket:self neighbourDisconnected:info peer:peer];
+        }
+    });
+}
 @end

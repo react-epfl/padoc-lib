@@ -20,6 +20,7 @@
 
 @property (nonatomic, readwrite) BOOL useTraceInfo;
 @property (nonatomic, readwrite) BOOL useRetransmissionInfo;
+@property (nonatomic, readwrite) BOOL useNeighbourInformartion;
 @property (nonatomic, readwrite) BOOL useNetworkLayerInfoCallbacks;
 @property (nonatomic, readwrite) BOOL useNetworkDiscoveryForwardingInfoCallbacks;
 

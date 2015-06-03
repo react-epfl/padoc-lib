@@ -80,6 +80,15 @@ typedef enum MHRoutingProtocols
 - (void)mhController:(MHController *)mhController
        forwardPacket:(NSString *)info
           fromSource:(NSString *)peer;
+
+- (void)mhController:(MHController *)mhController
+neighbourConnected:(NSString *)info
+                peer:(NSString *)peer
+         displayName:(NSString *)displayName;
+
+- (void)mhController:(MHController *)mhController
+neighbourDisconnected:(NSString *)info
+                peer:(NSString *)peer;
 @end
 
 

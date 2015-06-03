@@ -66,6 +66,15 @@
 - (void)mhProtocol:(MHRoutingProtocol *)mhProtocol
      forwardPacket:(NSString *)info
         fromSource:(NSString *)peer;
+
+- (void)mhProtocol:(MHRoutingProtocol *)mhProtocol
+neighbourConnected:(NSString *)info
+              peer:(NSString *)peer
+       displayName:(NSString *)displayName;
+
+- (void)mhProtocol:(MHRoutingProtocol *)mhProtocol
+neighbourDisconnected:(NSString *)info
+              peer:(NSString *)peer;
 @end
 
 
