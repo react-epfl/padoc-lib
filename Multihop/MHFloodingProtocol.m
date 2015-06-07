@@ -114,7 +114,17 @@
 
 - (int)hopsCountFromPeer:(NSString*)peer
 {
-    return 0;
+    // The Flooding algorithm has no idea of the 
+    // hops separating the local peer from another one
+    // in the network (apart for the neighbourhood)
+    if ([self.neighbourPeers containsObject:peer])
+    {
+        return 1;
+    }
+    else
+    {
+        return -1;
+    }
 }
 
 
