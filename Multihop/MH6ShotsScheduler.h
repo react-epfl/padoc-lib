@@ -65,7 +65,7 @@
 #pragma mark - Diagnostics info callbacks
 - (void)mhScheduler:(MH6ShotsScheduler *)mhScheduler
       forwardPacket:(NSString *)info
-         fromSource:(NSString *)peer;
+         withPacket:(MHPacket *)packet;
 
 @end
 

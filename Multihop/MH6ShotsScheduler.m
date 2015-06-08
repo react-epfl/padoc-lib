@@ -80,7 +80,7 @@
                     if ([MHDiagnostics getSingleton].useNetworkLayerInfoCallbacks)
                     {
                         dispatch_async(dispatch_get_main_queue(), ^{
-                            [weakSelf.delegate mhScheduler:weakSelf forwardPacket:@"Packet forwarding" fromSource:schedule.packet.source];
+                            [weakSelf.delegate mhScheduler:weakSelf forwardPacket:@"Packet forwarding" withPacket:schedule.packet];
                         });
                     }
                     

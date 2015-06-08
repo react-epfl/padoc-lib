@@ -164,7 +164,7 @@
                 [MHDiagnostics getSingleton].useNetworkDiscoveryForwardingInfoCallbacks)
             {
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    [self.delegate mhProtocol:self forwardPacket:@"Discovery forwarding" fromSource:discPacket.source];
+                    [self.delegate mhProtocol:self forwardPacket:@"Discovery forwarding" withPacket:discPacket];
                 });
             }
             
@@ -243,7 +243,7 @@
             [MHDiagnostics getSingleton].useNetworkDiscoveryForwardingInfoCallbacks)
         {
             dispatch_async(dispatch_get_main_queue(), ^{
-                [self.delegate mhProtocol:self forwardPacket:@"Discovery forwarding" fromSource:packet.source];
+                [self.delegate mhProtocol:self forwardPacket:@"Discovery forwarding" withPacket:packet];
             });
         }
         
@@ -288,7 +288,7 @@
         if ([MHDiagnostics getSingleton].useNetworkLayerInfoCallbacks)
         {
             dispatch_async(dispatch_get_main_queue(), ^{
-                [self.delegate mhProtocol:self forwardPacket:@"Packet forwarding" fromSource:packet.source];
+                [self.delegate mhProtocol:self forwardPacket:@"Packet forwarding" withPacket:packet];
             });
         }
         

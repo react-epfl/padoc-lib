@@ -104,6 +104,7 @@ didReceiveMessage:(NSData *)data
 #pragma mark - Diagnostics info callbacks
 - (void)mhSocket:(MHSocket *)mhSocket
    forwardPacket:(NSString *)info
+     withMessage:(NSData *)message
       fromSource:(NSString *)peer;
 
 - (void)mhSocket:(MHSocket *)mhSocket

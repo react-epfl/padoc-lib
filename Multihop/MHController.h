@@ -79,6 +79,7 @@ typedef enum MHRoutingProtocols
 #pragma mark - Diagnostics info callbacks
 - (void)mhController:(MHController *)mhController
        forwardPacket:(NSString *)info
+         withMessage:(MHMessage *)message
           fromSource:(NSString *)peer;
 
 - (void)mhController:(MHController *)mhController

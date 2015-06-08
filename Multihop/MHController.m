@@ -114,10 +114,13 @@
 #pragma mark - Diagnostics info callbacks
 - (void)mhProtocol:(MHRoutingProtocol *)mhProtocol
      forwardPacket:(NSString *)info
-        fromSource:(NSString *)peer
+        withPacket:(MHPacket *)packet
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        [self.delegate mhController:self forwardPacket:info fromSource:peer];
+        [self.delegate mhController:self
+                      forwardPacket:info
+                        withMessage:[MHMessage fromNSData:packet.data]
+                         fromSource:packet.source];
     });
 }
 

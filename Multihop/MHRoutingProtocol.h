@@ -65,7 +65,7 @@
 #pragma mark - Diagnostics info callbacks
 - (void)mhProtocol:(MHRoutingProtocol *)mhProtocol
      forwardPacket:(NSString *)info
-        fromSource:(NSString *)peer;
+        withPacket:(MHPacket *)packet;
 
 - (void)mhProtocol:(MHRoutingProtocol *)mhProtocol
 neighbourConnected:(NSString *)info

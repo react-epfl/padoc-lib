@@ -207,7 +207,7 @@
                     [MHDiagnostics getSingleton].useNetworkDiscoveryForwardingInfoCallbacks)
                 {
                     dispatch_async(dispatch_get_main_queue(), ^{
-                        [self.delegate mhProtocol:self forwardPacket:@"Group joining forwarding" fromSource:msg.source];
+                        [self.delegate mhProtocol:self forwardPacket:@"Group joining forwarding" withPacket:msg];
                     });
                 }
                 
@@ -312,7 +312,7 @@
                         [MHDiagnostics getSingleton].useNetworkDiscoveryForwardingInfoCallbacks)
                     {
                         dispatch_async(dispatch_get_main_queue(), ^{
-                            [self.delegate mhProtocol:self forwardPacket:@"Group joining forwarding" fromSource:packet.source];
+                            [self.delegate mhProtocol:self forwardPacket:@"Group joining forwarding" withPacket:packet];
                         });
                     }
                     
@@ -358,7 +358,7 @@
                     [MHDiagnostics getSingleton].useNetworkDiscoveryForwardingInfoCallbacks)
                 {
                     dispatch_async(dispatch_get_main_queue(), ^{
-                        [self.delegate mhProtocol:self forwardPacket:@"Group leaving forwarding" fromSource:packet.source];
+                        [self.delegate mhProtocol:self forwardPacket:@"Group leaving forwarding" withPacket:packet];
                     });
                 }
                 
@@ -434,10 +434,10 @@
     });
 }
 
-- (void)mhScheduler:(MH6ShotsScheduler *)mhScheduler forwardPacket:(NSString *)info fromSource:(NSString *)peer
+- (void)mhScheduler:(MH6ShotsScheduler *)mhScheduler forwardPacket:(NSString *)info withPacket:(MHPacket *)packet
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        [self.delegate mhProtocol:self forwardPacket:info fromSource:peer];
+        [self.delegate mhProtocol:self forwardPacket:info withPacket:packet];
     });
 }
 

@@ -126,12 +126,16 @@
 #pragma mark - Diagnostics info callbacks
 - (void)mhController:(MHController *)mhController
        forwardPacket:(NSString *)info
+         withMessage:(MHMessage *)message
           fromSource:(NSString *)peer
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        if ([self.delegate respondsToSelector:@selector(mhSocket:forwardPacket:fromSource:)])
+        if ([self.delegate respondsToSelector:@selector(mhSocket:forwardPacket:withMessage:fromSource:)])
         {
-            [self.delegate mhSocket:self forwardPacket:info fromSource:peer];
+            [self.delegate mhSocket:self
+                      forwardPacket:info
+                        withMessage:message.data
+                         fromSource:peer];
         }
     });
 }
