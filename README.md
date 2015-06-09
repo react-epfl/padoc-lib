@@ -39,6 +39,8 @@ or
 
 ## Utilization
 
+First, make sure that the WIFI is turned on.
+
 ### Initialization
 
 The Multihop library uses socket objects in order to enter the ad-hoc network  
@@ -47,7 +49,7 @@ unicast and multicast. During this sub-section, only the unicast socket
 operations are showed as these are very similar for the multicast one.  
   
 The first step is to initialize the socket (note that the class must implement the  
-*MHUnicastSocketDelegate* and/or *MHMulticastSocketDelegate* protocols):
+*MHUnicastSocketDelegate* or *MHMulticastSocketDelegate* protocols):
 
 ```Objective-C
 #import "MHUnicastSocket.h"
@@ -60,7 +62,7 @@ self.uSocket.delegate = self;
 
 In order to support the background mode, some socket methods must be called  
 from the AppDelegate.m file. Therefore, we must make sure that the AppDelegate  
-class contains a reference to our socket:  
+class contains a reference to our socket and calls certain methods:  
 
 AppDelegate.h
 ```Objective-C
@@ -114,7 +116,7 @@ and AppDelegate.m
 ...
 ```
 
-Finally, from the class instantiating the socket object, execute:
+Finally, the class instantiating the socket object executes:
 ```Objective-C
 AppDelegate *appDelegate = (AppDelegate*)[[UIApplication sharedApplication] delegate];
 
@@ -125,7 +127,7 @@ AppDelegate *appDelegate = (AppDelegate*)[[UIApplication sharedApplication] dele
 
 #### Connection and Disconnection
 
-The socket can be called using the following methods:  
+The socket can be instantiated using the following methods:  
 
 ```Objective-C
 [[MHUnicastSocket alloc] initWithServiceType:@"service"];
@@ -210,16 +212,15 @@ The unicast socket provides some additional callbacks:
 ```
 The *isDiscovered* callback is called whenever a new peer enters the network.  
 It is basically a notification mechanism providing to a node the totality of  
-the network nodes.  
+the network peers.  
 On the other hand, the *hasDisconnected* callback is only called when neighbour  
-peers disconnect. Indeed, there is no need to know if a particular peer in the  
-network has disconnected, if it is not directly linked to the local node.
+peers disconnect.
 
 
 ### Multicast specifications
 
 The multicast socket does not address destinations as peer id, but rather as  
-*multicast groups*. This means that if a node entered a particular group, it will  
+*multicast groups*. This means that if a node joined a particular group, it will  
 receive every message from any node addressed to that group. Therefore, two commands  
 for joining and leaving a group are specific to the multicast socket:
 ```Objective-C
@@ -227,7 +228,27 @@ for joining and leaving a group are specific to the multicast socket:
 
 [socket leaveGroup:@"groupName"];
 ```                
-                   
+
+#### Other functions
+In order to get the local peer id, one can call the following method: 
+```Objective-C
+NSString *localPeer = [socket getOwnPeer];
+```  
+Note that the peer id is a string that uniquely identifies a node in the network.  
+The id is permanent, meaning that if the application is restarted, the same id is  
+used again.  
+Note however that it is only associated with a particular application. Indeed, if  
+the library is used for two different projects, differents ids will be generated  
+for the same physical node.  
+  
+Sometimes, it could be useful to know the number of hops from a particular peer:  
+``` Objective-C
+int hops = [socket hopsCountFromPeer:peer];
+```  
+The result highly depends on the underlying algorithm. 6Shots provides a reliable  
+information, but the Flooding algorithm usually gives an incorrect result. Indeed,  
+only neighbour nodes receive a correct hops count (1).
+
   
 ### Diagnostics tools                 
     
@@ -237,24 +258,24 @@ where messages transit, or even getting statistical usage results.
 #### Statistical results and packet tracing
 
 In order to get a complete trace information of any packet that a node receives, it  
-must enables the following option:
+must enable the following option:
 ```Objective-C
 [MHDiagnostics getSingleton].useTraceInfo = YES;
 ```
 Now, the *traceInfo* argument of the *didReceiveMessage* callback provides an array  
 of peer ids specifying the path that a packet has taken throughout the network.
   
-In order to check the algorithm performance, the **retransmission ratio** can be usefull.  
+In order to check the algorithm performance, the **retransmission ratio** can be useful.  
 It provides a quantitative measure of the number of retransmitted packets. In order to  
 enable it, just write:
 ```Objective-C
 [MHDiagnostics getSingleton].useRetransmissionInfo = YES;
 ...
-// After the node disconnected
+// After the node has disconnected
 double ratio = [[MHDiagnostics getSingleton] getRetramsissionRatio];
 ```
 This ratio corresponds to the number of received packets divided by the number of forwarded  
-ones. Indeed, there lower the ratio, the better the algorithm, provided that the **distribution  
+ones. Indeed, the lower the ratio, the better the algorithm, provided that the **distribution  
 ratio** is still high.
 
 #### Neighbour information
@@ -281,7 +302,7 @@ neighbourDisconnected:(NSString *)info
 ```
 #### Network information
 In order to see in real time whether the local peer is currently forwarding packets or not,  
-and to have access to the packet content, additional callbacks are available. The can be  
+and to have access to the packet content, additional callbacks are available. These can be  
 enabled by calling:
 ```Objective-C
 [MHDiagnostics getSingleton].useNetworkLayerInfoCallbacks = YES;
@@ -298,7 +319,7 @@ enabled by calling:
 }
 ```
 This callback is however valid only for regular packets. Sometimes, it could be useful to follow  
-the distribution of some algorithm control packets (like distribution ones). This can be enabled  
+the distribution of some algorithm control packets (like discovery ones). This can be enabled  
 by the following code:
 ```Objective-C
 [MHDiagnostics getSingleton].useNetworkDiscoveryForwardingInfoCallbacks = YES;
