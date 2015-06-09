@@ -182,7 +182,7 @@
 {
     dispatch_async(dispatch_get_main_queue(), ^{
         // Diagnostics: neighbour info
-        if([MHDiagnostics getSingleton].useNeighbourInformartion)
+        if([MHDiagnostics getSingleton].useNeighbourInfo)
         {
             [self.delegate mhProtocol:self neighbourConnected:@"Neighbour connected" peer:peer displayName:displayName];
         }
@@ -204,7 +204,7 @@
                 
                 // Diagnostics
                 if ([MHDiagnostics getSingleton].useNetworkLayerInfoCallbacks &&
-                    [MHDiagnostics getSingleton].useNetworkDiscoveryForwardingInfoCallbacks)
+                    [MHDiagnostics getSingleton].useNetworkLayerControlInfoCallbacks)
                 {
                     dispatch_async(dispatch_get_main_queue(), ^{
                         [self.delegate mhProtocol:self forwardPacket:@"Group joining forwarding" withPacket:msg];
@@ -226,7 +226,7 @@
 {
     dispatch_async(dispatch_get_main_queue(), ^{
         // Diagnostics: neighbour info
-        if([MHDiagnostics getSingleton].useNeighbourInformartion)
+        if([MHDiagnostics getSingleton].useNeighbourInfo)
         {
             [self.delegate mhProtocol:self neighbourDisconnected:@"Neighbour disconnected" peer:peer];
         }
@@ -309,7 +309,7 @@
                 {
                     // Diagnostics
                     if ([MHDiagnostics getSingleton].useNetworkLayerInfoCallbacks &&
-                        [MHDiagnostics getSingleton].useNetworkDiscoveryForwardingInfoCallbacks)
+                        [MHDiagnostics getSingleton].useNetworkLayerControlInfoCallbacks)
                     {
                         dispatch_async(dispatch_get_main_queue(), ^{
                             [self.delegate mhProtocol:self forwardPacket:@"Group joining forwarding" withPacket:packet];
@@ -355,7 +355,7 @@
             dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)((arc4random_uniform(MH6SHOTS_JOINFORWARD_DELAY_RANGE) + MH6SHOTS_JOINFORWARD_DELAY_BASE) * NSEC_PER_MSEC)), dispatch_get_main_queue(), ^{
                 // Diagnostics
                 if ([MHDiagnostics getSingleton].useNetworkLayerInfoCallbacks &&
-                    [MHDiagnostics getSingleton].useNetworkDiscoveryForwardingInfoCallbacks)
+                    [MHDiagnostics getSingleton].useNetworkLayerControlInfoCallbacks)
                 {
                     dispatch_async(dispatch_get_main_queue(), ^{
                         [self.delegate mhProtocol:self forwardPacket:@"Group leaving forwarding" withPacket:packet];

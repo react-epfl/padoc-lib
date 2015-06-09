@@ -323,7 +323,7 @@ This callback is however valid only for regular packets. Sometimes, it could be 
 the distribution of some algorithm control packets (like discovery ones). This can be enabled  
 by the following code:
 ```Objective-C
-[MHDiagnostics getSingleton].useNetworkDiscoveryForwardingInfoCallbacks = YES;
+[MHDiagnostics getSingleton].useNetworkLayerControlInfoCallbacks = YES;
 ```
   
   

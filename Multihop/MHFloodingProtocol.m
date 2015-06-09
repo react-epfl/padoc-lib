@@ -136,7 +136,7 @@
 {
     // Diagnostics: neighbour info
     dispatch_async(dispatch_get_main_queue(), ^{
-        if([MHDiagnostics getSingleton].useNeighbourInformartion)
+        if([MHDiagnostics getSingleton].useNeighbourInfo)
         {
             [self.delegate mhProtocol:self neighbourConnected:@"Neighbour connected" peer:peer displayName:displayName];
         }
@@ -161,7 +161,7 @@
             
             // Diagnostics
             if ([MHDiagnostics getSingleton].useNetworkLayerInfoCallbacks &&
-                [MHDiagnostics getSingleton].useNetworkDiscoveryForwardingInfoCallbacks)
+                [MHDiagnostics getSingleton].useNetworkLayerControlInfoCallbacks)
             {
                 dispatch_async(dispatch_get_main_queue(), ^{
                     [self.delegate mhProtocol:self forwardPacket:@"Discovery forwarding" withPacket:discPacket];
@@ -184,7 +184,7 @@
 {
     // Diagnostics: neighbour info
     dispatch_async(dispatch_get_main_queue(), ^{
-        if([MHDiagnostics getSingleton].useNeighbourInformartion)
+        if([MHDiagnostics getSingleton].useNeighbourInfo)
         {
             [self.delegate mhProtocol:self neighbourDisconnected:@"Neighbour disconnected" peer:peer];
         }
@@ -240,7 +240,7 @@
         
         // Diagnostics
         if ([MHDiagnostics getSingleton].useNetworkLayerInfoCallbacks &&
-            [MHDiagnostics getSingleton].useNetworkDiscoveryForwardingInfoCallbacks)
+            [MHDiagnostics getSingleton].useNetworkLayerControlInfoCallbacks)
         {
             dispatch_async(dispatch_get_main_queue(), ^{
                 [self.delegate mhProtocol:self forwardPacket:@"Discovery forwarding" withPacket:packet];
