@@ -39,7 +39,8 @@ or
 
 ## Utilization
 
-First, make sure that the WIFI is turned on.
+First, make sure that the WIFI is turned on. When using the 6Shots algorithm  
+(as described later), make sure that the Bluetooth is turned on.
 
 ### Initialization
 
