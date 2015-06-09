@@ -83,8 +83,6 @@
 - (void)dealloc
 {
     self.mcWrapper  = nil;
-    [self.buffers removeAllObjects];
-    
     self.buffers = nil;
 }
 
@@ -98,6 +96,7 @@
 
 - (void)disconnectFromNeighbourhood
 {
+    [self.buffers removeAllObjects];
     [self.mcWrapper disconnectFromNeighbourhood];
 }
 
