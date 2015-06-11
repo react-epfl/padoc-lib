@@ -15,8 +15,9 @@ any external service. It supports a network of any size using multiple hops for 
 ## Dependencies
 
 * IOS >= 7.0, IOS SDK >= 8.0
-* Multipeer Connectivity framework
+* MultipeerConnectivity.framework
 * CoreLocation.framework
+* CoreBluetooth.framework
 
 
 ## Compilation
