@@ -14,6 +14,7 @@
 
 // Public Properties
 @property (nonatomic, readwrite) BOOL connected;
+@property (nonatomic, readwrite) BOOL heartbeatStarted;
 
 @property (nonatomic, readwrite, strong) NSString *displayName;
 
@@ -45,6 +46,7 @@
     if (self)
     {
         self.nbHeartbeatFails = 0;
+        self.heartbeatStarted = NO;
         
         self.displayName = displayName;
         self.mcPeerID = mcPeerID;
@@ -75,58 +77,22 @@
             
             if (self.HeartbeatSender)
             {
-                // Sender side
-                self.processHeartbeat = ^{
-                    weakSelf.nbHeartbeatFails++;
-                    
-                    // The heartbeat fails for x times, then disconnect
-                    if (weakSelf.nbHeartbeatFails > MHPEER_MAX_HEARTBEAT_FAILS)
-                    {
-                        dispatch_async(dispatch_get_main_queue(), ^{
-                            [weakSelf.delegate mhPeer:weakSelf hasDisconnected:@"Heartbeat failed"];
-                            weakSelf.connected = NO;
-                        });
-                    }
-                    else
-                    {
-                        NSError *error;
-                        
-                        if(weakSelf.connected)
-                        {
-                            [weakSelf.session sendData:[MHPEER_HEARTBEAT_MSG dataUsingEncoding:NSUTF8StringEncoding] toPeers:weakSelf.session.connectedPeers withMode:MCSessionSendDataReliable error:&error];
-                            
-                            
-                            // Dispatch after y seconds
-                            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)((arc4random_uniform(MHPEER_HEARTBEAT_TIME_RANGE) + MHPEER_HEARTBEAT_TIME_BASE) * NSEC_PER_SEC)), dispatch_get_main_queue(), weakSelf.processHeartbeat);
-                        }
-                    }
-                };
+                [self setFctProcessHeartbeatSender:weakSelf];
             }
             else
             {
-                // Receiver side
-                self.processHeartbeat = ^{
-                    weakSelf.nbHeartbeatFails++;
-                    
-                    // The heartbeat fails for x times, then disconnect
-                    if (weakSelf.nbHeartbeatFails > MHPEER_MAX_HEARTBEAT_FAILS)
-                    {
-                        dispatch_async(dispatch_get_main_queue(), ^{
-                            [weakSelf.delegate mhPeer:weakSelf hasDisconnected:@"Heartbeat failed"];
-                            weakSelf.connected = NO;
-                        });
-                    }
-                    else
-                    {
-                        if (weakSelf.connected)
-                        {
-                            // Dispatch after y seconds
-                            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)((MHPEER_HEARTBEAT_TIME_BASE + MHPEER_HEARTBEAT_TIME_RANGE + 1) * NSEC_PER_SEC)), dispatch_get_main_queue(), weakSelf.processHeartbeat);
-                        }
-                    }
-                };
+                [self setFctProcessHeartbeatReceiver:weakSelf];
             }
             
+            
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(MHPEER_STARTHEARTBEAT_TIME * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                if(weakSelf)
+                {
+                    // No connection callback has yet been executed (MC bug)
+                    // Try determining connection by heartbeat
+                    [weakSelf startHeartbeat:weakSelf];
+                }
+            });
         }
     }
     return self;
@@ -141,6 +107,83 @@
 }
 
 
+- (void)setFctProcessHeartbeatSender:(MHPeer * __weak)weakSelf
+{
+    // Sender side
+    self.processHeartbeat = ^{
+        if(weakSelf)
+        {
+            weakSelf.nbHeartbeatFails++;
+            
+            // The heartbeat fails for x times, then disconnect
+            if (weakSelf.nbHeartbeatFails > MHPEER_MAX_HEARTBEAT_FAILS)
+            {
+                [weakSelf setConnectionDisabled:weakSelf withReason:@"Heartbeat failed"];
+            }
+            else
+            {
+                NSError *error;
+                
+                if(weakSelf.connected)
+                {
+                    [weakSelf.session sendData:[MHPEER_HEARTBEAT_MSG dataUsingEncoding:NSUTF8StringEncoding] toPeers:weakSelf.session.connectedPeers withMode:MCSessionSendDataReliable error:&error];
+                    
+                    
+                    // Dispatch after y seconds
+                    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)((arc4random_uniform(MHPEER_HEARTBEAT_TIME_RANGE) + MHPEER_HEARTBEAT_TIME_BASE) * NSEC_PER_SEC)), dispatch_get_main_queue(), weakSelf.processHeartbeat);
+                }
+            }
+        }
+    };
+}
+
+- (void)setFctProcessHeartbeatReceiver:(MHPeer * __weak)weakSelf
+{
+    // Receiver side
+    self.processHeartbeat = ^{
+        if(weakSelf)
+        {
+            weakSelf.nbHeartbeatFails++;
+            
+            // The heartbeat fails for x times, then disconnect
+            if (weakSelf.nbHeartbeatFails > MHPEER_MAX_HEARTBEAT_FAILS)
+            {
+                [weakSelf setConnectionDisabled:weakSelf withReason:@"Heartbeat failed"];
+            }
+            else
+            {
+                if (weakSelf.connected)
+                {
+                    // Dispatch after y seconds
+                    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)((MHPEER_HEARTBEAT_TIME_BASE + MHPEER_HEARTBEAT_TIME_RANGE + 1) * NSEC_PER_SEC)), dispatch_get_main_queue(), weakSelf.processHeartbeat);
+                }
+            }
+        }
+    };
+}
+
+- (void)startHeartbeat:(MHPeer * __weak)weakSelf
+{
+    if (!weakSelf.heartbeatStarted)
+    {
+        int delay = 0;
+        weakSelf.heartbeatStarted = YES;
+        
+        // After connection, start heartbeat mechanism
+        if (weakSelf.HeartbeatSender)
+        {
+            delay = arc4random_uniform(MHPEER_HEARTBEAT_TIME_RANGE) + MHPEER_HEARTBEAT_TIME_BASE;
+        }
+        else
+        {
+            delay = MHPEER_HEARTBEAT_TIME_BASE + MHPEER_HEARTBEAT_TIME_RANGE + 1;
+        }
+        
+        // Dispatch after y seconds
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delay * NSEC_PER_SEC)), dispatch_get_main_queue(), weakSelf.processHeartbeat);
+    }
+}
+
 - (void)disconnect
 {
     self.connected = NO;
@@ -153,24 +196,26 @@
         reliable:(BOOL)reliable
            error:(NSError **)error
 {
-    if (self.connected)
-    {
-        MCSessionSendDataMode mode;
-        
-        if (reliable)
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (self.connected)
         {
-            mode = MCSessionSendDataReliable;
+            MCSessionSendDataMode mode;
+            
+            if (reliable)
+            {
+                mode = MCSessionSendDataReliable;
+            }
+            else
+            {
+                mode = MCSessionSendDataUnreliable;
+            }
+            
+            [self.session sendData:data
+                           toPeers:self.session.connectedPeers
+                          withMode:mode
+                             error:error];
         }
-        else
-        {
-            mode = MCSessionSendDataUnreliable;
-        }
-        
-        [self.session sendData:data
-                       toPeers:self.session.connectedPeers
-                      withMode:mode
-                         error:error];
-    }
+    });
 }
 
 
@@ -179,32 +224,12 @@
 - (void)session:(MCSession *)session peer:(MCPeerID *)peerID didChangeState:(MCSessionState)state
 {
     if(state == MCSessionStateNotConnected) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [self.delegate mhPeer:self hasDisconnected:@"Session disconnection"];
-            self.connected = NO;
-        });
+        [self setConnectionDisabled:self withReason:@"Session disconnection"];
     }
     else if(state == MCSessionStateConnected)
     {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [self.delegate mhPeer:self hasConnected:@"Connected"];
-            self.connected = YES;
-            
-            int delay = 0;
-            
-            // After connection, start heartbeat mechanism
-            if (self.HeartbeatSender)
-            {
-                delay = arc4random_uniform(MHPEER_HEARTBEAT_TIME_RANGE) + MHPEER_HEARTBEAT_TIME_BASE;
-            }
-            else
-            {
-                delay = MHPEER_HEARTBEAT_TIME_BASE + MHPEER_HEARTBEAT_TIME_RANGE + 1;
-            }
-            
-            // Dispatch after y seconds
-            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delay * NSEC_PER_SEC)), dispatch_get_main_queue(), self.processHeartbeat);
-        });
+        [self startHeartbeat:self];
+        [self setConnectionEnabled];
     }
 }
 
@@ -217,15 +242,14 @@
         dispatch_async(dispatch_get_main_queue(), ^{
             self.nbHeartbeatFails = 0;
             
-            if (self.connected)
-            {
-                // Heartbeat replication (ack)
-                NSError *error;
-                [self.session sendData:[MHPEER_ACK_MSG dataUsingEncoding:NSUTF8StringEncoding]
-                               toPeers:self.session.connectedPeers
-                              withMode:MCSessionSendDataReliable
-                                 error:&error];
-            }
+            [self setConnectionEnabled];
+            
+            // Heartbeat replication (ack)
+            NSError *error;
+            [self.session sendData:[MHPEER_ACK_MSG dataUsingEncoding:NSUTF8StringEncoding]
+                           toPeers:self.session.connectedPeers
+                          withMode:MCSessionSendDataReliable
+                             error:&error];
         });
     }
     else if ([dataStr isEqualToString:MHPEER_ACK_MSG])
@@ -233,6 +257,8 @@
         dispatch_async(dispatch_get_main_queue(), ^{
             // Reset the heartbeat fail counter
             self.nbHeartbeatFails = 0;
+            
+            [self setConnectionEnabled];
         });
     }
     else
@@ -265,6 +291,26 @@
     certificateHandler(YES);
 }
 
+
+#pragma mark - Connection helper methods
+- (void)setConnectionEnabled
+{
+    if (!self.connected)
+    {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            self.connected = YES;
+            [self.delegate mhPeer:self hasConnected:@"Connected"];
+        });
+    }
+}
+
+- (void)setConnectionDisabled:(MHPeer * __weak)weakSelf withReason:(NSString *)reason
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        weakSelf.connected = NO;
+        [weakSelf.delegate mhPeer:weakSelf hasDisconnected:reason];
+    });
+}
 
 
 # pragma mark - Static methods

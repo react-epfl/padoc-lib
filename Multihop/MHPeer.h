@@ -20,6 +20,7 @@
 #define MHPEER_HEARTBEAT_MSG  @"[{_-heartbeat_msg-_}]"
 #define MHPEER_ACK_MSG @"[{_-heartbeat_ack-_}]"
 
+#define MHPEER_STARTHEARTBEAT_TIME 10
 
 
 @protocol MHPeerDelegate;
