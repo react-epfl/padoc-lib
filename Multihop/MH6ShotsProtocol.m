@@ -170,7 +170,7 @@
         return [g intValue];
     }
     
-    return 1000;
+    return -1;
 }
 
 
