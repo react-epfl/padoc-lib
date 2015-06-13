@@ -1,15 +1,34 @@
-# Multihop Library for IOS (v0.2)
+# Multihop Library for IOS (v0.3)
 Multihop is an Objective-C library runnable on IOS devices whose purpose is to connect smartphones without  
-any external service. It supports a network of any size using multiple hops for message sending.
-
+any external service. It supports a network of any size using multiple hops for message sending. It relies on the Multipeer Connectivity framework for the lower communication primitives between neighbour devices.  
+  
+By creating a socket object, it is possible to send and receive messages to and from any peer in the network.  
+The interface is multicast-based and provides methods for joining and leaving **multicast groups**. When a peer sends a message to a particular group, then only the peers having joint the specific group will receive the message. Indeed, the source peer has no knowledge of which peers will finally receive the message.  
+  
+This library provides multihop support, meaning that message routing between two points is entirely handled by intermediate peers. Two routing strategies have been implemented so far:
+* Broadcast: we use a basic Flooding algorithm and the destination group checking is performed by each receiving peer
+* Multicast: we use the 6Shots algorithm, which is a real multicast algorithm using location information for route optimization
+  
+So far, the library works as expected, but still misses some important features:
+* No message reliability support
+* No congestion control support
+  
+The major limitations come from the fact that there no transport layer is still implemented.
 
 ## Features
 
 * Direct communication between IOS devices
 * Background mode support
 * Multihop supporting for message routing throughout the network
-* Support of 2 routing strategies: unicast (Flooding) and multicast (6Shots)
+* Support of 2 routing strategies: broadcast (Flooding) and multicast (6Shots)
 * Diagnostics tools suite
+
+
+## Limitations
+
+* Device signal range too short (up to 40m)
+* No message reliability support
+* No congestion control support
 
 
 ## Dependencies
@@ -40,79 +59,76 @@ or
 
 ## Utilization
 
-First, make sure that the WIFI is turned on. When using the 6Shots algorithm  
-(as described later), make sure that the Bluetooth is turned on.
+First, make sure that WIFI and Bluetooth are turned on.
 
 ### Initialization
 
 The Multihop library uses socket objects in order to enter the ad-hoc network  
-and perform all operations. The library provides two types of sockets:  
-unicast and multicast. During this sub-section, only the unicast socket  
-operations are showed as these are very similar for the multicast one.  
+and perform all operations. 
   
 The first step is to initialize the socket (note that the class must implement the  
-*MHUnicastSocketDelegate* or *MHMulticastSocketDelegate* protocols):
+*MHSocketDelegate* protocol):
 
 ```Objective-C
-#import "MHUnicastSocket.h"
+#import "MHSocket.h"
 
 ...
 
-self.uSocket = [[MHUnicastSocket alloc] initWithServiceType:@"serviceName"];
-self.uSocket.delegate = self;
+self.socket = [[MHSocket alloc] initWithServiceType:@"serviceName"];
+self.socket.delegate = self;
 ```
 
 In order to support the background mode, some socket methods must be called  
-from the AppDelegate.m file. Therefore, we must make sure that the AppDelegate  
+from the *AppDelegate.m* file. Therefore, we must make sure that the *AppDelegate*  
 class contains a reference to our socket and calls certain methods:  
 
 AppDelegate.h
 ```Objective-C
-#import "MHUnicastSocket.h"
+#import "MHSocket.h"
 
 ...
 @interface AppDelegate : UIResponder <UIApplicationDelegate>
 ...
-- (void)setUniSocket:(MHUnicastSocket *)socket;
+- (void)setNetworkSocket:(MHSocket *)socket;
 ```
 and AppDelegate.m
 ```Objective-C
 @interface AppDelegate ()
 ...
-@property (nonatomic, strong) MHUnicastSocket *uSocket;
+@property (nonatomic, strong) MHSocket *socket;
 ...
 @end
 
 @implementation AppDelegate
 
 
-- (void)setUniSocket:(MHUnicastSocket *)socket
+- (void)setNetworkSocket:(MHSocket *)socket
 {
-    self.uSocket = socket;
+    self.socket = socket;
 }
 
 ...
 - (void)applicationWillResignActive:(UIApplication *)application {
     ...
-    if(self.uSocket != nil)
+    if(self.socket != nil)
     {
-        [self.uSocket applicationWillResignActive];
+        [self.socket applicationWillResignActive];
     }
 }
 
 - (void)applicationDidBecomeActive:(UIApplication *)application {
     ...
-    if(self.uSocket != nil)
+    if(self.socket != nil)
     {
-        [self.uSocket applicationDidBecomeActive];
+        [self.socket applicationDidBecomeActive];
     }
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application {
     ...
-    if(self.uSocket != nil)
+    if(self.socket != nil)
     {
-        [self.uSocket applicationWillTerminate];
+        [self.socket applicationWillTerminate];
     }
 }
 ...
@@ -122,7 +138,7 @@ Finally, the class instantiating the socket object executes:
 ```Objective-C
 AppDelegate *appDelegate = (AppDelegate*)[[UIApplication sharedApplication] delegate];
 
-[appDelegate setUniSocket:self.uSocket];
+[appDelegate setNetworkSocket:self.socket];
 ```
 
 ### Basic socket usage
@@ -132,21 +148,20 @@ AppDelegate *appDelegate = (AppDelegate*)[[UIApplication sharedApplication] dele
 The socket can be instantiated using the following methods:  
 
 ```Objective-C
-[[MHUnicastSocket alloc] initWithServiceType:@"service"];
+[[MHSocket alloc] initWithServiceType:@"service"];
 
-[[MHUnicastSocket alloc] initWithServiceType:@"service"
-                         withRoutingProtocol:protocol];
+[[MHSocket alloc] initWithServiceType:@"service"
+                  withRoutingProtocol:protocol];
 
-[[MHUnicastSocket alloc] initWithServiceType:@"service"
-                                 displayName:@"device name"
-                         withRoutingProtocol:protocol];
+[[MHSocket alloc] initWithServiceType:@"service"
+                          displayName:@"deviceName"
+                  withRoutingProtocol:protocol];
 ```
 The currently supported routing protocols are:  
-* *MHMulticast6ShotsProtocol*
-* *MHUnicastFloodingProtocol*
-
-As these are the only supported and the default ones, there is no practical  
-need to specify the protocol during the initialization.  
+* *MH6ShotsRoutingProtocol*
+* *MHFloodingRoutingProtocol*
+  
+If unspecified, the default protocol is *MHFloodingRoutingProtocol.*.  
   
 In order to disconnect the socket from the network, write:
 
@@ -175,10 +190,7 @@ NSError *error;
      
 ```
 Note that *msg* is a NSData object, whereas *destinations* is an array  
-containing:  
-* For unicast sockets the peer ids of the targets
-* For multicast sockets the target groups
-  
+containing the target multicast groups.
   
 In order to receive messages, the following callback is needed:
 ```Objective-C
@@ -193,38 +205,11 @@ didReceiveMessage:(NSData *)data
 Here, the *peer* argument specifies the peer id that originated the message.  
 The *traceInfo* argument will be discussed later.
 
-
-### Unicast specifications
-The unicast socket provides some additional callbacks:
-```Objective-C
-- (void)mhUnicastSocket:(MHUnicastSocket *)mhUnicastSocket
-           isDiscovered:(NSString *)info
-                   peer:(NSString *)peer
-            displayName:(NSString *)displayName
-{
-  ...
-}
-
-- (void)mhUnicastSocket:(MHUnicastSocket *)mhUnicastSocket
-        hasDisconnected:(NSString *)info
-                   peer:(NSString *)peer
-{
-  ...
-}
-```
-The *isDiscovered* callback is called whenever a new peer enters the network.  
-It is basically a notification mechanism providing to a node the totality of  
-the network peers.  
-On the other hand, the *hasDisconnected* callback is only called when neighbour  
-peers disconnect.
-
-
-### Multicast specifications
-
-The multicast socket does not address destinations as peer id, but rather as  
-*multicast groups*. This means that if a node joined a particular group, it will  
-receive every message from any node addressed to that group. Therefore, two commands  
-for joining and leaving a group are specific to the multicast socket:
+#### Group handling
+The socket does not address destinations as peer id, but rather as *multicast groups*.  
+This means that if a node joined a particular group, it will receive every message from any  
+node having sent a message addressed to that group. Therefore, two commands for joining and  
+leaving a group are specified:
 ```Objective-C
 [socket joinGroup:@"groupName"];
 
@@ -247,10 +232,12 @@ Sometimes, it could be useful to know the number of hops from a particular peer:
 ``` Objective-C
 int hops = [socket hopsCountFromPeer:peer];
 ```  
-The result highly depends on the underlying algorithm. 6Shots provides a reliable  
+The function result highly depends on the underlying algorithm. 6Shots provides a reliable  
 information, but the Flooding algorithm usually gives an incorrect result. Indeed,  
-only neighbour nodes receive a correct hops count (1).
+only neighbour nodes receive a correct hops count (1). Finally note that the *peer* argument 
+is a peer id.
 
+  
   
 ### Diagnostics tools                 
     
@@ -303,15 +290,31 @@ neighbourDisconnected:(NSString *)info
 }
 ```
 #### Network information
-In order to see in real time whether the local peer is currently forwarding packets or not,  
-and to have access to the packet content, additional callbacks are available. These can be  
-enabled by calling:
+In order to have access to a certain number of information about the underlying  
+network routing execution, the diagnostics suite provides the following option:
 ```Objective-C
 [MHDiagnostics getSingleton].useNetworkLayerInfoCallbacks = YES;
+```
 
-...
-
-// The callback is
+By using this option, the socket gives additional information about which peer in the network  
+joined which group:
+```Objective-C
+- (void)mhSocket:(MHSocket *)mhSocket
+     joinedGroup:(NSString *)info
+            peer:(NSString *)peer
+     displayName:(NSString *)displayName
+           group:(NSString *)group
+{
+  ...
+}
+```
+No information is however given about who leaved a group.  
+  
+  
+This is however not the only information. In order to see in real time whether the local peer  
+is currently forwarding packets or not, and to have access to the packet content, an additional  
+callback is available. This can be executed by writing:
+```Objective-C
 - (void)mhSocket:(MHSocket *)mhSocket
    forwardPacket:(NSString *)info
      withMessage:(NSData *)message
@@ -321,22 +324,9 @@ enabled by calling:
 }
 ```
 This callback is however valid only for regular packets. Sometimes, it could be useful to follow  
-the distribution of some algorithm control packets (like discovery ones). This can be enabled  
-by the following code:
+the distribution of some algorithm control packets (like discovery or group joining ones). This can  
+be enabled by the following code:
 ```Objective-C
 [MHDiagnostics getSingleton].useNetworkLayerControlInfoCallbacks = YES;
 ```
-  
-  
-Finally, the multicast socket gives additional information about which peer joined which group:  
-```Objective-C
-- (void)mhMulticastSocket:(MHMulticastSocket *)mhMulticastSocket
-              joinedGroup:(NSString *)info
-                     peer:(NSString *)peer
-                    group:(NSString *)group
-{
-  ...
-}
-```
-No information is however given about who leaved a group.
-
+Now, the *forwardPacket* callback will be executed when control packets are forwarded as well.
