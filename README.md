@@ -7,13 +7,12 @@ The interface is multicast-based and provides methods for joining and leaving **
   
 This library provides multihop support, meaning that message routing between two points is entirely handled by intermediate peers. Two routing strategies have been implemented so far:
 * Broadcast: we use a basic Flooding algorithm and the destination group checking is performed by each receiving peer
-* Multicast: we use the 6Shots algorithm, which is a real multicast algorithm using location information for routing optimization
+* Multicast: we use the 6Shots algorithm, which is a real multicast algorithm using location information for route optimization
   
 So far, the library works as expected, but still misses some important features:
-* Device signal range too short (up to 40m)
 * No message reliability support
-* No congestion control support
-The major limitations come from the fact that there is still no transport layer.
+* No congestion control support  
+The major limitations come from the fact that there no transport layer is still implemented.
 
 ## Features
 
@@ -26,6 +25,7 @@ The major limitations come from the fact that there is still no transport layer.
 
 ## Limitations
 
+* Device signal range too short (up to 40m)
 * No message reliability support
 * No congestion control support
 
@@ -137,7 +137,7 @@ Finally, the class instantiating the socket object executes:
 ```Objective-C
 AppDelegate *appDelegate = (AppDelegate*)[[UIApplication sharedApplication] delegate];
 
-[appDelegate setnetworkSocket:self.socket];
+[appDelegate setNetworkSocket:self.socket];
 ```
 
 ### Basic socket usage
@@ -153,12 +153,12 @@ The socket can be instantiated using the following methods:
                   withRoutingProtocol:protocol];
 
 [[MHSocket alloc] initWithServiceType:@"service"
-                          displayName:@"device name"
+                          displayName:@"deviceName"
                   withRoutingProtocol:protocol];
 ```
 The currently supported routing protocols are:  
 * *MH6ShotsRoutingProtocol*
-* *MHFloodingRoutingProtocol*
+* *MHFloodingRoutingProtocol*  
 If unspecified, the default protocol is *MHFloodingRoutingProtocol.*.  
   
 In order to disconnect the socket from the network, write:
@@ -230,9 +230,10 @@ Sometimes, it could be useful to know the number of hops from a particular peer:
 ``` Objective-C
 int hops = [socket hopsCountFromPeer:peer];
 ```  
-The result highly depends on the underlying algorithm. 6Shots provides a reliable  
+The function result highly depends on the underlying algorithm. 6Shots provides a reliable  
 information, but the Flooding algorithm usually gives an incorrect result. Indeed,  
-only neighbour nodes receive a correct hops count (1).
+only neighbour nodes receive a correct hops count (1). Finally note that the *peer* argument 
+is a peer id.
 
   
   
@@ -288,7 +289,7 @@ neighbourDisconnected:(NSString *)info
 ```
 #### Network information
 In order to have access to a certain number of information about the underlying  
-routing execution, the diagnostics suite provides the following option:
+network routing execution, the diagnostics suite provides the following option:
 ```Objective-C
 [MHDiagnostics getSingleton].useNetworkLayerInfoCallbacks = YES;
 ```
@@ -308,10 +309,9 @@ joined which group:
 No information is however given about who leaved a group.  
   
   
-This is however not the only information.  
-In order to see in real time whether the local peer is currently forwarding packets or not,  
-and to have access to the packet content, an additional callback is available. This can be  
-execute by writing:
+This is however not the only information. In order to see in real time whether the local peer  
+is currently forwarding packets or not, and to have access to the packet content, an additional  
+callback is available. This can be executed by writing:
 ```Objective-C
 - (void)mhSocket:(MHSocket *)mhSocket
    forwardPacket:(NSString *)info
@@ -323,7 +323,7 @@ execute by writing:
 ```
 This callback is however valid only for regular packets. Sometimes, it could be useful to follow  
 the distribution of some algorithm control packets (like discovery or group joining ones). This can  
-be enabledby the following code:
+be enabled by the following code:
 ```Objective-C
 [MHDiagnostics getSingleton].useNetworkLayerControlInfoCallbacks = YES;
 ```
