@@ -26,12 +26,60 @@
 
 #pragma mark - Initialization
 
-
+/**
+ Init method for this class.
+ 
+ Since you are not passing in a display name, it will default to:
+ 
+ [UIDevice currentDevice].name]
+ 
+ Since you are not passing a routing protocol, the default one will be Flooding
+ 
+ Which returns a string similar to: @"Peter's iPhone".
+ 
+ @param serviceType The type of service to advertise. This should be a short text string that describes the app's networking protocol, in the same format as a Bonjour service type:
+ 
+ 1. Must be 1–13 characters long.
+ 2. Can contain only ASCII lowercase letters, numbers, and hyphens.
+ 
+ This name should be easily distinguished from unrelated services. For example, a text chat app made by ABC company could use the service type abc-txtchat. For more details, read “Domain Naming Conventions”.
+ */
 - (instancetype)initWithServiceType:(NSString *)serviceType;
 
+/**
+ Init method for this class.
+ 
+ Since you are not passing in a display name, it will default to:
+ 
+ [UIDevice currentDevice].name]
+ 
+ @param serviceType The type of service to advertise. This should be a short text string that describes the app's networking protocol, in the same format as a Bonjour service type:
+ 
+ 1. Must be 1–13 characters long.
+ 2. Can contain only ASCII lowercase letters, numbers, and hyphens.
+ 
+ This name should be easily distinguished from unrelated services. For example, a text chat app made by ABC company could use the service type abc-txtchat. For more details, read “Domain Naming Conventions”.
+ 
+ 
+ @param protocol The routing protocol used.
+ */
 - (instancetype)initWithServiceType:(NSString *)serviceType
                 withRoutingProtocol:(MHRoutingProtocols)protocol;
 
+/**
+ Init method for this class.
+ 
+ @param serviceType The type of service to advertise. This should be a short text string that describes the app's networking protocol, in the same format as a Bonjour service type:
+ 
+ 1. Must be 1–13 characters long.
+ 2. Can contain only ASCII lowercase letters, numbers, and hyphens.
+ 
+ This name should be easily distinguished from unrelated services. For example, a text chat app made by ABC company could use the service type abc-txtchat. For more details, read “Domain Naming Conventions”.
+ 
+ @param displayName The display name which is sent to other peers.
+ 
+ @param protocol The routing protocol used.
+ */
 - (instancetype)initWithServiceType:(NSString *)serviceType
                         displayName:(NSString *)displayName
                 withRoutingProtocol:(MHRoutingProtocols)protocol;
@@ -43,13 +91,28 @@
  */
 - (void)disconnect;
 
+/**
+ Call this method to join a multicast group
+ 
+ @param groupName The name of the group to join
+ */
+- (void)joinGroup:(NSString *)groupName;
+
+
+/**
+ Call this method to leave a multicast group
+ 
+ @param groupName The name of the group to leave
+ */
+- (void)leaveGroup:(NSString *)groupName;
+
 
 /**
  Sends a message to selected groups.
  
  They will receive the data with the delegate callback:
  
- - (void)mhMulticastSocket:(MHMulticastSocket *)mhMulticastSocket didReceiveMessage:(NSData *)data fromPeer:(NSString *)peer
+ - (void)mhSocket:(MHSocket *)mhSocket didReceiveMessage:(NSData *)data fromPeer:(NSString *)peer
  
  @param data message data to send.
  @param destinations list of multicast groups to which send the message
@@ -71,6 +134,7 @@
  @param peer the peer id
  */
 - (int)hopsCountFromPeer:(NSString*)peer;
+
 
 
 // Background Mode methods
@@ -95,11 +159,17 @@
 - (void)mhSocket:(MHSocket *)mhSocket
  failedToConnect:(NSError *)error;
 
-@optional
 - (void)mhSocket:(MHSocket *)mhSocket
 didReceiveMessage:(NSData *)data
         fromPeer:(NSString *)peer
    withTraceInfo:(NSArray *)traceInfo;
+
+@optional
+- (void)mhSocket:(MHSocket *)mhSocket
+    isDiscovered:(NSString *)info
+            peer:(NSString *)peer
+     displayName:(NSString *)displayName;
+
 
 #pragma mark - Diagnostics info callbacks
 - (void)mhSocket:(MHSocket *)mhSocket
@@ -115,6 +185,11 @@ neighbourConnected:(NSString *)info
 - (void)mhSocket:(MHSocket *)mhSocket
 neighbourDisconnected:(NSString *)info
             peer:(NSString *)peer;
+
+- (void)mhSocket:(MHSocket *)mhSocket
+     joinedGroup:(NSString *)info
+            peer:(NSString *)peer
+           group:(NSString *)group;
 @end
 
 #endif

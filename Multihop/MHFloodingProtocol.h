@@ -9,14 +9,14 @@
 #ifndef Multihop_MHFloodingProtocol_h
 #define Multihop_MHFloodingProtocol_h
 
-#import "MHUnicastRoutingProtocol.h"
+#import "MHRoutingProtocol.h"
 
 #define MH_FLOODING_TTL 10
 #define MH_FLOODING_DISCOVERME_MSG @"-[discoverme-msg]-"
 
 #define MH_FLOODING_SCHEDULECLEANING_DELAY 10000
 
-@interface MHFloodingProtocol : MHUnicastRoutingProtocol
+@interface MHFloodingProtocol : MHRoutingProtocol
 
 
 #pragma mark - Initialization
@@ -26,6 +26,9 @@
 
 - (void)disconnect;
 
+- (void)joinGroup:(NSString *)groupName;
+
+- (void)leaveGroup:(NSString *)groupName;
 
 - (void)sendPacket:(MHPacket *)packet
              error:(NSError **)error;

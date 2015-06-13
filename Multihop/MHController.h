@@ -14,11 +14,15 @@
 #import "MHRoutingProtocol.h"
 #import "MHMessage.h"
 
+// Protocols
+#import "MH6ShotsProtocol.h"
+#import "MHFloodingProtocol.h"
+
 
 typedef enum MHRoutingProtocols
 {
-    MHMulticast6ShotsProtocol,
-    MHUnicastFloodingProtocol
+    MH6ShotsRoutingProtocol,
+    MHFloodingRoutingProtocol
 }MHRoutingProtocols;
 
 @protocol MHControllerDelegate;
@@ -39,6 +43,9 @@ typedef enum MHRoutingProtocols
 
 - (void)disconnect;
 
+- (void)joinGroup:(NSString *)groupName;
+
+- (void)leaveGroup:(NSString *)groupName;
 
 - (void)sendMessage:(MHMessage *)message
      toDestinations:(NSArray *)destinations
@@ -76,6 +83,11 @@ typedef enum MHRoutingProtocols
             fromPeer:(NSString *)peer
        withTraceInfo:(NSArray *)traceInfo;
 
+- (void)mhController:(MHController *)mhController
+        isDiscovered:(NSString *)info
+                peer:(NSString *)peer
+         displayName:(NSString *)displayName;
+
 #pragma mark - Diagnostics info callbacks
 - (void)mhController:(MHController *)mhController
        forwardPacket:(NSString *)info
@@ -90,6 +102,11 @@ neighbourConnected:(NSString *)info
 - (void)mhController:(MHController *)mhController
 neighbourDisconnected:(NSString *)info
                 peer:(NSString *)peer;
+
+- (void)mhController:(MHController *)mhController
+         joinedGroup:(NSString *)info
+                peer:(NSString *)peer
+               group:(NSString *)group;
 @end
 
 

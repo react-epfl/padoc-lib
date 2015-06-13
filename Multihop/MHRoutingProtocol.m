@@ -47,6 +47,8 @@
 {
     [self.neighbourPeers removeAllObjects];
     [self.cHandler disconnectFromNeighbourhood];
+    
+    // Can override, but must call the super method
 }
 
 - (NSString *)getOwnPeer
@@ -66,7 +68,6 @@
 
 
 #pragma mark - Overridable methods
-
 - (void)sendPacket:(MHPacket *)packet
              error:(NSError **)error
 {
@@ -77,6 +78,16 @@
 {
     // Must be overridden
     return 0;
+}
+
+- (void)joinGroup:(NSString *)groupName
+{
+    // Must be overridden
+}
+
+- (void)leaveGroup:(NSString *)groupName
+{
+    // Must be overridden
 }
 
 #pragma mark - Connectionshandler delegate methods

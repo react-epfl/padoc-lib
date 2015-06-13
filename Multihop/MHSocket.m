@@ -21,16 +21,18 @@
 
 - (instancetype)initWithServiceType:(NSString *)serviceType
 {
-    // Must be overridden
-    return nil;
+    return [self initWithServiceType:serviceType
+                         displayName:[UIDevice currentDevice].name
+                 withRoutingProtocol:MHFloodingRoutingProtocol];
 }
 
 
 - (instancetype)initWithServiceType:(NSString *)serviceType
                 withRoutingProtocol:(MHRoutingProtocols)protocol
 {
-    // Must be overridden
-    return nil;
+    return [self initWithServiceType:serviceType
+                         displayName:[UIDevice currentDevice].name
+                 withRoutingProtocol:protocol];
 }
 
 
@@ -41,7 +43,11 @@
     self = [super init];
     if (self)
     {
+        self.mhController = [[MHController alloc] initWithServiceType:serviceType
+                                                          displayName:displayName
+                                                  withRoutingProtocol:protocol];
         
+        self.mhController.delegate = self;
     }
     return self;
 }
@@ -51,14 +57,24 @@
     self.mhController  = nil;
 }
 
-#pragma mark - Membership
+
+#pragma mark - Communicate
 
 - (void)disconnect
 {
     [self.mhController disconnect];
 }
 
-#pragma mark - Communicate
+- (void)joinGroup:(NSString *)groupName
+{
+    [self.mhController joinGroup:groupName];
+}
+
+- (void)leaveGroup:(NSString *)groupName
+{
+    [self.mhController leaveGroup:groupName];
+}
+
 
 - (void)sendMessage:(NSData *)data
      toDestinations:(NSArray *)destinations
@@ -68,6 +84,8 @@
     
     [self.mhController sendMessage:message toDestinations:destinations error:error];
 }
+
+
 
 - (NSString *)getOwnPeer
 {
@@ -116,9 +134,23 @@
        withTraceInfo:(NSArray *)traceInfo
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        if ([self.delegate respondsToSelector:@selector(mhSocket:didReceiveMessage:fromPeer:withTraceInfo:)])
+        [self.delegate mhSocket:self didReceiveMessage:message.data fromPeer:peer withTraceInfo:traceInfo];
+    });
+}
+
+
+- (void)mhController:(MHController *)mhController
+        isDiscovered:(NSString *)info
+                peer:(NSString *)peer
+         displayName:(NSString *)displayName
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if ([self.delegate respondsToSelector:@selector(mhSocket:isDiscovered:peer:displayName:)])
         {
-            [self.delegate mhSocket:self didReceiveMessage:message.data fromPeer:peer withTraceInfo:traceInfo];
+            [self.delegate mhSocket:self
+                       isDiscovered:info
+                               peer:peer
+                        displayName:displayName];
         }
     });
 }
@@ -163,6 +195,22 @@ neighbourDisconnected:(NSString *)info
         if ([self.delegate respondsToSelector:@selector(mhSocket:neighbourDisconnected:peer:)])
         {
             [self.delegate mhSocket:self neighbourDisconnected:info peer:peer];
+        }
+    });
+}
+
+- (void)mhController:(MHController *)mhController
+         joinedGroup:(NSString *)info
+                peer:(NSString *)peer
+               group:(NSString *)group
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if ([self.delegate respondsToSelector:@selector(mhSocket:joinedGroup:peer:group:)])
+        {
+            [self.delegate mhSocket:self
+                        joinedGroup:info
+                               peer:peer
+                              group:group];
         }
     });
 }

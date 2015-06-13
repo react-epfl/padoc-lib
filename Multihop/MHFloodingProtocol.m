@@ -18,6 +18,8 @@
 
 @property (nonatomic, strong) NSString *displayName;
 
+@property (nonatomic, strong) NSMutableArray *joinedGroups;
+
 @property (nonatomic, strong) NSMutableArray *processedPackets;
 
 @property (nonatomic, strong) NSMutableDictionary *discoveryPackets;
@@ -39,6 +41,8 @@
         self.displayName = displayName;
         self.discoveryPackets = [[NSMutableDictionary alloc] init];
         self.processedPackets = [[NSMutableArray alloc] init];
+        self.joinedGroups = [[NSMutableArray alloc] init];
+        
         [self.cHandler connectToNeighbourhood];
         
         MHFloodingProtocol * __weak weakSelf = self;
@@ -51,6 +55,7 @@
 {
     self.processedPackets = nil;
     self.discoveryPackets = nil;
+    self.joinedGroups = nil;
 }
 
 
@@ -93,8 +98,31 @@
 {
     [self.processedPackets removeAllObjects];
     [self.discoveryPackets removeAllObjects];
+    [self.joinedGroups removeAllObjects];
     [super disconnect];
 }
+
+
+- (void)joinGroup:(NSString *)groupName
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if(![self.joinedGroups containsObject:groupName])
+        {
+            [self.joinedGroups addObject:groupName];
+        }
+    });
+}
+
+- (void)leaveGroup:(NSString *)groupName
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if([self.joinedGroups containsObject:groupName])
+        {
+            [self.joinedGroups removeObject:groupName];
+        }
+    });
+}
+
 
 - (void)sendPacket:(MHPacket *)packet
              error:(NSError **)error
@@ -192,10 +220,6 @@
     
     [self.neighbourPeers removeObject:peer];
     [self.discoveryPackets removeObjectForKey:peer];
-    
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [(id<MHUnicastRoutingProtocolDelegate>)self.delegate mhProtocol:self hasDisconnected:info peer:peer];
-    });
 }
 
 
@@ -232,10 +256,10 @@
         // and forward it
         dispatch_async(dispatch_get_main_queue(), ^{
             [self.discoveryPackets setObject:packet forKey:packet.source];
-            [(id<MHUnicastRoutingProtocolDelegate>)self.delegate mhProtocol:self
-                                                               isDiscovered:@"Discovered"
-                                                                       peer:packet.source
-                                                                displayName:[packet.info objectForKey:@"displayname"]];
+            [self.delegate mhProtocol:self
+                         isDiscovered:@"Discovered"
+                                 peer:packet.source
+                          displayName:[packet.info objectForKey:@"displayname"]];
         });
         
         // Diagnostics
@@ -272,7 +296,8 @@
             [self.processedPackets addObject:packet.tag];
         });
         
-        if ([packet.destinations containsObject:[self getOwnPeer]])
+        // Check if local peer is a destination (if the two sets intersect)
+        if ([[NSSet setWithArray:packet.destinations] intersectsSet:[NSSet setWithArray:self.joinedGroups]])
         {
             // Notify upper layers that a new packet is received
             dispatch_async(dispatch_get_main_queue(), ^{

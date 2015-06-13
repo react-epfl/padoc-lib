@@ -25,7 +25,24 @@
     self = [super init];
     if (self)
     {
-
+        switch (protocol) {
+            case MH6ShotsRoutingProtocol:
+                self.mhProtocol = [[MH6ShotsProtocol alloc] initWithServiceType:serviceType
+                                                                    displayName:displayName];
+                break;
+                
+            case MHFloodingRoutingProtocol:
+                self.mhProtocol = [[MHFloodingProtocol alloc] initWithServiceType:serviceType
+                                                                      displayName:displayName];
+                break;
+                
+            default:
+                self.mhProtocol = [[MHFloodingProtocol alloc] initWithServiceType:serviceType
+                                                                      displayName:displayName];
+                break;
+        }
+        
+        self.mhProtocol.delegate = self;
     }
     return self;
 }
@@ -53,6 +70,16 @@
                                                withData:[NSKeyedArchiver archivedDataWithRootObject:message]];
     
     [self.mhProtocol sendPacket:packet error:error];
+}
+
+- (void)joinGroup:(NSString *)groupName
+{
+    [(MHRoutingProtocol*)self.mhProtocol joinGroup:groupName];
+}
+
+- (void)leaveGroup:(NSString *)groupName
+{
+    [(MHRoutingProtocol*)self.mhProtocol leaveGroup:groupName];
 }
 
 - (NSString *)getOwnPeer
@@ -125,6 +152,19 @@
 }
 
 - (void)mhProtocol:(MHRoutingProtocol *)mhProtocol
+       joinedGroup:(NSString *)info
+              peer:(NSString *)peer
+             group:(NSString *)group
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.delegate mhController:self
+                        joinedGroup:info
+                               peer:peer
+                              group:group];
+    });
+}
+
+- (void)mhProtocol:(MHRoutingProtocol *)mhProtocol
   neighbourConnected:(NSString *)info
               peer:(NSString *)peer
        displayName:(NSString *)displayName
@@ -141,6 +181,19 @@ neighbourDisconnected:(NSString *)info
 {
     dispatch_async(dispatch_get_main_queue(), ^{
         [self.delegate mhController:self neighbourDisconnected:info peer:peer];
+    });
+}
+
+- (void)mhProtocol:(MHRoutingProtocol *)mhProtocol
+      isDiscovered:(NSString *)info
+              peer:(NSString *)peer
+       displayName:(NSString *)displayName
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.delegate mhController:self
+                       isDiscovered:info
+                               peer:peer
+                        displayName:displayName];
     });
 }
 @end

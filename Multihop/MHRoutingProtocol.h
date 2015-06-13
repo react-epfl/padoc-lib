@@ -43,6 +43,9 @@
 #pragma mark - Overridable methods
 - (void)disconnect;
 
+- (void)joinGroup:(NSString *)groupName;
+
+- (void)leaveGroup:(NSString *)groupName;
 
 - (void)sendPacket:(MHPacket *)packet
              error:(NSError **)error;
@@ -62,6 +65,12 @@
   didReceivePacket:(MHPacket *)packet
      withTraceInfo:(NSArray *)traceInfo;
 
+- (void)mhProtocol:(MHRoutingProtocol *)mhProtocol
+      isDiscovered:(NSString *)info
+              peer:(NSString *)peer
+       displayName:(NSString *)displayName;
+
+
 #pragma mark - Diagnostics info callbacks
 - (void)mhProtocol:(MHRoutingProtocol *)mhProtocol
      forwardPacket:(NSString *)info
@@ -75,6 +84,11 @@ neighbourConnected:(NSString *)info
 - (void)mhProtocol:(MHRoutingProtocol *)mhProtocol
 neighbourDisconnected:(NSString *)info
               peer:(NSString *)peer;
+
+- (void)mhProtocol:(MHRoutingProtocol *)mhProtocol
+       joinedGroup:(NSString *)info
+              peer:(NSString *)peer
+             group:(NSString *)group;
 @end
 
 

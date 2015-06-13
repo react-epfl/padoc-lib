@@ -295,10 +295,10 @@
             if ([MHDiagnostics getSingleton].useNetworkLayerInfoCallbacks)
             {
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    [(id<MHMulticastRoutingProtocolDelegate>)self.delegate mhProtocol:self
-                                                                          joinedGroup:@"Joined group"
-                                                                                 peer:packet.source
-                                                                                group:[packet.info objectForKey:@"groupName"]];
+                    [self.delegate mhProtocol:self
+                                  joinedGroup:@"Joined group"
+                                         peer:packet.source
+                                        group:[packet.info objectForKey:@"groupName"]];
                 });
             }
             
