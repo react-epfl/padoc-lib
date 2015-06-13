@@ -116,7 +116,7 @@
 
 
 - (void)cHandler:(MHConnectionsHandler *)cHandler
-  didReceiveData:(NSData *)data
+didReceiveDatagram:(MHDatagram *)datagram
         fromPeer:(NSString *)peer
 {
     // Must be overridden

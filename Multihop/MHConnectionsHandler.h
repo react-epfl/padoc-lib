@@ -13,6 +13,7 @@
 #import <Foundation/Foundation.h>
 #import "MHMultipeerWrapper.h"
 #import "MHConnectionBuffer.h"
+#import "MHDatagram.h"
 
 
 #define MHCONNECTIONSHANDLER_BACKGROUND_SIGNAL @"[{_-background_sgn-_}]"
@@ -48,9 +49,9 @@
 - (void)disconnectFromNeighbourhood;
 
 
-- (void)sendData:(NSData *)data
-         toPeers:(NSArray *)peers
-           error:(NSError **)error;
+- (void)sendDatagram:(MHDatagram *)datagram
+             toPeers:(NSArray *)peers
+               error:(NSError **)error;
 
 - (NSString *)getOwnPeer;
 
@@ -77,7 +78,7 @@
  failedToConnect:(NSError *)error;
 
 - (void)cHandler:(MHConnectionsHandler *)cHandler
-  didReceiveData:(NSData *)data
+didReceiveDatagram:(MHDatagram *)datagram
         fromPeer:(NSString *)peer;
 
 - (void)cHandler:(MHConnectionsHandler *)cHandler

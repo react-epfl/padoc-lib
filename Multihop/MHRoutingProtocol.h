@@ -13,6 +13,7 @@
 #import <Foundation/Foundation.h>
 #import "MHConnectionsHandler.h"
 #import "MHPacket.h"
+#import "MHDatagram.h"
 
 // Diagnostics
 #import "MHDiagnostics.h"

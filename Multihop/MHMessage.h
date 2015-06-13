@@ -22,8 +22,8 @@
 
 - (instancetype)initWithData:(NSData *)data;
 
-- (NSData *)asNSData;
 
+- (NSData *)asNSData;
 
 + (MHMessage *)fromNSData:(NSData *)nsData;
 @end

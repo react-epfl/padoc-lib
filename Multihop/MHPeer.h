@@ -11,7 +11,9 @@
 
 #import <Foundation/Foundation.h>
 #import <MultipeerConnectivity/MultipeerConnectivity.h>
-#include <stdlib.h>
+
+#import "MHDatagram.h"
+#import "MHPeerBuffer.h"
 
 #define MHPEER_HEARTBEAT_TIME 1
 #define MHPEER_MAX_HEARTBEAT_FAILS 3
@@ -56,9 +58,8 @@
         withMCPeerID:(MCPeerID *)mcPeerID
         withMHPeerID:(NSString *)mhPeerID;
 
-- (void)sendData:(NSData *)data
-        reliable:(BOOL)reliable
-           error:(NSError **)error;
+- (void)sendDatagram:(MHDatagram *)datagram
+               error:(NSError **)error;
 
 - (void)disconnect;
 
@@ -81,7 +82,7 @@ hasDisconnected:(NSString *)info;
 hasConnected:(NSString *)info;
 
 - (void)mhPeer:(MHPeer *)mhPeer
-didReceiveData:(NSData *)data;
+didReceiveDatagram:(MHDatagram *)datagram;
 
 @end
 

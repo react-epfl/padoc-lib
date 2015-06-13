@@ -95,7 +95,10 @@
         
         // Broadcast joining request
         NSError *error;
-        [self.cHandler sendData:[packet asNSData] toPeers:self.neighbourPeers error:&error];
+        MHDatagram *datagram = [[MHDatagram alloc] initWithData:[packet asNSData]];
+        [self.cHandler sendDatagram:datagram
+                            toPeers:self.neighbourPeers
+                              error:&error];
     });
 }
 
@@ -117,7 +120,10 @@
         
         // Broadcast leave msg
         NSError *error;
-        [self.cHandler sendData:[packet asNSData] toPeers:self.neighbourPeers error:&error];
+        MHDatagram *datagram = [[MHDatagram alloc] initWithData:[packet asNSData]];
+        [self.cHandler sendDatagram:datagram
+                            toPeers:self.neighbourPeers
+                              error:&error];
     });
 }
 
@@ -160,7 +166,10 @@
         
         // Broadcast packet
         NSError *error;
-        [self.cHandler sendData:[packet asNSData] toPeers:self.neighbourPeers error:&error];
+        MHDatagram *datagram = [[MHDatagram alloc] initWithData:[packet asNSData]];
+        [self.cHandler sendDatagram:datagram
+                            toPeers:self.neighbourPeers
+                              error:&error];
     });
 }
 
@@ -216,9 +225,10 @@
                 }
                 
                 NSError *error;
-                [self.cHandler sendData:[msg asNSData]
-                                toPeers:[[NSArray alloc] initWithObjects:peer, nil]
-                                  error:&error];
+                MHDatagram *datagram = [[MHDatagram alloc] initWithData:[msg asNSData]];
+                [self.cHandler sendDatagram:datagram
+                                    toPeers:[[NSArray alloc] initWithObjects:peer, nil]
+                                      error:&error];
             }
         });
     });
@@ -245,10 +255,10 @@
 
 
 - (void)cHandler:(MHConnectionsHandler *)cHandler
-  didReceiveData:(NSData *)data
+didReceiveDatagram:(MHDatagram *)datagram
         fromPeer:(NSString *)peer
 {
-    MHPacket *packet = [MHPacket fromNSData:data];
+    MHPacket *packet = [MHPacket fromNSData:datagram.data];
     
 
     
@@ -322,7 +332,10 @@
                     }
                     
                     NSError *error;
-                    [self.cHandler sendData:[packet asNSData] toPeers:self.neighbourPeers error:&error];
+                    MHDatagram *datagram = [[MHDatagram alloc] initWithData:[packet asNSData]];
+                    [self.cHandler sendDatagram:datagram
+                                        toPeers:self.neighbourPeers
+                                          error:&error];
                 }
             });
         });
@@ -369,7 +382,10 @@
                 
                 // Broadcast to neighbourhood
                 NSError *error;
-                [self.cHandler sendData:[packet asNSData] toPeers:self.neighbourPeers error:&error];
+                MHDatagram *datagram = [[MHDatagram alloc] initWithData:[packet asNSData]];
+                [self.cHandler sendDatagram:datagram
+                                    toPeers:self.neighbourPeers
+                                      error:&error];
             });
         });
     }
@@ -435,7 +451,10 @@
 {
     dispatch_async(dispatch_get_main_queue(), ^{
         NSError *error;
-        [self.cHandler sendData:[packet asNSData] toPeers:self.neighbourPeers error:&error];
+        MHDatagram *datagram = [[MHDatagram alloc] initWithData:[packet asNSData]];
+        [self.cHandler sendDatagram:datagram
+                            toPeers:self.neighbourPeers
+                              error:&error];
     });
 }
 

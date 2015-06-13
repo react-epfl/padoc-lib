@@ -11,6 +11,7 @@
 
 #import <Foundation/Foundation.h>
 #import "MHMultipeerWrapper.h"
+#import "MHDatagram.h"
 
 
 #define MHCONNECTIONBUFFER_BUFFER_SIZE 1000
@@ -39,7 +40,7 @@ typedef enum MHConnectionBufferState : NSUInteger
 #pragma mark - Properties
 - (void)setStatus:(MHConnectionBufferState)status;
 
-- (void)pushData:(NSData *)data;
+- (void)pushDatagram:(MHDatagram *)datagram;
 
 
 @end

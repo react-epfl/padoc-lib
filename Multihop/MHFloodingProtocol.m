@@ -119,9 +119,11 @@
                 [ownPacket.info setObject:self.joinedGroups forKey:@"joinedGroups"];
                 
                 NSError *error;
-                [self.cHandler sendData:[ownPacket asNSData]
-                                toPeers:self.neighbourPeers
-                                  error:&error];
+                MHDatagram *datagram = [[MHDatagram alloc] initWithData:[ownPacket asNSData]];
+                
+                [self.cHandler sendDatagram:datagram
+                                    toPeers:self.neighbourPeers
+                                      error:&error];
             });
         }
     });
@@ -149,7 +151,9 @@
     
     // Broadcast
     dispatch_async(dispatch_get_main_queue(), ^{
-        [self.cHandler sendData:[packet asNSData] toPeers:self.neighbourPeers error:error];
+        MHDatagram *datagram = [[MHDatagram alloc] initWithData:[packet asNSData]];
+        
+        [self.cHandler sendDatagram:datagram toPeers:self.neighbourPeers error:error];
     });
 }
 
@@ -196,9 +200,10 @@
                 [ownPacket.info setObject:self.joinedGroups forKey:@"joinedGroups"];
                 
                 NSError *error;
-                [self.cHandler sendData:[ownPacket asNSData]
-                                toPeers:[[NSArray alloc] initWithObjects:peer, nil]
-                                  error:&error];
+                MHDatagram *datagram = [[MHDatagram alloc] initWithData:[ownPacket asNSData]];
+                [self.cHandler sendDatagram:datagram
+                                    toPeers:[[NSArray alloc] initWithObjects:peer, nil]
+                                      error:&error];
             }
             
             // Forwarding of every stored discovery packet
@@ -217,9 +222,10 @@
                 
                 dispatch_async(dispatch_get_main_queue(), ^{
                     NSError *error;
-                    [self.cHandler sendData:[discPacket asNSData]
-                                    toPeers:[[NSArray alloc] initWithObjects:peer, nil]
-                                      error:&error];
+                    MHDatagram *datagram = [[MHDatagram alloc] initWithData:[discPacket asNSData]];
+                    [self.cHandler sendDatagram:datagram
+                                        toPeers:[[NSArray alloc] initWithObjects:peer, nil]
+                                          error:&error];
                 });
             }
         }
@@ -246,10 +252,10 @@
 
 
 - (void)cHandler:(MHConnectionsHandler *)cHandler
-  didReceiveData:(NSData *)data
+didReceiveDatagram:(MHDatagram *)datagram
         fromPeer:(NSString *)peer
 {
-    MHPacket *packet = [MHPacket fromNSData:data];
+    MHPacket *packet = [MHPacket fromNSData:datagram.data];
     
     // It's a discover-me request
     if ([packet.info objectForKey:MH_FLOODING_DISCOVERME_MSG] != nil)
@@ -379,7 +385,10 @@
         dispatch_async(dispatch_get_main_queue(), ^{
             // Broadcast to neighbourhood
             NSError *error;
-            [self.cHandler sendData:[packet asNSData] toPeers:self.neighbourPeers error:&error];
+            MHDatagram *datagram = [[MHDatagram alloc] initWithData:[packet asNSData]];
+            [self.cHandler sendDatagram:datagram
+                                toPeers:self.neighbourPeers
+                                  error:&error];
         });
     }
 }

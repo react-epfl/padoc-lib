@@ -62,10 +62,12 @@
 {
     // Send signal
     NSError *error;
-    [weakSelf.mcWrapper sendData:[MHCONNECTIONSHANDLER_BACKGROUND_SIGNAL dataUsingEncoding:NSUTF8StringEncoding]
-                         toPeers:[weakSelf.buffers allKeys]
-                        reliable:YES
-                           error:&error];
+    MHDatagram *datagram = [[MHDatagram alloc] initWithData:[MHComputation emptyData]];
+    [datagram.info setObject:@"" forKey:MHCONNECTIONSHANDLER_BACKGROUND_SIGNAL];
+    
+    [weakSelf.mcWrapper sendDatagram:datagram
+                             toPeers:[weakSelf.buffers allKeys]
+                               error:&error];
     
     // Set to Broken the connection status of all peers
     for (id peerKey in weakSelf.buffers)
@@ -101,9 +103,9 @@
 }
 
 #pragma mark - Communicate
-- (void)sendData:(NSData *)data
-         toPeers:(NSArray *)peers
-           error:(NSError **)error
+- (void)sendDatagram:(MHDatagram *)datagram
+             toPeers:(NSArray *)peers
+               error:(NSError **)error
 {
     NSMutableArray *connectedPeers = [[NSMutableArray alloc] init];
     
@@ -120,7 +122,7 @@
             if (buf.status == MHConnectionBufferBroken) // We bufferize
             {
                 // Data bufferization
-                [buf pushData:data];
+                [buf pushDatagram:datagram];
             }
             else
             {
@@ -133,10 +135,9 @@
     // with an unbroken connection
     if (connectedPeers.count > 0)
     {
-        [self.mcWrapper sendData:data
-                         toPeers:connectedPeers
-                        reliable:YES
-                           error:error];
+        [self.mcWrapper sendDatagram:datagram
+                             toPeers:connectedPeers
+                               error:error];
     }
 }
 
@@ -257,13 +258,11 @@
 }
 
 - (void)mcWrapper:(MHMultipeerWrapper *)mcWrapper
-   didReceiveData:(NSData *)data
+didReceiveDatagram:(MHDatagram *)datagram
          fromPeer:(NSString *)peer
 {
-    NSString *dataStr = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-    
     // Check if it is a background signal
-    if ([dataStr isEqualToString:MHCONNECTIONSHANDLER_BACKGROUND_SIGNAL])
+    if ([datagram.info objectForKey:MHCONNECTIONSHANDLER_BACKGROUND_SIGNAL] != nil)
     {
         // Set peer status to Broken
         MHConnectionBuffer *buf = [self.buffers objectForKey:peer];
@@ -278,7 +277,7 @@
     {
         // Notify above layers
         dispatch_async(dispatch_get_main_queue(), ^{
-            [self.delegate cHandler:self didReceiveData:data fromPeer:peer];
+            [self.delegate cHandler:self didReceiveDatagram:datagram fromPeer:peer];
         });
     }
 }

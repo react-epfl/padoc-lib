@@ -67,7 +67,7 @@
 {
     MHPacket *packet = [[MHPacket alloc] initWithSource:[self getOwnPeer]
                                        withDestinations:destinations
-                                               withData:[NSKeyedArchiver archivedDataWithRootObject:message]];
+                                               withData:[message asNSData]];
     
     [self.mhProtocol sendPacket:packet error:error];
 }
@@ -129,12 +129,9 @@
 {
     dispatch_async(dispatch_get_main_queue(), ^{
         // Unarchive message data
-        id message = [NSKeyedUnarchiver unarchiveObjectWithData:packet.data];
+        MHMessage *message = [MHMessage fromNSData:packet.data];
         
-        if ([message isKindOfClass:[MHMessage class]])
-        {
-            [self.delegate mhController:self didReceiveMessage:message fromPeer:packet.source withTraceInfo:traceInfo];
-        }
+        [self.delegate mhController:self didReceiveMessage:message fromPeer:packet.source withTraceInfo:traceInfo];
     });
 }
 

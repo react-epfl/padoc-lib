@@ -10,6 +10,8 @@
 		2B2DB3811AD1827B00619A12 /* MH6ShotsScheduler.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B2DB3801AD1827B00619A12 /* MH6ShotsScheduler.m */; };
 		2B2DB3831AD182E800619A12 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B2DB3821AD182E800619A12 /* CoreLocation.framework */; };
 		2B2DB3871AD183A500619A12 /* MHLocationManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B2DB3861AD183A500619A12 /* MHLocationManager.m */; };
+		2B6B5AB51B2C9A9F00EB7FC6 /* MHDatagram.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B6B5AB41B2C9A9F00EB7FC6 /* MHDatagram.m */; };
+		2B6B5ABB1B2CB82400EB7FC6 /* MHPeerBuffer.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B6B5ABA1B2CB82400EB7FC6 /* MHPeerBuffer.m */; };
 		2B8092FA1AB34C7F0059F89D /* libMultihop.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B8092EE1AB34C7F0059F89D /* libMultihop.a */; };
 		2B8093101AB71A750059F89D /* MHPeer.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B80930F1AB71A750059F89D /* MHPeer.m */; };
 		2B8093131AB726170059F89D /* MHMultipeerWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B8093121AB726170059F89D /* MHMultipeerWrapper.m */; };
@@ -59,6 +61,10 @@
 		2B2DB3821AD182E800619A12 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
 		2B2DB3851AD1839100619A12 /* MHLocationManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MHLocationManager.h; sourceTree = "<group>"; };
 		2B2DB3861AD183A500619A12 /* MHLocationManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MHLocationManager.m; sourceTree = "<group>"; };
+		2B6B5AB31B2C9A8B00EB7FC6 /* MHDatagram.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MHDatagram.h; sourceTree = "<group>"; };
+		2B6B5AB41B2C9A9F00EB7FC6 /* MHDatagram.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MHDatagram.m; sourceTree = "<group>"; };
+		2B6B5AB91B2CB80D00EB7FC6 /* MHPeerBuffer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MHPeerBuffer.h; sourceTree = "<group>"; };
+		2B6B5ABA1B2CB82400EB7FC6 /* MHPeerBuffer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MHPeerBuffer.m; sourceTree = "<group>"; };
 		2B8092EE1AB34C7F0059F89D /* libMultihop.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libMultihop.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		2B8092F91AB34C7F0059F89D /* MultihopTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MultihopTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		2B8092FF1AB34C7F0059F89D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -213,10 +219,14 @@
 		2BBA880B1AC464C80032E360 /* MultipeerConnectivity */ = {
 			isa = PBXGroup;
 			children = (
+				2B6B5AB31B2C9A8B00EB7FC6 /* MHDatagram.h */,
+				2B6B5AB41B2C9A9F00EB7FC6 /* MHDatagram.m */,
 				2B80930E1AB71A580059F89D /* MHPeer.h */,
 				2B80930F1AB71A750059F89D /* MHPeer.m */,
 				2B8093111AB725FF0059F89D /* MHMultipeerWrapper.h */,
 				2B8093121AB726170059F89D /* MHMultipeerWrapper.m */,
+				2B6B5AB91B2CB80D00EB7FC6 /* MHPeerBuffer.h */,
+				2B6B5ABA1B2CB82400EB7FC6 /* MHPeerBuffer.m */,
 			);
 			name = MultipeerConnectivity;
 			sourceTree = "<group>";
@@ -384,6 +394,7 @@
 				2BA5EAAE1AF26FE300F01FB3 /* MHComputation.m in Sources */,
 				2BE24C821B1CAB7100472AC2 /* MHRoutingProtocol.m in Sources */,
 				2B8093101AB71A750059F89D /* MHPeer.m in Sources */,
+				2B6B5ABB1B2CB82400EB7FC6 /* MHPeerBuffer.m in Sources */,
 				2BE24C8E1B1DF33B00472AC2 /* MHMessage.m in Sources */,
 				2BBA881A1AC4670D0032E360 /* MHConnectionBuffer.m in Sources */,
 				2BF4C5991ACF652E005B8481 /* MH6ShotsSchedule.m in Sources */,
@@ -393,6 +404,7 @@
 				2B2DB3811AD1827B00619A12 /* MH6ShotsScheduler.m in Sources */,
 				2BF4C5901ACF5CD5005B8481 /* MH6ShotsProtocol.m in Sources */,
 				2BBA88251ACEA8990032E360 /* MHPacket.m in Sources */,
+				2B6B5AB51B2C9A9F00EB7FC6 /* MHDatagram.m in Sources */,
 				2B2DB3871AD183A500619A12 /* MHLocationManager.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

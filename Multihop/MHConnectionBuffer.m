@@ -43,20 +43,19 @@
         
         
         self.releaseMessages = ^{
-            if (weakSelf && weakSelf.messages)
+            if (weakSelf)
             {
                 // If connection is reestablished, then send data
                 if (weakSelf.status == MHConnectionBufferConnected)
                 {
-                    NSData * data = [weakSelf popData];
+                    MHDatagram * datagram = [weakSelf popDatagram];
                     NSError *error;
                     
-                    if (data != nil)
+                    if (datagram != nil)
                     {
-                        [weakSelf.mcWrapper sendData:data
-                                             toPeers:[[NSArray alloc] initWithObjects:weakSelf.peerID, nil]
-                                            reliable:YES
-                                               error:&error];
+                        [weakSelf.mcWrapper sendDatagram:datagram
+                                                 toPeers:[[NSArray alloc] initWithObjects:weakSelf.peerID, nil]
+                                                   error:&error];
                     }
                 }
                 
@@ -85,26 +84,26 @@
 }
 
 
-- (void)pushData:(NSData *)data
+- (void)pushDatagram:(MHDatagram *)datagram
 {
     // If buffer size is reached, messages are lost
     dispatch_async(dispatch_get_main_queue(), ^{
         if (self.messages.count < MHCONNECTIONBUFFER_BUFFER_SIZE)
         {
-            [self.messages addObject:data];
+            [self.messages addObject:datagram];
         }
     });
 }
 
-- (NSData *)popData
+- (MHDatagram *)popDatagram
 {
     // Pop first item and return
     if (self.messages.count > 0)
     {
-        NSData *data = [self.messages objectAtIndex:0];
+        MHDatagram *datagram = [self.messages objectAtIndex:0];
         [self.messages removeObjectAtIndex:0];
         
-        return data;
+        return datagram;
     }
     
     return nil;

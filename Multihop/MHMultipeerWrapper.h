@@ -12,6 +12,7 @@
 
 #import <Foundation/Foundation.h>
 #import <MultipeerConnectivity/MultipeerConnectivity.h>
+#import "MHDatagram.h"
 #import "MHPeer.h"
 
 #define MH_SERVICE_PREFIX @"mh-"
@@ -33,10 +34,9 @@
 
 - (void)disconnectFromNeighbourhood;
 
-- (void)sendData:(NSData *)data
-         toPeers:(NSArray *)peers
-        reliable:(BOOL)reliable
-           error:(NSError **)error;
+- (void)sendDatagram:(MHDatagram *)datagram
+             toPeers:(NSArray *)peers
+               error:(NSError **)error;
 
 - (NSString *)getOwnPeer;
 
@@ -58,7 +58,7 @@
   failedToConnect:(NSError *)error;
 
 - (void)mcWrapper:(MHMultipeerWrapper *)mcWrapper
-   didReceiveData:(NSData *)data
+didReceiveDatagram:(MHDatagram *)datagram
          fromPeer:(NSString *)peer;
 @end
 

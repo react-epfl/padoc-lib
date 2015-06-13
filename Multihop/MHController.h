@@ -79,7 +79,7 @@ typedef enum MHRoutingProtocols
      failedToConnect:(NSError *)error;
 
 - (void)mhController:(MHController *)mhController
-   didReceiveMessage:(NSData *)data
+   didReceiveMessage:(MHMessage *)message
             fromPeer:(NSString *)peer
        withTraceInfo:(NSArray *)traceInfo;
 
