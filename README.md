@@ -11,7 +11,8 @@ This library provides multihop support, meaning that message routing between two
   
 So far, the library works as expected, but still misses some important features:
 * No message reliability support
-* No congestion control support  
+* No congestion control support
+  
 The major limitations come from the fact that there no transport layer is still implemented.
 
 ## Features
@@ -158,7 +159,8 @@ The socket can be instantiated using the following methods:
 ```
 The currently supported routing protocols are:  
 * *MH6ShotsRoutingProtocol*
-* *MHFloodingRoutingProtocol*  
+* *MHFloodingRoutingProtocol*
+  
 If unspecified, the default protocol is *MHFloodingRoutingProtocol.*.  
   
 In order to disconnect the socket from the network, write:
