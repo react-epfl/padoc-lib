@@ -13,8 +13,7 @@
 #import <MultipeerConnectivity/MultipeerConnectivity.h>
 #include <stdlib.h>
 
-#define MHPEER_HEARTBEAT_TIME_RANGE 1
-#define MHPEER_HEARTBEAT_TIME_BASE 1
+#define MHPEER_HEARTBEAT_TIME 1
 #define MHPEER_MAX_HEARTBEAT_FAILS 3
 
 #define MHPEER_HEARTBEAT_MSG  @"[{_-heartbeat_msg-_}]"
@@ -33,7 +32,6 @@
 /// Delegate for the PartyTime methods
 @property (nonatomic, weak) id<MHPeerDelegate> delegate;
 
-@property (nonatomic, readonly) BOOL connected;
 
 /// Returns the current client's MCPeerID (this ID is different for each
 /// application startup)
