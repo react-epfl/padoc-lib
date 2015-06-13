@@ -14,6 +14,8 @@
 @property (nonatomic, strong) NSMutableArray *neighbourPeers;
 @property (nonatomic, strong) MHConnectionsHandler *cHandler;
 
+@property (nonatomic, strong) NSString *displayName;
+
 @property (nonatomic, strong) NSMutableDictionary *joinMsgs;
 @property (nonatomic, strong) NSMutableDictionary *shouldForward;
 @property (nonatomic, strong) NSMutableDictionary *routingTable;
@@ -31,6 +33,7 @@
     self = [super initWithServiceType:serviceType displayName:displayName];
     if (self)
     {
+        self.displayName = displayName;
         // Routing table initialization with own peer having 0 hops
         self.routingTable = [[NSMutableDictionary alloc] init];
         [self.routingTable setObject:[NSNumber numberWithInt:0] forKey:[self getOwnPeer]];
@@ -81,6 +84,7 @@
     // Add group infomation
     [packet.info setObject:MH6SHOTS_JOIN_MSG forKey:@"message-type"];
     [packet.info setObject:groupName forKey:@"groupName"];
+    [packet.info setObject:self.displayName forKey:@"displayName"];
     [packet.info setObject:[NSNumber numberWithInt:0] forKey:@"height"];
     
     
@@ -298,6 +302,7 @@
                     [self.delegate mhProtocol:self
                                   joinedGroup:@"Joined group"
                                          peer:packet.source
+                                  displayName:[packet.info objectForKey:@"displayName"]
                                         group:[packet.info objectForKey:@"groupName"]];
                 });
             }

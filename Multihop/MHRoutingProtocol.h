@@ -65,11 +65,6 @@
   didReceivePacket:(MHPacket *)packet
      withTraceInfo:(NSArray *)traceInfo;
 
-- (void)mhProtocol:(MHRoutingProtocol *)mhProtocol
-      isDiscovered:(NSString *)info
-              peer:(NSString *)peer
-       displayName:(NSString *)displayName;
-
 
 #pragma mark - Diagnostics info callbacks
 - (void)mhProtocol:(MHRoutingProtocol *)mhProtocol
@@ -88,6 +83,7 @@ neighbourDisconnected:(NSString *)info
 - (void)mhProtocol:(MHRoutingProtocol *)mhProtocol
        joinedGroup:(NSString *)info
               peer:(NSString *)peer
+       displayName:(NSString *)displayName
              group:(NSString *)group;
 @end
 

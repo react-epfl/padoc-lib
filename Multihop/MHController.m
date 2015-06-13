@@ -154,12 +154,14 @@
 - (void)mhProtocol:(MHRoutingProtocol *)mhProtocol
        joinedGroup:(NSString *)info
               peer:(NSString *)peer
+       displayName:(NSString *)displayName
              group:(NSString *)group
 {
     dispatch_async(dispatch_get_main_queue(), ^{
         [self.delegate mhController:self
                         joinedGroup:info
                                peer:peer
+                        displayName:displayName
                               group:group];
     });
 }
@@ -181,19 +183,6 @@ neighbourDisconnected:(NSString *)info
 {
     dispatch_async(dispatch_get_main_queue(), ^{
         [self.delegate mhController:self neighbourDisconnected:info peer:peer];
-    });
-}
-
-- (void)mhProtocol:(MHRoutingProtocol *)mhProtocol
-      isDiscovered:(NSString *)info
-              peer:(NSString *)peer
-       displayName:(NSString *)displayName
-{
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [self.delegate mhController:self
-                       isDiscovered:info
-                               peer:peer
-                        displayName:displayName];
     });
 }
 @end

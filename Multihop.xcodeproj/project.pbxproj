@@ -192,6 +192,8 @@
 		2B8093091AB717790059F89D /* Network */ = {
 			isa = PBXGroup;
 			children = (
+				2BE24C801B1CAB5600472AC2 /* MHRoutingProtocol.h */,
+				2BE24C811B1CAB7100472AC2 /* MHRoutingProtocol.m */,
 				2BBA88231ACEA8810032E360 /* MHPacket.h */,
 				2BBA88241ACEA8990032E360 /* MHPacket.m */,
 				2BBA881E1ACEA7A70032E360 /* Protocols */,
@@ -235,8 +237,6 @@
 			children = (
 				2BBA88261ACEA8A50032E360 /* Flooding */,
 				2BBA88271ACEA8B10032E360 /* 6Shots */,
-				2BE24C801B1CAB5600472AC2 /* MHRoutingProtocol.h */,
-				2BE24C811B1CAB7100472AC2 /* MHRoutingProtocol.m */,
 			);
 			name = Protocols;
 			sourceTree = "<group>";

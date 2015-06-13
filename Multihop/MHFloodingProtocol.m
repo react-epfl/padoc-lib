@@ -87,7 +87,7 @@
     
         // Adding discovery information and ttl
         [_ownDiscoveryPacket.info setObject:@"YES" forKey:MH_FLOODING_DISCOVERME_MSG];
-        [_ownDiscoveryPacket.info setObject:self.displayName forKey:@"displayname"];
+        [_ownDiscoveryPacket.info setObject:self.displayName forKey:@"displayName"];
         [_ownDiscoveryPacket.info setObject:[NSNumber numberWithInt:MH_FLOODING_TTL] forKey:@"ttl"];
     }
     
@@ -109,6 +109,20 @@
         if(![self.joinedGroups containsObject:groupName])
         {
             [self.joinedGroups addObject:groupName];
+        }
+        
+        if([MHDiagnostics getSingleton].useNetworkLayerInfoCallbacks)
+        {
+            // Sending of the own discovery packet
+            dispatch_async(dispatch_get_main_queue(), ^{
+                MHPacket * ownPacket = [self ownDiscoveryPacket];
+                [ownPacket.info setObject:self.joinedGroups forKey:@"joinedGroups"];
+                
+                NSError *error;
+                [self.cHandler sendData:[ownPacket asNSData]
+                                toPeers:self.neighbourPeers
+                                  error:&error];
+            });
         }
     });
 }
@@ -170,38 +184,44 @@
         }
     });
     
-    [self.neighbourPeers addObject:peer];
-    
-    // Sending of the own discovery packet
     dispatch_async(dispatch_get_main_queue(), ^{
-        NSError *error;
-        [self.cHandler sendData:[[self ownDiscoveryPacket] asNSData]
-                        toPeers:[[NSArray alloc] initWithObjects:peer, nil]
-                          error:&error];
-    });
-    
-    // Forwarding of every stored discovery packet
-    dispatch_async(dispatch_get_main_queue(), ^{
-        NSArray *discPacketKeys = [self.discoveryPackets allKeys];
-        for (id discPacketKey in discPacketKeys)
+        [self.neighbourPeers addObject:peer];
+        
+        if([MHDiagnostics getSingleton].useNetworkLayerInfoCallbacks)
         {
-            MHPacket *discPacket = [self.discoveryPackets objectForKey:discPacketKey];
-            
-            // Diagnostics
-            if ([MHDiagnostics getSingleton].useNetworkLayerInfoCallbacks &&
-                [MHDiagnostics getSingleton].useNetworkLayerControlInfoCallbacks)
+            // Sending of the own discovery packet
+            if (self.joinedGroups.count > 0)
             {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [self.delegate mhProtocol:self forwardPacket:@"Discovery forwarding" withPacket:discPacket];
-                });
-            }
-            
-            dispatch_async(dispatch_get_main_queue(), ^{
+                MHPacket * ownPacket = [self ownDiscoveryPacket];
+                [ownPacket.info setObject:self.joinedGroups forKey:@"joinedGroups"];
+                
                 NSError *error;
-                [self.cHandler sendData:[discPacket asNSData]
+                [self.cHandler sendData:[ownPacket asNSData]
                                 toPeers:[[NSArray alloc] initWithObjects:peer, nil]
                                   error:&error];
-            });
+            }
+            
+            // Forwarding of every stored discovery packet
+            NSArray *discPacketKeys = [self.discoveryPackets allKeys];
+            for (id discPacketKey in discPacketKeys)
+            {
+                MHPacket *discPacket = [self.discoveryPackets objectForKey:discPacketKey];
+                
+                // Diagnostics
+                if ([MHDiagnostics getSingleton].useNetworkLayerControlInfoCallbacks)
+                {
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        [self.delegate mhProtocol:self forwardPacket:@"Group joining forwarding" withPacket:discPacket];
+                    });
+                }
+                
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    NSError *error;
+                    [self.cHandler sendData:[discPacket asNSData]
+                                    toPeers:[[NSArray alloc] initWithObjects:peer, nil]
+                                      error:&error];
+                });
+            }
         }
     });
 }
@@ -218,8 +238,10 @@
         }
     });
     
-    [self.neighbourPeers removeObject:peer];
-    [self.discoveryPackets removeObjectForKey:peer];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.neighbourPeers removeObject:peer];
+        [self.discoveryPackets removeObjectForKey:peer];
+    });
 }
 
 
@@ -249,17 +271,37 @@
         return;
     }
     
+    NSMutableArray *newJoinedGroups = nil;
+    
     // Check if discovery packet already processed
-    if ([self.discoveryPackets objectForKey:packet.source] == nil)
+    if ([self.discoveryPackets objectForKey:packet.source] != nil)
     {
-        // If not, we notify upper layers of the new discovery
-        // and forward it
+        newJoinedGroups = [[NSMutableArray alloc ]initWithArray:[packet.info objectForKey:@"joinedGroups"] copyItems:YES];
+        
+        MHPacket *discPacket = [self.discoveryPackets objectForKey:packet.source];
+        NSArray *oldJoinedGroupsPacket = [discPacket.info objectForKey:@"joinedGroups"];
+        
+        [newJoinedGroups removeObjectsInArray:oldJoinedGroupsPacket];
+    }
+    else
+    {
+        newJoinedGroups = [packet.info objectForKey:@"joinedGroups"];
+    }
+
+    if (newJoinedGroups.count > 0)
+    {
+        // Notify upper layers and forward it
         dispatch_async(dispatch_get_main_queue(), ^{
             [self.discoveryPackets setObject:packet forKey:packet.source];
-            [self.delegate mhProtocol:self
-                         isDiscovered:@"Discovered"
-                                 peer:packet.source
-                          displayName:[packet.info objectForKey:@"displayname"]];
+            
+            for (id group in newJoinedGroups)
+            {
+                [self.delegate mhProtocol:self
+                              joinedGroup:@"Joined group"
+                                     peer:packet.source
+                              displayName:[packet.info objectForKey:@"displayName"]
+                                    group:group];
+            }
         });
         
         // Diagnostics
@@ -267,7 +309,7 @@
             [MHDiagnostics getSingleton].useNetworkLayerControlInfoCallbacks)
         {
             dispatch_async(dispatch_get_main_queue(), ^{
-                [self.delegate mhProtocol:self forwardPacket:@"Discovery forwarding" withPacket:packet];
+                [self.delegate mhProtocol:self forwardPacket:@"Group joining forwarding" withPacket:packet];
             });
         }
         

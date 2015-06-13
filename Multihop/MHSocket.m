@@ -139,21 +139,6 @@
 }
 
 
-- (void)mhController:(MHController *)mhController
-        isDiscovered:(NSString *)info
-                peer:(NSString *)peer
-         displayName:(NSString *)displayName
-{
-    dispatch_async(dispatch_get_main_queue(), ^{
-        if ([self.delegate respondsToSelector:@selector(mhSocket:isDiscovered:peer:displayName:)])
-        {
-            [self.delegate mhSocket:self
-                       isDiscovered:info
-                               peer:peer
-                        displayName:displayName];
-        }
-    });
-}
 
 #pragma mark - Diagnostics info callbacks
 - (void)mhController:(MHController *)mhController
@@ -202,14 +187,16 @@ neighbourDisconnected:(NSString *)info
 - (void)mhController:(MHController *)mhController
          joinedGroup:(NSString *)info
                 peer:(NSString *)peer
+         displayName:(NSString *)displayName
                group:(NSString *)group
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        if ([self.delegate respondsToSelector:@selector(mhSocket:joinedGroup:peer:group:)])
+        if ([self.delegate respondsToSelector:@selector(mhSocket:joinedGroup:peer:displayName:group:)])
         {
             [self.delegate mhSocket:self
                         joinedGroup:info
                                peer:peer
+                        displayName:displayName
                               group:group];
         }
     });

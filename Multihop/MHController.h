@@ -83,11 +83,6 @@ typedef enum MHRoutingProtocols
             fromPeer:(NSString *)peer
        withTraceInfo:(NSArray *)traceInfo;
 
-- (void)mhController:(MHController *)mhController
-        isDiscovered:(NSString *)info
-                peer:(NSString *)peer
-         displayName:(NSString *)displayName;
-
 #pragma mark - Diagnostics info callbacks
 - (void)mhController:(MHController *)mhController
        forwardPacket:(NSString *)info
@@ -106,6 +101,7 @@ neighbourDisconnected:(NSString *)info
 - (void)mhController:(MHController *)mhController
          joinedGroup:(NSString *)info
                 peer:(NSString *)peer
+         displayName:(NSString *)displayName
                group:(NSString *)group;
 @end
 

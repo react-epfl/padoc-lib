@@ -165,11 +165,6 @@ didReceiveMessage:(NSData *)data
    withTraceInfo:(NSArray *)traceInfo;
 
 @optional
-- (void)mhSocket:(MHSocket *)mhSocket
-    isDiscovered:(NSString *)info
-            peer:(NSString *)peer
-     displayName:(NSString *)displayName;
-
 
 #pragma mark - Diagnostics info callbacks
 - (void)mhSocket:(MHSocket *)mhSocket
@@ -189,6 +184,7 @@ neighbourDisconnected:(NSString *)info
 - (void)mhSocket:(MHSocket *)mhSocket
      joinedGroup:(NSString *)info
             peer:(NSString *)peer
+     displayName:(NSString *)displayName
            group:(NSString *)group;
 @end
 
