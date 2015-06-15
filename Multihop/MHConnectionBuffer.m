@@ -36,7 +36,7 @@
         self.mcWrapper = mcWrapper;
         self.peerID = peerID;
         self.messages = [[NSMutableArray alloc] init];
-        [self setStatus:MHConnectionBufferConnected];
+        self.status = MHConnectionBufferConnected;
         
         
         MHConnectionBuffer * __weak weakSelf = self;
@@ -78,9 +78,11 @@
 
 
 # pragma mark - Properties
-- (void)setStatus:(MHConnectionBufferState)status
+- (void)setConnectionStatus:(MHConnectionBufferState)status
 {
-    _status = status;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        self.status = status;
+    });
 }
 
 

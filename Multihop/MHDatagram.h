@@ -16,10 +16,13 @@
 
 @interface MHDatagram : NSObject<NSCoding>
 
-@property (nonatomic, readonly, strong) NSData *data;
+@property (nonatomic, strong) NSData *data;
 
 @property (nonatomic, readonly, strong) NSMutableDictionary *info;
 
+@property (nonatomic, strong) NSString *tag;
+@property (nonatomic) int noChunk;
+@property (nonatomic) int chunksNumber;
 
 - (instancetype)initWithData:(NSData *)data;
 

@@ -234,7 +234,7 @@ didReceiveInvitationFromPeer:(MCPeerID *)peerID
         
         if ([self.mhPeer.mhPeerID compare:[info objectForKey:@"MultihopID"]] == NSOrderedDescending)
         {
-            //NSLog(@"peer quickly");
+            NSLog(@"peer quickly");
             if(![self peerAvailable:[info objectForKey:@"MultihopID"]]) // peer has already been disconnected
             {
                 //NSLog(@"found peer");
@@ -279,7 +279,7 @@ didReceiveInvitationFromPeer:(MCPeerID *)peerID
         // But only send invites one way
         if ([self.mhPeer.mhPeerID compare:[info objectForKey:@"MultihopID"]] == NSOrderedAscending)
         {
-            //NSLog(@"peer quickly");
+            NSLog(@"peer quickly");
             if(![self peerAvailable:[info objectForKey:@"MultihopID"]]) // peer has already been disconnected
             {
                 //NSLog(@"found peer");

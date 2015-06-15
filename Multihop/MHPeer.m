@@ -10,7 +10,7 @@
 #import "MHPeer.h"
 
 
-@interface MHPeer () <MCSessionDelegate>
+@interface MHPeer () <MCSessionDelegate, MHPeerBufferDelegate>
 
 // Public Properties
 @property (nonatomic, readwrite, strong) NSString *displayName;
@@ -61,6 +61,7 @@
             
             
             self.peerBuffer = [[MHPeerBuffer alloc] initWithMCSession:self.session];
+            self.peerBuffer.delegate = self;
             
             // Heartbeat mechanism
             MHPeer * __weak weakSelf = self;
@@ -242,9 +243,7 @@
     }
     else
     {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [self.delegate mhPeer:self didReceiveDatagram:datagram];
-        });
+        [self.peerBuffer didReceiveDatagramChunk:datagram];
     }
 }
 
@@ -268,6 +267,14 @@
 - (void)session:(MCSession *)session didReceiveCertificate:(NSArray *)certificate fromPeer:(MCPeerID *)peerID certificateHandler:(void(^)(BOOL accept))certificateHandler
 {
     certificateHandler(YES);
+}
+
+
+- (void)mhPeerBuffer:(MHPeerBuffer *)mhPeerBuffer didReceiveDatagram:(MHDatagram *)datagram
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.delegate mhPeer:self didReceiveDatagram:datagram];
+    });
 }
 
 

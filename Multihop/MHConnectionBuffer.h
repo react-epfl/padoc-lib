@@ -38,7 +38,7 @@ typedef enum MHConnectionBufferState : NSUInteger
 
 
 #pragma mark - Properties
-- (void)setStatus:(MHConnectionBufferState)status;
+- (void)setConnectionStatus:(MHConnectionBufferState)status;
 
 - (void)pushDatagram:(MHDatagram *)datagram;
 

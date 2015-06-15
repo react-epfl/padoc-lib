@@ -15,13 +15,15 @@
 
 
 #define MHPEERBUFFER_BUFFER_SIZE 1000
-#define MHPEERBUFFER_RELEASE_DELAY 100
+#define MHPEERBUFFER_RELEASE_DELAY 10
+#define MHPEERBUFFER_MAX_CHUNK_SIZE 10000
 
+
+@protocol MHPeerBufferDelegate;
 
 @interface MHPeerBuffer : NSObject
 
-
-
+@property(nonatomic, weak) id<MHPeerBufferDelegate> delegate;
 
 #pragma mark - Initialization
 - (instancetype)initWithMCSession:(MCSession *)session;
@@ -33,7 +35,20 @@
 - (void)setConnected;
 - (void)setDisconnected;
 
+- (void)didReceiveDatagramChunk:(MHDatagram *)chunk;
+
 @end
+
+
+
+@protocol MHPeerBufferDelegate <NSObject>
+
+@required
+- (void)mhPeerBuffer:(MHPeerBuffer *)mhPeerBuffer
+  didReceiveDatagram:(MHDatagram *)datagram;
+
+@end
+
 
 
 #endif

@@ -13,7 +13,6 @@
 
 @interface MHDatagram ()
 
-@property (nonatomic, readwrite, strong) NSData *data;
 
 @property (nonatomic, readwrite, strong) NSMutableDictionary *info;
 
@@ -36,6 +35,9 @@
 - (id)initWithCoder:(NSCoder *)decoder {
     if (self = [super init]) {
         self.data = [decoder decodeObjectForKey:@"data"];
+        self.tag = [decoder decodeObjectForKey:@"tag"];
+        self.noChunk = [decoder decodeIntForKey:@"noChunk"];
+        self.chunksNumber = [decoder decodeIntForKey:@"chunksNumber"];
         self.info = [decoder decodeObjectForKey:@"info"];
     }
     return self;
@@ -44,6 +46,9 @@
 - (void)encodeWithCoder:(NSCoder *)encoder {
     [encoder encodeObject:self.data forKey:@"data"];
     [encoder encodeObject:self.info forKey:@"info"];
+    [encoder encodeObject:self.tag forKey:@"tag"];
+    [encoder encodeInt:self.chunksNumber forKey:@"chunksNumber"];
+    [encoder encodeInt:self.noChunk forKey:@"noChunk"];
 }
 
 

@@ -45,7 +45,7 @@
         self.backgroundTaskEndHandler = ^{
             [weakSelf sendBackgroundSignal:weakSelf];
             
-            
+            NSLog(@"expiring");
             //This is called 3 seconds before the time expires
             UIBackgroundTaskIdentifier newTask = [[UIApplication sharedApplication] beginBackgroundTaskWithExpirationHandler:weakSelf.backgroundTaskEndHandler];
             
@@ -74,7 +74,7 @@
     {
         MHConnectionBuffer *buf = [self.buffers objectForKey:peerKey];
         
-        [buf setStatus:MHConnectionBufferBroken];
+        [buf setConnectionStatus:MHConnectionBufferBroken];
         
         dispatch_async(dispatch_get_main_queue(), ^{
             [self.delegate cHandler:self enteredStandby:@"Standby" peer:peerKey];
@@ -184,7 +184,7 @@
                                     withMultipeerWrapper:self.mcWrapper];
         
         // Unbroken connection
-        [buf setStatus:MHConnectionBufferConnected];
+        [buf setConnectionStatus:MHConnectionBufferConnected];
         
         [self.buffers setObject:buf forKey:peer];
         
@@ -194,7 +194,7 @@
     }
     else // The peer has reconnected, we do not notify the above layers yet
     {
-        [buf setStatus:MHConnectionBufferConnected];
+        [buf setConnectionStatus:MHConnectionBufferConnected];
         
         dispatch_async(dispatch_get_main_queue(), ^{
             [self.delegate cHandler:self leavedStandby:@"Active" peer:peer];
@@ -229,7 +229,7 @@
         
         // Check after some seconds whether the peer has reconnected, otherwise notify the above layers
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(MHCONNECTIONSHANDLER_CHECK_TIME * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-            if (weakSelf && weakSelf.buffers)
+            if (weakSelf)
             {
                 MHConnectionBuffer *buf = [weakSelf.buffers objectForKey:peer];
                 
@@ -267,7 +267,7 @@ didReceiveDatagram:(MHDatagram *)datagram
         // Set peer status to Broken
         MHConnectionBuffer *buf = [self.buffers objectForKey:peer];
         
-        [buf setStatus:MHConnectionBufferBroken];
+        [buf setConnectionStatus:MHConnectionBufferBroken];
         
         dispatch_async(dispatch_get_main_queue(), ^{
             [self.delegate cHandler:self enteredStandby:@"Standby" peer:peer];

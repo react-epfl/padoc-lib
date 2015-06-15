@@ -20,6 +20,8 @@
 @property (nonatomic) BOOL connected;
 @property (nonatomic) int releaseDelay;
 
+@property (nonatomic, strong) NSMutableDictionary *chunks;
+
 @property (copy) void (^releaseDatagrams)(void);
 
 @end
@@ -39,7 +41,7 @@
 
         self.datagrams = [[NSMutableArray alloc] init];
 
-        
+        self.chunks = [[NSMutableDictionary alloc] init];
         
         MHPeerBuffer * __weak weakSelf = self;
         
@@ -53,7 +55,7 @@
                 if (datagram != nil)
                 {
                     if (weakSelf.connected)
-                    {
+                    {                        
                         [weakSelf.session sendData:[datagram asNSData]
                                        toPeers:weakSelf.session.connectedPeers
                                       withMode:MCSessionSendDataUnreliable
@@ -76,6 +78,9 @@
 {
     [self.datagrams removeAllObjects];
     self.datagrams = nil;
+    
+    [self.chunks removeAllObjects];
+    self.chunks = nil;
 }
 
 - (void)setConnected
@@ -96,9 +101,30 @@
 {
     // If buffer size is reached, messages are lost
     dispatch_async(dispatch_get_main_queue(), ^{
-        if (self.datagrams.count < MHPEERBUFFER_BUFFER_SIZE)
+        // We have to divide datagrams into 500 bytes chunks
+        // otherwise the receiving side is too slow
+        int nbChunks = ceil(((double)datagram.data.length / MHPEERBUFFER_MAX_CHUNK_SIZE));
+        NSString *tag = [MHComputation makeUniqueStringFromSource:[NSString stringWithFormat:@"%d", arc4random_uniform(1000)]];
+        
+        for (int i = 0; i < nbChunks; i++)
         {
-            [self.datagrams addObject:datagram];
+            int length = MHPEERBUFFER_MAX_CHUNK_SIZE;
+            
+            if (i == nbChunks - 1) // Last chunk
+            {
+                length = datagram.data.length - (i * MHPEERBUFFER_MAX_CHUNK_SIZE);
+            }
+            
+            MHDatagram *chunk = [[MHDatagram alloc] initWithData:[datagram.data subdataWithRange:NSMakeRange(i * MHPEERBUFFER_MAX_CHUNK_SIZE, length)]];
+            chunk.tag = tag;
+            chunk.noChunk = i;
+            chunk.chunksNumber = nbChunks;
+            
+            
+            if (self.datagrams.count < MHPEERBUFFER_BUFFER_SIZE)
+            {
+                [self.datagrams addObject:chunk];
+            }
         }
     });
 }
@@ -115,6 +141,56 @@
     }
     
     return nil;
+}
+
+
+- (void)didReceiveDatagramChunk:(MHDatagram *)chunk
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        NSMutableArray *chunksList = [self.chunks objectForKey:chunk.tag];
+        
+        if (chunksList == nil)
+        {
+            chunksList = [[NSMutableArray alloc] init];
+            [self.chunks setObject:chunksList forKey:chunk.tag];
+        }
+        
+        // Potentially unordered
+        [chunksList addObject:chunk];
+        
+        // Generate complete chunk
+        if (chunksList.count == chunk.chunksNumber)
+        {
+            [chunksList sortUsingComparator:^NSComparisonResult(id obj1, id obj2){
+                
+                MHDatagram *d1 = (MHDatagram*)obj1;
+                MHDatagram *d2 = (MHDatagram*)obj2;
+                if (d1.noChunk > d2.noChunk) {
+                    return (NSComparisonResult)NSOrderedDescending;
+                }
+                
+                if (d1.noChunk < d2.noChunk) {
+                    return (NSComparisonResult)NSOrderedAscending;
+                }
+                return (NSComparisonResult)NSOrderedSame;
+            }];
+            
+            NSMutableData *completeData = [NSMutableData data];
+            MHDatagram *finalDatagram = [[MHDatagram alloc] initWithData:completeData];
+            
+            for (int i = 0; i < chunksList.count; i++)
+            {
+                MHDatagram *partialChunk = (MHDatagram *)[chunksList objectAtIndex:i];
+                [completeData appendData:partialChunk.data];
+            }
+            
+            [self.chunks removeObjectForKey:chunk.tag];
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self.delegate mhPeerBuffer:self didReceiveDatagram:finalDatagram];
+            });
+        }
+    });
 }
 
 @end
