@@ -101,9 +101,14 @@
 {
     // If buffer size is reached, messages are lost
     dispatch_async(dispatch_get_main_queue(), ^{
-        // We have to divide datagrams into 500 bytes chunks
-        // otherwise the receiving side is too slow
+        // We have to divide datagrams into chunks
+        // in order to better handle the sending rate
+        
+        // Calculating number of chunks
         int nbChunks = ceil(((double)datagram.data.length / MHPEERBUFFER_MAX_CHUNK_SIZE));
+        
+        // Creating a unique tag for every chunk corresponding to
+        // this datagram
         NSString *tag = [MHComputation makeUniqueStringFromSource:[NSString stringWithFormat:@"%d", arc4random_uniform(1000)]];
         
         for (int i = 0; i < nbChunks; i++)
@@ -120,7 +125,7 @@
             chunk.noChunk = i;
             chunk.chunksNumber = nbChunks;
             
-            
+            // Putitng chunk into sending buffer
             if (self.datagrams.count < MHPEERBUFFER_BUFFER_SIZE)
             {
                 [self.datagrams addObject:chunk];
@@ -158,9 +163,11 @@
         // Potentially unordered
         [chunksList addObject:chunk];
         
-        // Generate complete chunk
+        
+        // Generate complete chunk if all chunks received
         if (chunksList.count == chunk.chunksNumber)
         {
+            // We sort the chunk list
             [chunksList sortUsingComparator:^NSComparisonResult(id obj1, id obj2){
                 
                 MHDatagram *d1 = (MHDatagram*)obj1;
@@ -175,6 +182,7 @@
                 return (NSComparisonResult)NSOrderedSame;
             }];
             
+            // We create the final complete datagram
             NSMutableData *completeData = [NSMutableData data];
             MHDatagram *finalDatagram = [[MHDatagram alloc] initWithData:completeData];
             
@@ -184,8 +192,10 @@
                 [completeData appendData:partialChunk.data];
             }
             
+            // We delete the temporary stored chunks
             [self.chunks removeObjectForKey:chunk.tag];
             
+            // Notify upper layers
             dispatch_async(dispatch_get_main_queue(), ^{
                 [self.delegate mhPeerBuffer:self didReceiveDatagram:finalDatagram];
             });

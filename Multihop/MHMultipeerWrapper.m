@@ -172,7 +172,6 @@
 - (void)mhPeer:(MHPeer *)mhPeer hasConnected:(NSString *)info
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        //NSLog(@"peer connected");
         [self.connectedPeers addObject:mhPeer.mhPeerID];
         
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -186,7 +185,6 @@
     dispatch_async(dispatch_get_main_queue(), ^{
         if ([self peerAvailable:mhPeer.mhPeerID])
         {
-            //NSLog(@"peer disconnected");
             NSString *mhPeerID = mhPeer.mhPeerID;
             
             [mhPeer disconnect];
@@ -234,10 +232,8 @@ didReceiveInvitationFromPeer:(MCPeerID *)peerID
         
         if ([self.mhPeer.mhPeerID compare:[info objectForKey:@"MultihopID"]] == NSOrderedDescending)
         {
-            NSLog(@"peer quickly");
             if(![self peerAvailable:[info objectForKey:@"MultihopID"]]) // peer has already been disconnected
             {
-                //NSLog(@"found peer");
                 MCSession *session = [self addNewNeighbourPeer:peerID withInfo:info];
                 
                 // We accept the invitation
@@ -248,10 +244,8 @@ didReceiveInvitationFromPeer:(MCPeerID *)peerID
                 int delay = MHPEER_MAX_HEARTBEAT_FAILS*MHPEER_HEARTBEAT_TIME + 3;
                 
                 dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delay * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-                    //NSLog(@"peer later");
                     if(![self peerAvailable:[info objectForKey:@"MultihopID"]]) // peer should have been disconnected
                     {
-                        //NSLog(@"found peer");
                         MCSession *session = [self addNewNeighbourPeer:peerID withInfo:info];
                         
                         // We accept the invitation
@@ -279,10 +273,8 @@ didReceiveInvitationFromPeer:(MCPeerID *)peerID
         // But only send invites one way
         if ([self.mhPeer.mhPeerID compare:[info objectForKey:@"MultihopID"]] == NSOrderedAscending)
         {
-            NSLog(@"peer quickly");
             if(![self peerAvailable:[info objectForKey:@"MultihopID"]]) // peer has already been disconnected
             {
-                //NSLog(@"found peer");
                 MCSession *session = [self addNewNeighbourPeer:peerID withInfo:info];
                 
                 // We set the peer discovery information
@@ -298,10 +290,8 @@ didReceiveInvitationFromPeer:(MCPeerID *)peerID
                 int delay = MHPEER_MAX_HEARTBEAT_FAILS*MHPEER_HEARTBEAT_TIME + 3;
                 
                 dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delay * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-                    //NSLog(@"peer later");
                     if(![self peerAvailable:[info objectForKey:@"MultihopID"]]) // peer should have been disconnected
                     {
-                        //NSLog(@"found peer");
                         MCSession *session = [self addNewNeighbourPeer:peerID withInfo:info];
                         
                         // We set the peer discovery information

@@ -58,6 +58,7 @@
 @property (nonatomic) BOOL started;
 @property (nonatomic) BOOL beaconActive;
 @property (nonatomic) BOOL useGPS;
+@property (nonatomic) BOOL useBeacon;
 
 @end
 
@@ -66,6 +67,8 @@
 
 static MHLocationManager *locationManager = nil;
 static NSString *beaconID = @"";
+static BOOL useGPS = YES;
+static BOOL useBeacon = YES;
 
 
 
@@ -73,13 +76,15 @@ static NSString *beaconID = @"";
 @implementation MHLocationManager
 
 - (instancetype)initWithBeaconID:(NSString*)beaconID
-                         withGPS:(BOOL) useGPS
+                         withGPS:(BOOL)useGPS
+                      withBeacon:(BOOL)useBeacon
 {
     self = [super init];
     
     if(self)
     {
         self.useGPS = useGPS;
+        self.useBeacon = useBeacon;
         
         self.locationManager = [[CLLocationManager alloc] init];
         self.locationManager.delegate = self;
@@ -91,14 +96,14 @@ static NSString *beaconID = @"";
         if ([self.locationManager respondsToSelector:@selector(requestAlwaysAuthorization)]) {
             [self.locationManager requestAlwaysAuthorization];
         }
-        self.locationManager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters;
+        self.locationManager.desiredAccuracy = kCLLocationAccuracyBest;
         
         
         // Setting initial position
         self.position = [[MHLocation alloc] init];
         
         CLLocation *curPos = self.locationManager.location;
-
+        
         self.position.x = curPos.coordinate.longitude;
         self.position.y = curPos.coordinate.latitude;
         
@@ -135,87 +140,97 @@ static NSString *beaconID = @"";
 - (void)start
 {
     // Start position updates
-    if(self.useGPS)
+    if (self.useGPS)
     {
         [self.locationManager startUpdatingLocation];
     }
   
-    // Start monitoring all ibeaocn regions
-    for (id beaconKey in self.beacons.allKeys)
+    if (self.useBeacon)
     {
-        CLBeaconRegion *beacon = [self.beacons objectForKey:beaconKey];
+        // Start monitoring all iBeacon regions
+        for (id beaconKey in self.beacons.allKeys)
+        {
+            CLBeaconRegion *beacon = [self.beacons objectForKey:beaconKey];
+            
+            [self.locationManager startMonitoringForRegion:beacon];
+            [self.locationManager startRangingBeaconsInRegion:beacon];
+        }
         
-        [self.locationManager startMonitoringForRegion:beacon];
-        [self.locationManager startRangingBeaconsInRegion:beacon];
+        if (self.beaconActive)
+        {
+            // Start advertising the beacon's region
+            [self.peripheralManager startAdvertising:self.beaconPeripheralData];
+        }
     }
-    
-    if(self.beaconActive)
-    {
-        // Start advertising the beacon's region
-        [self.peripheralManager startAdvertising:self.beaconPeripheralData];
-    }
-    
     self.started = YES;
 }
 
 - (void)stop
 {
     // Stop location updates
-    if(self.useGPS)
+    if (self.useGPS)
     {
         [self.locationManager stopUpdatingLocation];
     }
     
-    // Stop monitoring all ibeaocn regions
-    for (id beaconKey in self.beacons.allKeys)
+    if (self.useBeacon)
     {
-        CLBeaconRegion *beacon = [self.beacons objectForKey:beaconKey];
+        // Stop monitoring all ibeaocn regions
+        for (id beaconKey in self.beacons.allKeys)
+        {
+            CLBeaconRegion *beacon = [self.beacons objectForKey:beaconKey];
+            
+            [self.locationManager stopMonitoringForRegion:beacon];
+            [self.locationManager stopRangingBeaconsInRegion:beacon];
+        }
         
-        [self.locationManager stopMonitoringForRegion:beacon];
-        [self.locationManager stopRangingBeaconsInRegion:beacon];
+        // Stop advertise own ibeacon region
+        [self.peripheralManager stopAdvertising];
     }
-    
-    // Stop advertise own ibeacon region
-    [self.peripheralManager stopAdvertising];
-    
     self.started = NO;
 }
 
 
 - (void)registerBeaconRegionWithUUID:(NSString *)proximityUUID
 {
-    // Create the beacon region to be monitored
-    CLBeaconRegion *beaconRegion = [[CLBeaconRegion alloc]
-                                    initWithProximityUUID:[[NSUUID alloc] initWithUUIDString:proximityUUID]
-                                    identifier:[MHComputation makeUniqueStringFromSource:proximityUUID]];
-    
-    [self.beacons setObject:beaconRegion forKey:proximityUUID];
-    
-    [self.beaconsProximity setObject:@(CLProximityUnknown) forKey:proximityUUID];
-    
-
-    if(self.started)
+    if (self.useBeacon)
     {
-        // Register the beacon region with the location manager
-        [self.locationManager startMonitoringForRegion:beaconRegion];
-        [self.locationManager startRangingBeaconsInRegion:beaconRegion];
+        // Create the beacon region to be monitored
+        CLBeaconRegion *beaconRegion = [[CLBeaconRegion alloc]
+                                        initWithProximityUUID:[[NSUUID alloc] initWithUUIDString:proximityUUID]
+                                        identifier:[MHComputation makeUniqueStringFromSource:proximityUUID]];
+        
+        [self.beacons setObject:beaconRegion forKey:proximityUUID];
+        
+        [self.beaconsProximity setObject:@(CLProximityUnknown) forKey:proximityUUID];
+        
+        
+        if(self.started)
+        {
+            // Register the beacon region with the location manager
+            [self.locationManager startMonitoringForRegion:beaconRegion];
+            [self.locationManager startRangingBeaconsInRegion:beaconRegion];
+        }
     }
 }
 
 - (void)unregisterBeaconRegionWithUUID:(NSString *)proximityUUID
 {
-    CLBeaconRegion *beaconRegion = [self.beacons objectForKey:proximityUUID];
-
-    // Stop monitoring region
-    if(self.started)
+    if (self.useBeacon)
     {
-        [self.locationManager stopMonitoringForRegion:beaconRegion];
-        [self.locationManager stopRangingBeaconsInRegion:beaconRegion];
+        CLBeaconRegion *beaconRegion = [self.beacons objectForKey:proximityUUID];
+        
+        // Stop monitoring region
+        if(self.started)
+        {
+            [self.locationManager stopMonitoringForRegion:beaconRegion];
+            [self.locationManager stopRangingBeaconsInRegion:beaconRegion];
+        }
+        
+        // Remove region
+        [self.beacons removeObjectForKey:proximityUUID];
+        [self.beaconsProximity removeObjectForKey:proximityUUID];
     }
-    
-    // Remove region
-    [self.beacons removeObjectForKey:proximityUUID];
-    [self.beaconsProximity removeObjectForKey:proximityUUID];
 }
 
 - (MHLocation*)getGPSPosition
@@ -254,14 +269,21 @@ static NSString *beaconID = @"";
 
 - (CLProximity)getProximityForUUID:(NSString *)proximityUUID
 {
-    NSNumber *proximity = [self.beaconsProximity objectForKey:proximityUUID];
-    
-    if(proximity == nil)
+    if (self.useBeacon)
+    {
+        NSNumber *proximity = [self.beaconsProximity objectForKey:proximityUUID];
+        
+        if(proximity == nil)
+        {
+            return CLProximityUnknown;
+        }
+        
+        return [proximity integerValue];
+    }
+    else
     {
         return CLProximityUnknown;
     }
-    
-    return [proximity integerValue];
 }
 
 
@@ -301,7 +323,7 @@ static NSString *beaconID = @"";
     }
     else if(peripheral.state == CBPeripheralManagerStatePoweredOn)
     {
-        if(self.started)
+        if(self.started && self.useBeacon)
         {
             // Start advertising the beacon's region (important to start only now)
             [self.peripheralManager startAdvertising:self.beaconPeripheralData];
@@ -328,13 +350,24 @@ static NSString *beaconID = @"";
     beaconID = peerID;
 }
 
++ (void)useGPS:(BOOL)use
+{
+    useGPS = use;
+}
+
++ (void)useBeacon:(BOOL)use
+{
+    useBeacon = use;
+}
+
 + (MHLocationManager*)getSingleton
 {
     if (locationManager == nil)
     {
         // Initialize location manager singleton
         locationManager = [[MHLocationManager alloc] initWithBeaconID:beaconID
-                                                              withGPS:YES];
+                                                              withGPS:useGPS
+                                                           withBeacon:useBeacon];
     }
     
     return locationManager;

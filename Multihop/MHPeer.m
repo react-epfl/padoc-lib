@@ -200,7 +200,6 @@
     if(state == MCSessionStateNotConnected) {
         // We cannot rely on this callback!! In certain environments,
         // it is called continously even if the peers are actually conected
-        //[self setConnectionDisabled:self withReason:@"Session disconnection"];
     }
     else if(state == MCSessionStateConnected)
     {
@@ -212,8 +211,7 @@
 - (void)session:(MCSession *)session didReceiveData:(NSData *)data fromPeer:(MCPeerID *)peerID
 {
     MHDatagram *datagram = [MHDatagram fromNSData:data];
-    NSLog([NSString stringWithFormat:@"%d", data.length]);
-    
+
     if ([datagram.info objectForKey:MHPEER_HEARTBEAT_MSG] != nil)
     {
         dispatch_async(dispatch_get_main_queue(), ^{
