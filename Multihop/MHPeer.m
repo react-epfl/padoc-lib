@@ -210,13 +210,16 @@
 
 - (void)session:(MCSession *)session didReceiveData:(NSData *)data fromPeer:(MCPeerID *)peerID
 {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        // Reset the heartbeat fail counter
+        self.nbHeartbeatFails = 0;
+    });
+    
     MHDatagram *datagram = [MHDatagram fromNSData:data];
 
     if ([datagram.info objectForKey:MHPEER_HEARTBEAT_MSG] != nil)
     {
         dispatch_async(dispatch_get_main_queue(), ^{
-            self.nbHeartbeatFails = 0;
-            
             [self setConnectionEnabled];
             
             // Heartbeat replication (ack)
@@ -233,9 +236,6 @@
     else if ([datagram.info objectForKey:MHPEER_ACK_MSG] != nil)
     {
         dispatch_async(dispatch_get_main_queue(), ^{
-            // Reset the heartbeat fail counter
-            self.nbHeartbeatFails = 0;
-            
             [self setConnectionEnabled];
         });
     }
