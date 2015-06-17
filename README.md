@@ -13,7 +13,7 @@ So far, the library works as expected, but still misses some important features:
 * No message reliability support
 * No congestion control support
   
-The major limitations come from the fact that there no transport layer is still implemented.
+The major limitation comes from the fact that there no transport layer is still implemented.
 
 ## Features
 
