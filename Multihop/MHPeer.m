@@ -66,25 +66,7 @@
             // Heartbeat mechanism
             MHPeer * __weak weakSelf = self;
             
-            // We send heartbeat messages only one way
-            if ([ownMHPeerID compare:self.mhPeerID] == NSOrderedAscending)
-            {
-                self.HeartbeatSender = YES;
-            }
-            else
-            {
-                self.HeartbeatSender = NO;
-            }
-            
-            
-            if (self.HeartbeatSender)
-            {
-                [self setFctProcessHeartbeatSender:weakSelf];
-            }
-            else
-            {
-                [self setFctProcessHeartbeatReceiver:weakSelf];
-            }
+            [self setFctProcessHeartbeat:weakSelf];
             
             
             dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(MHPEER_STARTHEARTBEAT_TIME * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
@@ -110,7 +92,7 @@
 }
 
 
-- (void)setFctProcessHeartbeatSender:(MHPeer * __weak)weakSelf
+- (void)setFctProcessHeartbeat:(MHPeer * __weak)weakSelf
 {
     // Sender side
     self.processHeartbeat = ^{
@@ -132,32 +114,10 @@
                 
                 [weakSelf.session sendData:[datagram asNSData]
                                    toPeers:weakSelf.session.connectedPeers
-                                  withMode:MCSessionSendDataUnreliable
+                                  withMode:MCSessionSendDataReliable
                                      error:&error];
                 
                 
-                // Dispatch after y seconds
-                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(MHPEER_HEARTBEAT_TIME * NSEC_PER_SEC)), dispatch_get_main_queue(), weakSelf.processHeartbeat);
-            }
-        }
-    };
-}
-
-- (void)setFctProcessHeartbeatReceiver:(MHPeer * __weak)weakSelf
-{
-    // Receiver side
-    self.processHeartbeat = ^{
-        if(weakSelf)
-        {
-            weakSelf.nbHeartbeatFails++;
-            
-            // The heartbeat fails for x times, then disconnect
-            if (weakSelf.nbHeartbeatFails > MHPEER_MAX_HEARTBEAT_FAILS)
-            {
-                [weakSelf setConnectionDisabled:weakSelf withReason:@"Heartbeat failed"];
-            }
-            else
-            {
                 // Dispatch after y seconds
                 dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(MHPEER_HEARTBEAT_TIME * NSEC_PER_SEC)), dispatch_get_main_queue(), weakSelf.processHeartbeat);
             }
@@ -218,22 +178,6 @@
     MHDatagram *datagram = [MHDatagram fromNSData:data];
 
     if ([datagram.info objectForKey:MHPEER_HEARTBEAT_MSG] != nil)
-    {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [self setConnectionEnabled];
-            
-            // Heartbeat replication (ack)
-            NSError *error;
-            MHDatagram *datagram = [[MHDatagram alloc] initWithData:[MHComputation emptyData]];
-            [datagram.info setObject:@"" forKey:MHPEER_ACK_MSG];
-            
-            [self.session sendData:[datagram asNSData]
-                           toPeers:self.session.connectedPeers
-                          withMode:MCSessionSendDataUnreliable
-                             error:&error];
-        });
-    }
-    else if ([datagram.info objectForKey:MHPEER_ACK_MSG] != nil)
     {
         dispatch_async(dispatch_get_main_queue(), ^{
             [self setConnectionEnabled];
