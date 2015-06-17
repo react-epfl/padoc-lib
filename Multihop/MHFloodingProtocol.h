@@ -11,7 +11,7 @@
 
 #import "MHRoutingProtocol.h"
 
-#define MH_FLOODING_TTL 10
+#define MH_FLOODING_TTL 100
 #define MH_FLOODING_DISCOVERME_MSG @"-[discoverme-msg]-"
 
 #define MH_FLOODING_SCHEDULECLEANING_DELAY 10000
