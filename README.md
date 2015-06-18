@@ -330,3 +330,40 @@ be enabled by the following code:
 [MHDiagnostics getSingleton].useNetworkLayerControlInfoCallbacks = YES;
 ```
 Now, the *forwardPacket* callback will be executed when control packets are forwarded as well.
+
+
+### Manual configuration
+
+It is possible to manually configure some parameters important for the library. In order to do so, the  
+*MHConfig* class provides a singleton object whose parameters can be changed. In order to call the  
+singleton, just write:
+```Objective-C
+#import "MHConfig.h"
+...
+[MHConfig getSingleton]. ...
+```
+The parameter names follow the format <layerParameterName> and are (in parenthesis the default value):
+
+* *linkHeartbeatSendDelay* (1): number of seconds after which a new heartbeat message is sent.
+* *linkMaxHeartbeatFails* (5); number of heartbeat message check failures after which a disconnection  
+notification is triggered.
+
+* *linkDatagramSendDelay* (10): number of milliseconds after which a new bufferized datagram is sent.
+* *linkMaxDatagramSize* (5000): max size of a datagram before it is cut into chunks.
+* *linkBackgroundDatagramSendDelay* (20): number of milliseconds after which a new message burrerized because  
+of a background disconnection is sent.
+
+* *netFloodingPacketTTL* (100): ttl of a packet using the Flooding algorithm.
+
+* *net6ShotsControlPacketForwardDelayRange* (50): number of milliseconds defining the delay range of a control  
+packet forwarding using the 6Shots algorithm. The final delay is random.
+* *net6ShotsControlPacketForwardDelayBase* (20): number of milliseconds defining the delay base of a control  
+packet forwarding using the 6Shots algorithm. The final delay is random.
+* *net6ShotsPacketForwardDelayRange* (100): number of milliseconds defining the delay range of a packet forwarding  
+using the 6Shots algorithm. The final delay is calculated based on the peers location.
+* *net6ShotsPacketForwardDelayBase* (30): number of milliseconds defining the delay base of a packet forwarding  
+using the 6Shots algorithm. The final delay is calculated based on the peers location.
+* *net6ShotsOverlayMaintenanceDelay* (5000): number of milliseconds after which an overlay maintenance operation  
+is performed by the node, using the 6Shots algorithm.
+
+
