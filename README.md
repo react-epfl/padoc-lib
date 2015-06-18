@@ -342,16 +342,16 @@ singleton, just write:
 ...
 [MHConfig getSingleton]. ...
 ```
-The parameter names follow the format <layerParameterName> and are (in parenthesis the default value):
+The parameter names follow the format *layerParameterName* and are (in parenthesis the default value):
 
 * *linkHeartbeatSendDelay* (1): number of seconds after which a new heartbeat message is sent.
 * *linkMaxHeartbeatFails* (5); number of heartbeat message check failures after which a disconnection  
 notification is triggered.
 
 * *linkDatagramSendDelay* (10): number of milliseconds after which a new bufferized datagram is sent.
-* *linkMaxDatagramSize* (5000): max size of a datagram before it is cut into chunks.
-* *linkBackgroundDatagramSendDelay* (20): number of milliseconds after which a new message burrerized because  
-of a background disconnection is sent.
+* *linkMaxDatagramSize* (5000): max size of a datagram. Larger datagrams are cut into chunks.
+* *linkBackgroundDatagramSendDelay* (20): number of milliseconds after which a new burrerized datagram (because  
+of a background disconnection) is sent.
 
 * *netFloodingPacketTTL* (100): ttl of a packet using the Flooding algorithm.
 
