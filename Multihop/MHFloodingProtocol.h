@@ -10,8 +10,8 @@
 #define Multihop_MHFloodingProtocol_h
 
 #import "MHRoutingProtocol.h"
+#import "MHConfig.h"
 
-#define MH_FLOODING_TTL 100
 #define MH_FLOODING_DISCOVERME_MSG @"-[discoverme-msg]-"
 
 #define MH_FLOODING_SCHEDULECLEANING_DELAY 10000

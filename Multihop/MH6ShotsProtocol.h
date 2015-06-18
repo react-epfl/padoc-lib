@@ -12,10 +12,9 @@
 #import "MHRoutingProtocol.h"
 #import "MHLocationManager.h"
 #import "MH6ShotsScheduler.h"
+#import "MHConfig.h"
 
 
-#define MH6SHOTS_JOINFORWARD_DELAY_RANGE 50
-#define MH6SHOTS_JOINFORWARD_DELAY_BASE 20
 
 #define MH6SHOTS_JOIN_MSG @"-[join-msg]-"
 #define MH6SHOTS_LEAVE_MSG @"-[leave-msg]-"

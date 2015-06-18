@@ -13,10 +13,9 @@
 #import <MultipeerConnectivity/MultipeerConnectivity.h>
 #import "MHDatagram.h"
 
+#import "MHConfig.h"
 
 #define MHPEERBUFFER_BUFFER_SIZE 1000
-#define MHPEERBUFFER_RELEASE_DELAY 10
-#define MHPEERBUFFER_MAX_CHUNK_SIZE 5000
 
 
 @protocol MHPeerBufferDelegate;

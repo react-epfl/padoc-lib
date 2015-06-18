@@ -18,7 +18,7 @@
 @property (nonatomic, strong) MCSession *session;
 
 @property (nonatomic) BOOL connected;
-@property (nonatomic) int releaseDelay;
+@property (nonatomic) NSInteger releaseDelay;
 
 @property (nonatomic, strong) NSMutableDictionary *chunks;
 
@@ -37,7 +37,7 @@
     {
         self.session = session;
         self.connected = NO;
-        self.releaseDelay = MHPEERBUFFER_RELEASE_DELAY;
+        self.releaseDelay = [MHConfig getSingleton].linkDatagramSendDelay;
 
         self.datagrams = [[NSMutableArray alloc] init];
 
@@ -105,7 +105,7 @@
         // in order to better handle the sending rate
         
         // Calculating number of chunks
-        int nbChunks = ceil(((double)datagram.data.length / MHPEERBUFFER_MAX_CHUNK_SIZE));
+        int nbChunks = ceil(((double)datagram.data.length / [MHConfig getSingleton].linkMaxDatagramSize));
         
         // Creating a unique tag for every chunk corresponding to
         // this datagram
@@ -113,14 +113,14 @@
         
         for (int i = 0; i < nbChunks; i++)
         {
-            int length = MHPEERBUFFER_MAX_CHUNK_SIZE;
+            NSInteger length = [MHConfig getSingleton].linkMaxDatagramSize;
             
             if (i == nbChunks - 1) // Last chunk
             {
-                length = datagram.data.length - (i * MHPEERBUFFER_MAX_CHUNK_SIZE);
+                length = datagram.data.length - (i * [MHConfig getSingleton].linkMaxDatagramSize);
             }
             
-            MHDatagram *chunk = [[MHDatagram alloc] initWithData:[datagram.data subdataWithRange:NSMakeRange(i * MHPEERBUFFER_MAX_CHUNK_SIZE, length)]];
+            MHDatagram *chunk = [[MHDatagram alloc] initWithData:[datagram.data subdataWithRange:NSMakeRange(i * [MHConfig getSingleton].linkMaxDatagramSize, length)]];
             chunk.tag = tag;
             chunk.noChunk = i;
             chunk.chunksNumber = nbChunks;

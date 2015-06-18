@@ -39,7 +39,7 @@
  
  @param serviceType The type of service to advertise. This should be a short text string that describes the app's networking protocol, in the same format as a Bonjour service type:
  
- 1. Must be 1–13 characters long.
+ 1. Must be 1–12 characters long.
  2. Can contain only ASCII lowercase letters, numbers, and hyphens.
  
  This name should be easily distinguished from unrelated services. For example, a text chat app made by ABC company could use the service type abc-txtchat. For more details, read “Domain Naming Conventions”.
@@ -55,7 +55,7 @@
  
  @param serviceType The type of service to advertise. This should be a short text string that describes the app's networking protocol, in the same format as a Bonjour service type:
  
- 1. Must be 1–13 characters long.
+ 1. Must be 1–12 characters long.
  2. Can contain only ASCII lowercase letters, numbers, and hyphens.
  
  This name should be easily distinguished from unrelated services. For example, a text chat app made by ABC company could use the service type abc-txtchat. For more details, read “Domain Naming Conventions”.
@@ -71,7 +71,7 @@
  
  @param serviceType The type of service to advertise. This should be a short text string that describes the app's networking protocol, in the same format as a Bonjour service type:
  
- 1. Must be 1–13 characters long.
+ 1. Must be 1–12 characters long.
  2. Can contain only ASCII lowercase letters, numbers, and hyphens.
  
  This name should be easily distinguished from unrelated services. For example, a text chat app made by ABC company could use the service type abc-txtchat. For more details, read “Domain Naming Conventions”.

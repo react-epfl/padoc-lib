@@ -13,9 +13,9 @@
 #import "MHMultipeerWrapper.h"
 #import "MHDatagram.h"
 
+#import "MHConfig.h"
 
 #define MHCONNECTIONBUFFER_BUFFER_SIZE 1000
-#define MHCONNECTIONBUFFER_RELEASE_TIME 20
 
 
 typedef enum MHConnectionBufferState : NSUInteger

@@ -318,7 +318,7 @@ didReceiveDatagram:(MHDatagram *)datagram
             }
             
             // Dispatch after y seconds
-            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)((arc4random_uniform(MH6SHOTS_JOINFORWARD_DELAY_RANGE) + MH6SHOTS_JOINFORWARD_DELAY_BASE) * NSEC_PER_MSEC)), dispatch_get_main_queue(), ^{
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)((arc4random_uniform([MHConfig getSingleton].net6ShotsControlPacketForwardDelayRange) + [MHConfig getSingleton].net6ShotsControlPacketForwardDelayBase) * NSEC_PER_MSEC)), dispatch_get_main_queue(), ^{
                 // If we can still forward, we do it
                 if ([[self.shouldForward objectForKey:tag] boolValue])
                 {
@@ -370,7 +370,7 @@ didReceiveDatagram:(MHDatagram *)datagram
             [self.shouldForward removeObjectForKey:tag];
             
             // Dispatch after y seconds
-            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)((arc4random_uniform(MH6SHOTS_JOINFORWARD_DELAY_RANGE) + MH6SHOTS_JOINFORWARD_DELAY_BASE) * NSEC_PER_MSEC)), dispatch_get_main_queue(), ^{
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)((arc4random_uniform([MHConfig getSingleton].net6ShotsControlPacketForwardDelayRange) + [MHConfig getSingleton].net6ShotsControlPacketForwardDelayBase) * NSEC_PER_MSEC)), dispatch_get_main_queue(), ^{
                 // Diagnostics
                 if ([MHDiagnostics getSingleton].useNetworkLayerInfoCallbacks &&
                     [MHDiagnostics getSingleton].useNetworkLayerControlInfoCallbacks)

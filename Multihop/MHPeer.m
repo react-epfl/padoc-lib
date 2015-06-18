@@ -101,7 +101,7 @@
             weakSelf.nbHeartbeatFails++;
             
             // The heartbeat fails for x times, then disconnect
-            if (weakSelf.nbHeartbeatFails > MHPEER_MAX_HEARTBEAT_FAILS)
+            if (weakSelf.nbHeartbeatFails > [MHConfig getSingleton].linkMaxHeartbeatFails)
             {
                 [weakSelf setConnectionDisabled:weakSelf withReason:@"Heartbeat failed"];
             }
@@ -119,7 +119,7 @@
                 
                 
                 // Dispatch after y seconds
-                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(MHPEER_HEARTBEAT_TIME * NSEC_PER_SEC)), dispatch_get_main_queue(), weakSelf.processHeartbeat);
+                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)([MHConfig getSingleton].linkHeartbeatSendDelay * NSEC_PER_SEC)), dispatch_get_main_queue(), weakSelf.processHeartbeat);
             }
         }
     };
@@ -132,7 +132,7 @@
         weakSelf.heartbeatStarted = YES;
         
         // Dispatch after y seconds
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(MHPEER_HEARTBEAT_TIME * NSEC_PER_SEC)), dispatch_get_main_queue(), weakSelf.processHeartbeat);
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)([MHConfig getSingleton].linkHeartbeatSendDelay * NSEC_PER_SEC)), dispatch_get_main_queue(), weakSelf.processHeartbeat);
     }
 }
 

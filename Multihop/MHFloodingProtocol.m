@@ -88,7 +88,7 @@
         // Adding discovery information and ttl
         [_ownDiscoveryPacket.info setObject:@"YES" forKey:MH_FLOODING_DISCOVERME_MSG];
         [_ownDiscoveryPacket.info setObject:self.displayName forKey:@"displayName"];
-        [_ownDiscoveryPacket.info setObject:[NSNumber numberWithInt:MH_FLOODING_TTL] forKey:@"ttl"];
+        [_ownDiscoveryPacket.info setObject:[NSNumber numberWithInt:[MHConfig getSingleton].netFloodingPacketTTL] forKey:@"ttl"];
     }
     
     return _ownDiscoveryPacket;
@@ -147,7 +147,7 @@
     [[MHDiagnostics getSingleton] addTraceRoute:packet withNextPeer:[self getOwnPeer]];
     
     // Set ttl
-    [packet.info setObject:[NSNumber numberWithInt:MH_FLOODING_TTL] forKey:@"ttl"];
+    [packet.info setObject:[NSNumber numberWithInt:[MHConfig getSingleton].netFloodingPacketTTL] forKey:@"ttl"];
     
     // Broadcast
     dispatch_async(dispatch_get_main_queue(), ^{

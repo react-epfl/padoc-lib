@@ -15,8 +15,8 @@
 #import "MHDatagram.h"
 #import "MHPeerBuffer.h"
 
-#define MHPEER_HEARTBEAT_TIME 1
-#define MHPEER_MAX_HEARTBEAT_FAILS 5
+#import "MHConfig.h"
+
 
 #define MHPEER_HEARTBEAT_MSG  @"[{_-heartbeat_msg-_}]"
 

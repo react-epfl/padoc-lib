@@ -150,11 +150,11 @@
             [weakSelf.delegate mhScheduler:weakSelf broadcastPacket:packet];
             
             
-            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(MH6SHOTS_OVERLAYMAINTENANCE_DELAY * NSEC_PER_MSEC)), dispatch_get_main_queue(), weakSelf.overlayMaintenance);
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)([MHConfig getSingleton].net6ShotsOverlayMaintenanceDelay * NSEC_PER_MSEC)), dispatch_get_main_queue(), weakSelf.overlayMaintenance);
         }
     };
     
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(MH6SHOTS_OVERLAYMAINTENANCE_DELAY * NSEC_PER_MSEC)), dispatch_get_main_queue(), self.overlayMaintenance);
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)([MHConfig getSingleton].net6ShotsOverlayMaintenanceDelay * NSEC_PER_MSEC)), dispatch_get_main_queue(), self.overlayMaintenance);
 }
 
 - (void)setFctScheduleCleaning:(MH6ShotsScheduler * __weak)weakSelf
@@ -305,12 +305,12 @@
             break;
     }
     
-    
+
     // Final delay
     double delayFraction = MH6SHOTS_GPS_FRACTION*gpsDelay + MH6SHOTS_IBEACONS_FRACTION*ibeaconsDelay;
     
     // In milliseconds
-    double delay = (double)MH6SHOTS_TARGET_DELAY_RANGE*delayFraction + (double)MH6SHOTS_TARGET_DELAY_BASE;
+    double delay = (double)[MHConfig getSingleton].net6ShotsPacketForwardDelayRange*delayFraction + (double)[MHConfig getSingleton].net6ShotsPacketForwardDelayBase;
     
     // Transform to NSTimeInterval (seconds)
     return delay / 1000.0;
