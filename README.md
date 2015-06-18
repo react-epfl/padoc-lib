@@ -1,4 +1,4 @@
-# Multihop Library for IOS (v0.3)
+# Multihop Library for IOS (v0.4)
 Multihop is an Objective-C library runnable on IOS devices whose purpose is to connect smartphones without  
 any external service. It supports a network of any size using multiple hops for message sending. It relies on the Multipeer Connectivity framework for the lower communication primitives between neighbour devices.  
   
