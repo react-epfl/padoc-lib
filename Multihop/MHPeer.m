@@ -20,6 +20,10 @@
 
 @property (nonatomic, strong) MHPeerBuffer *peerBuffer;
 
+// Receiving side congestion control
+@property (nonatomic) NSTimeInterval lastReceivedPacketTime;
+@property (nonatomic) int sendingRateCheckFailures;
+
 @property (nonatomic) BOOL connected;
 
 @property (nonatomic) BOOL heartbeatStarted;
@@ -62,6 +66,9 @@
             
             self.peerBuffer = [[MHPeerBuffer alloc] initWithMCSession:self.session];
             self.peerBuffer.delegate = self;
+            
+            self.lastReceivedPacketTime = [[NSDate date] timeIntervalSince1970];
+            self.sendingRateCheckFailures = 0;
             
             // Heartbeat mechanism
             MHPeer * __weak weakSelf = self;
@@ -183,12 +190,55 @@
             [self setConnectionEnabled];
         });
     }
+    else if ([datagram.info objectForKey:MHPEER_CONGESTION_CONTROL_MSG] != nil)
+    {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            NSInteger rcvDelay = [[datagram.info objectForKey:@"delay"] integerValue];
+            
+            [self.peerBuffer setDelayTo:rcvDelay];
+        });
+    }
     else
     {
+        [self controlCongestionWithSendingDelay:[[datagram.info objectForKey:@"delay"] integerValue]];
+        
         [self.peerBuffer didReceiveDatagramChunk:datagram];
     }
 }
 
+- (void)controlCongestionWithSendingDelay:(NSInteger)sendingDelay
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        NSTimeInterval newReceivingTime = [[NSDate date] timeIntervalSince1970];
+        NSInteger receivingDelay = 1000*(newReceivingTime - self.lastReceivedPacketTime);
+
+        if (receivingDelay > sendingDelay + MHPEER_RECEIVING_DELAY_PRECISION)
+        {
+            self.sendingRateCheckFailures++;
+            
+            if (self.sendingRateCheckFailures >= 3)
+            {
+                MHDatagram *congestionControlDatagram = [[MHDatagram alloc] initWithData:nil];
+                [congestionControlDatagram.info setObject:@"" forKey:MHPEER_CONGESTION_CONTROL_MSG];
+                [congestionControlDatagram.info setObject:[NSNumber numberWithInteger:receivingDelay] forKey:@"delay"];
+                
+                NSError *error;
+                [self.session sendData:[congestionControlDatagram asNSData]
+                               toPeers:self.session.connectedPeers
+                              withMode:MCSessionSendDataUnreliable
+                                 error:&error];
+                
+                self.sendingRateCheckFailures = 0;
+            }
+        }
+        else
+        {
+            self.sendingRateCheckFailures = 0;
+        }
+
+        self.lastReceivedPacketTime = newReceivingTime;
+    });
+}
 
 - (void)session:(MCSession *)session didReceiveStream:(NSInputStream *)stream withName:(NSString *)streamName fromPeer:(MCPeerID *)peerID
 {

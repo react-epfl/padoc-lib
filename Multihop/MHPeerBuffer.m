@@ -22,6 +22,8 @@
 
 @property (nonatomic, strong) NSMutableDictionary *chunks;
 
+@property (nonatomic) NSTimeInterval lastSentPacketTime;
+
 @property (copy) void (^releaseDatagrams)(void);
 
 @end
@@ -45,6 +47,8 @@
         
         MHPeerBuffer * __weak weakSelf = self;
         
+        self.lastSentPacketTime = [[NSDate date] timeIntervalSince1970];
+        
         
         self.releaseDatagrams = ^{
             if (weakSelf)
@@ -55,11 +59,19 @@
                 if (datagram != nil)
                 {
                     if (weakSelf.connected)
-                    {                        
+                    {
+                        NSTimeInterval newSentTime = [[NSDate date] timeIntervalSince1970];
+
+                        // Delay in ms
+                        [datagram.info setObject:[NSNumber numberWithInteger:1000*(newSentTime - weakSelf.lastSentPacketTime)] forKey:@"delay"];
+                        
                         [weakSelf.session sendData:[datagram asNSData]
                                        toPeers:weakSelf.session.connectedPeers
-                                      withMode:MCSessionSendDataUnreliable
+                                      withMode:MCSessionSendDataReliable
                                          error:&error];
+                        
+                        weakSelf.lastSentPacketTime = newSentTime;
+                        [weakSelf decreaseDelay:weakSelf];
                     }
                 }
                 
@@ -82,6 +94,29 @@
     [self.chunks removeAllObjects];
     self.chunks = nil;
 }
+
+- (void)decreaseDelay:(MHPeerBuffer * __weak)weakSelf
+{
+    weakSelf.releaseDelay -= MHPEERBUFFER_DECREASE_AMOUNT;
+    
+    if (weakSelf.releaseDelay < [MHConfig getSingleton].linkDatagramSendDelay)
+    {
+        weakSelf.releaseDelay = [MHConfig getSingleton].linkDatagramSendDelay;
+    }
+}
+
+- (void)setDelayTo:(NSInteger)delay
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        self.releaseDelay = delay + MHPEERBUFFER_DECREASE_AMOUNT;
+        
+        if (self.releaseDelay < [MHConfig getSingleton].linkDatagramSendDelay)
+        {
+            self.releaseDelay = [MHConfig getSingleton].linkDatagramSendDelay;
+        }
+    });
+}
+
 
 - (void)setConnected
 {

@@ -16,6 +16,7 @@
 #import "MHPeer.h"
 
 #define MH_SERVICE_PREFIX @"mh-"
+#define MH_INVITATION_TIMEOUT 1000
 
 @protocol MHMultipeerWrapperDelegate;
 

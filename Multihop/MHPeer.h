@@ -19,8 +19,11 @@
 
 
 #define MHPEER_HEARTBEAT_MSG  @"[{_-heartbeat_msg-_}]"
+#define MHPEER_CONGESTION_CONTROL_MSG  @"[{_-congestion_control_msg-_}]"
 
 #define MHPEER_STARTHEARTBEAT_TIME 10
+
+#define MHPEER_RECEIVING_DELAY_PRECISION 30
 
 
 @protocol MHPeerDelegate;

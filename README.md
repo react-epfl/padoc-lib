@@ -349,7 +349,7 @@ The parameter names follow the format *layerParameterName* and are (in parenthes
 notification is triggered.
 
 * *linkDatagramSendDelay* (10): number of milliseconds after which a new bufferized datagram is sent.
-* *linkMaxDatagramSize* (5000): max size of a datagram. Larger datagrams are cut into chunks.
+* *linkMaxDatagramSize* (3000): max size of a datagram. Larger datagrams are cut into chunks.
 * *linkBackgroundDatagramSendDelay* (20): number of milliseconds after which a new burrerized datagram (because  
 of a background disconnection) is sent.
 

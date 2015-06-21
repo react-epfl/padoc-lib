@@ -19,16 +19,20 @@
 @property (nonatomic, readwrite) int linkMaxHeartbeatFails; // default 5
 
 @property (nonatomic, readwrite) int linkDatagramSendDelay; // in ms (default 10)
-@property (nonatomic, readwrite) int linkMaxDatagramSize; // default 5000
+@property (nonatomic, readwrite) int linkMaxDatagramSize; // default 3000
+
 @property (nonatomic, readwrite) int linkBackgroundDatagramSendDelay; // in ms (default 20)
+
 
 #pragma mark - Network layer
 @property (nonatomic, readwrite) int netFloodingPacketTTL; // default 100
 
 @property (nonatomic, readwrite) int net6ShotsControlPacketForwardDelayRange; // in ms (default 50)
 @property (nonatomic, readwrite) int net6ShotsControlPacketForwardDelayBase; // in ms (default 20)
+
 @property (nonatomic, readwrite) int net6ShotsPacketForwardDelayRange; // in ms (default 100)
 @property (nonatomic, readwrite) int net6ShotsPacketForwardDelayBase; // in ms (default 30)
+
 @property (nonatomic, readwrite) int net6ShotsOverlayMaintenanceDelay; // in ms (default 5000)
 
 

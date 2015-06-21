@@ -48,16 +48,20 @@ static MHConfig *params = nil;
     self.linkMaxHeartbeatFails = 5;
     
     self.linkDatagramSendDelay = 10;
-    self.linkMaxDatagramSize = 5000;
+    self.linkMaxDatagramSize = 3000;
+    
     self.linkBackgroundDatagramSendDelay = 20;
+    
     
     // Network layer
     self.netFloodingPacketTTL = 100;
     
     self.net6ShotsControlPacketForwardDelayRange = 50;
     self.net6ShotsControlPacketForwardDelayBase = 20;
+    
     self.net6ShotsPacketForwardDelayRange = 100;
     self.net6ShotsPacketForwardDelayBase = 30;
+    
     self.net6ShotsOverlayMaintenanceDelay = 5000;
 }
 

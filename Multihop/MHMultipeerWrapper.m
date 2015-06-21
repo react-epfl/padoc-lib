@@ -232,8 +232,6 @@ didReceiveInvitationFromPeer:(MCPeerID *)peerID
         
         if ([self.mhPeer.mhPeerID compare:[info objectForKey:@"MultihopID"]] == NSOrderedDescending)
         {
-            NSLog(@"did receive invitation");
-            
             if(![self peerAvailable:[info objectForKey:@"MultihopID"]]) // peer has already been disconnected
             {
                 MCSession *session = [self addNewNeighbourPeer:peerID withInfo:info];
@@ -275,8 +273,6 @@ didReceiveInvitationFromPeer:(MCPeerID *)peerID
         // But only send invites one way
         if ([self.mhPeer.mhPeerID compare:[info objectForKey:@"MultihopID"]] == NSOrderedAscending)
         {
-            NSLog(@"found peer");
-            
             if(![self peerAvailable:[info objectForKey:@"MultihopID"]]) // peer has already been disconnected
             {
                 MCSession *session = [self addNewNeighbourPeer:peerID withInfo:info];
@@ -284,10 +280,13 @@ didReceiveInvitationFromPeer:(MCPeerID *)peerID
                 // We set the peer discovery information
                 NSData *context = [NSKeyedArchiver archivedDataWithRootObject:self.dictInfo];
                 
+                // A very long timeout is used, anyway the heartbeat
+                // mechanism ensures that if the connection has not
+                // been established, peers are disconnected
                 [browser invitePeer:peerID
                           toSession:session
                         withContext:context
-                            timeout:[MHConfig getSingleton].linkMaxHeartbeatFails * [MHConfig getSingleton].linkHeartbeatSendDelay + 10];
+                            timeout:MH_INVITATION_TIMEOUT];
             }
             else
             {
@@ -301,10 +300,13 @@ didReceiveInvitationFromPeer:(MCPeerID *)peerID
                         // We set the peer discovery information
                         NSData *context = [NSKeyedArchiver archivedDataWithRootObject:self.dictInfo];
                         
+                        // A very long timeout is used, anyway the heartbeat
+                        // mechanism ensures that if the connection has not
+                        // been established, peers are disconnected
                         [browser invitePeer:peerID
                                   toSession:session
                                 withContext:context
-                                    timeout:[MHConfig getSingleton].linkMaxHeartbeatFails * [MHConfig getSingleton].linkHeartbeatSendDelay + 10];
+                                    timeout:MH_INVITATION_TIMEOUT];
                     }
                 });
             }

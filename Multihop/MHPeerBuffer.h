@@ -16,6 +16,7 @@
 #import "MHConfig.h"
 
 #define MHPEERBUFFER_BUFFER_SIZE 1000
+#define MHPEERBUFFER_DECREASE_AMOUNT 30
 
 
 @protocol MHPeerBufferDelegate;
@@ -30,7 +31,9 @@
 
 - (void)pushDatagram:(MHDatagram *)datagram;
 
-// release delay??
+
+- (void)setDelayTo:(NSInteger)delay;
+
 - (void)setConnected;
 - (void)setDisconnected;
 
