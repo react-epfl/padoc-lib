@@ -232,6 +232,8 @@ didReceiveInvitationFromPeer:(MCPeerID *)peerID
         
         if ([self.mhPeer.mhPeerID compare:[info objectForKey:@"MultihopID"]] == NSOrderedDescending)
         {
+            NSLog(@"did receive invitation");
+            
             if(![self peerAvailable:[info objectForKey:@"MultihopID"]]) // peer has already been disconnected
             {
                 MCSession *session = [self addNewNeighbourPeer:peerID withInfo:info];
@@ -241,7 +243,7 @@ didReceiveInvitationFromPeer:(MCPeerID *)peerID
             }
             else
             {
-                int delay = MHPEER_MAX_HEARTBEAT_FAILS*MHPEER_HEARTBEAT_TIME + 3;
+                int delay = [MHConfig getSingleton].linkMaxHeartbeatFails * [MHConfig getSingleton].linkHeartbeatSendDelay + 1;
                 
                 dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delay * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
                     if(![self peerAvailable:[info objectForKey:@"MultihopID"]]) // peer should have been disconnected
@@ -273,6 +275,8 @@ didReceiveInvitationFromPeer:(MCPeerID *)peerID
         // But only send invites one way
         if ([self.mhPeer.mhPeerID compare:[info objectForKey:@"MultihopID"]] == NSOrderedAscending)
         {
+            NSLog(@"found peer");
+            
             if(![self peerAvailable:[info objectForKey:@"MultihopID"]]) // peer has already been disconnected
             {
                 MCSession *session = [self addNewNeighbourPeer:peerID withInfo:info];
@@ -283,11 +287,11 @@ didReceiveInvitationFromPeer:(MCPeerID *)peerID
                 [browser invitePeer:peerID
                           toSession:session
                         withContext:context
-                            timeout:8];
+                            timeout:[MHConfig getSingleton].linkMaxHeartbeatFails * [MHConfig getSingleton].linkHeartbeatSendDelay + 10];
             }
             else
             {
-                int delay = MHPEER_MAX_HEARTBEAT_FAILS*MHPEER_HEARTBEAT_TIME + 3;
+                int delay = [MHConfig getSingleton].linkMaxHeartbeatFails * [MHConfig getSingleton].linkHeartbeatSendDelay + 1;
                 
                 dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delay * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
                     if(![self peerAvailable:[info objectForKey:@"MultihopID"]]) // peer should have been disconnected
@@ -300,7 +304,7 @@ didReceiveInvitationFromPeer:(MCPeerID *)peerID
                         [browser invitePeer:peerID
                                   toSession:session
                                 withContext:context
-                                    timeout:8];
+                                    timeout:[MHConfig getSingleton].linkMaxHeartbeatFails * [MHConfig getSingleton].linkHeartbeatSendDelay + 10];
                     }
                 });
             }
