@@ -344,7 +344,7 @@ singleton, just write:
 ```
 The parameter names follow the format *layerParameterName* and are (in parenthesis the default value):
 
-* *linkHeartbeatSendDelay* (1): number of seconds after which a new heartbeat message is sent.
+* *linkHeartbeatSendDelay* (1000): number of milliseconds after which a new heartbeat message is sent.
 * *linkMaxHeartbeatFails* (5); number of heartbeat message check failures after which a disconnection  
 notification is triggered.
 

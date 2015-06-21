@@ -24,13 +24,24 @@
 @property (nonatomic) NSTimeInterval lastReceivedPacketTime;
 @property (nonatomic) int sendingRateCheckFailures;
 
+
+// Heartbeat congestion control
+@property (nonatomic) NSInteger heartbeatSendingDelay;
+@property (nonatomic) NSInteger heartbeatReceivingDelay;
+
+@property (nonatomic) NSTimeInterval lastHeartbeatReceivedPacketTime;
+@property (nonatomic) int sendingRateHeartbeatCheckFailures;
+@property (nonatomic) NSTimeInterval lastHeartbeatSentPacketTime;
+
+
 @property (nonatomic) BOOL connected;
 
 @property (nonatomic) BOOL heartbeatStarted;
 @property (nonatomic) int nbHeartbeatFails;
 @property (nonatomic) BOOL HeartbeatSender;
 
-@property (copy) void (^processHeartbeat)(void);
+@property (copy) void (^processSendingHeartbeat)(void);
+@property (copy) void (^processReceivingHeartbeat)(void);
 
 @end
 
@@ -51,6 +62,8 @@
     {
         self.nbHeartbeatFails = 0;
         self.heartbeatStarted = NO;
+        self.heartbeatSendingDelay = [MHConfig getSingleton].linkHeartbeatSendDelay;
+        self.heartbeatReceivingDelay = [MHConfig getSingleton].linkHeartbeatSendDelay;
         
         self.displayName = displayName;
         self.mcPeerID = mcPeerID;
@@ -73,7 +86,8 @@
             // Heartbeat mechanism
             MHPeer * __weak weakSelf = self;
             
-            [self setFctProcessHeartbeat:weakSelf];
+            [self setFctProcessSendingHeartbeat:weakSelf];
+            [self setFctProcessReceivingHeartbeat:weakSelf];
             
             
             dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(MHPEER_STARTHEARTBEAT_TIME * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
@@ -99,10 +113,50 @@
 }
 
 
-- (void)setFctProcessHeartbeat:(MHPeer * __weak)weakSelf
+- (void)setFctProcessSendingHeartbeat:(MHPeer * __weak)weakSelf
 {
     // Sender side
-    self.processHeartbeat = ^{
+    self.processSendingHeartbeat = ^{
+        if(weakSelf)
+        {
+            if (weakSelf.connected)
+            {
+                NSTimeInterval newSentTime = [[NSDate date] timeIntervalSince1970];
+                
+                NSError *error;
+                MHDatagram *datagram = [[MHDatagram alloc] initWithData:[MHComputation emptyData]];
+                [datagram.info setObject:@"" forKey:MHPEER_HEARTBEAT_MSG];
+                // Delay in ms
+                [datagram.info setObject:[NSNumber numberWithInteger:1000*(newSentTime - weakSelf.lastHeartbeatSentPacketTime)] forKey:@"delay"];
+                
+
+                
+                [weakSelf.session sendData:[datagram asNSData]
+                                   toPeers:weakSelf.session.connectedPeers
+                                  withMode:MCSessionSendDataReliable
+                                     error:&error];
+                
+                
+                weakSelf.lastHeartbeatSentPacketTime = newSentTime;
+                
+                // Decrease sending delay
+                weakSelf.heartbeatSendingDelay -= MHPEER_HEARTBEAT_DECREASE_AMOUNT;
+                if (weakSelf.heartbeatSendingDelay < [MHConfig getSingleton].linkHeartbeatSendDelay)
+                {
+                    weakSelf.heartbeatSendingDelay = [MHConfig getSingleton].linkHeartbeatSendDelay;
+                }
+                
+                // Dispatch after y seconds
+                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(weakSelf.heartbeatSendingDelay * NSEC_PER_MSEC)), dispatch_get_main_queue(), weakSelf.processSendingHeartbeat);
+            }
+        }
+    };
+}
+
+- (void)setFctProcessReceivingHeartbeat:(MHPeer * __weak)weakSelf
+{
+    // Sender side
+    self.processReceivingHeartbeat = ^{
         if(weakSelf)
         {
             weakSelf.nbHeartbeatFails++;
@@ -114,23 +168,13 @@
             }
             else
             {
-                NSError *error;
-                
-                MHDatagram *datagram = [[MHDatagram alloc] initWithData:[MHComputation emptyData]];
-                [datagram.info setObject:@"" forKey:MHPEER_HEARTBEAT_MSG];
-                
-                [weakSelf.session sendData:[datagram asNSData]
-                                   toPeers:weakSelf.session.connectedPeers
-                                  withMode:MCSessionSendDataReliable
-                                     error:&error];
-                
-                
                 // Dispatch after y seconds
-                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)([MHConfig getSingleton].linkHeartbeatSendDelay * NSEC_PER_SEC)), dispatch_get_main_queue(), weakSelf.processHeartbeat);
+                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(weakSelf.heartbeatReceivingDelay * NSEC_PER_MSEC)), dispatch_get_main_queue(), weakSelf.processReceivingHeartbeat);
             }
         }
     };
 }
+
 
 - (void)startHeartbeat:(MHPeer * __weak)weakSelf
 {
@@ -138,8 +182,14 @@
     {
         weakSelf.heartbeatStarted = YES;
         
+        weakSelf.lastHeartbeatReceivedPacketTime = [[NSDate date] timeIntervalSince1970];
+        weakSelf.sendingRateHeartbeatCheckFailures = 0;
+        weakSelf.lastHeartbeatSentPacketTime = [[NSDate date] timeIntervalSince1970];
+        
         // Dispatch after y seconds
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)([MHConfig getSingleton].linkHeartbeatSendDelay * NSEC_PER_SEC)), dispatch_get_main_queue(), weakSelf.processHeartbeat);
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(weakSelf.heartbeatSendingDelay * NSEC_PER_MSEC)), dispatch_get_main_queue(), weakSelf.processSendingHeartbeat);
+        
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(weakSelf.heartbeatReceivingDelay * NSEC_PER_MSEC)), dispatch_get_main_queue(), weakSelf.processReceivingHeartbeat);
     }
 }
 
@@ -186,6 +236,8 @@
 
     if ([datagram.info objectForKey:MHPEER_HEARTBEAT_MSG] != nil)
     {
+        [self controlHeartbeatCongestionWithSendingDelay:[[datagram.info objectForKey:@"delay"] integerValue]];
+        
         dispatch_async(dispatch_get_main_queue(), ^{
             [self setConnectionEnabled];
         });
@@ -196,6 +248,19 @@
             NSInteger rcvDelay = [[datagram.info objectForKey:@"delay"] integerValue];
 
             [self.peerBuffer setDelayTo:rcvDelay];
+        });
+    }
+    else if ([datagram.info objectForKey:MHPEER_HEARTBEAT_CONGESTION_CONTROL_MSG] != nil)
+    {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            NSInteger rcvDelay = [[datagram.info objectForKey:@"delay"] integerValue];
+            
+            self.heartbeatSendingDelay = rcvDelay + MHPEER_HEARTBEAT_DECREASE_AMOUNT;
+            
+            if (self.heartbeatSendingDelay < [MHConfig getSingleton].linkHeartbeatSendDelay)
+            {
+                self.heartbeatSendingDelay = [MHConfig getSingleton].linkHeartbeatSendDelay;
+            }
         });
     }
     else
@@ -239,6 +304,49 @@
         self.lastReceivedPacketTime = newReceivingTime;
     });
 }
+
+- (void)controlHeartbeatCongestionWithSendingDelay:(NSInteger)sendingDelay
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        NSTimeInterval newReceivingTime = [[NSDate date] timeIntervalSince1970];
+        NSInteger receivingDelay = 1000*(newReceivingTime - self.lastHeartbeatReceivedPacketTime);
+        
+        if (receivingDelay > sendingDelay + MHPEER_RECEIVING_DELAY_PRECISION)
+        {
+            self.sendingRateHeartbeatCheckFailures++;
+            
+            if (self.sendingRateHeartbeatCheckFailures >= 3)
+            {
+                MHDatagram *congestionControlDatagram = [[MHDatagram alloc] initWithData:nil];
+                [congestionControlDatagram.info setObject:@"" forKey:MHPEER_HEARTBEAT_CONGESTION_CONTROL_MSG];
+                [congestionControlDatagram.info setObject:[NSNumber numberWithInteger:receivingDelay] forKey:@"delay"];
+                
+                NSError *error;
+                [self.session sendData:[congestionControlDatagram asNSData]
+                               toPeers:self.session.connectedPeers
+                              withMode:MCSessionSendDataUnreliable
+                                 error:&error];
+                
+                // If we receive messages more slowly than the sending rate,
+                // we want to check at our receiving rate
+                self.heartbeatReceivingDelay = receivingDelay;
+                
+                self.sendingRateHeartbeatCheckFailures = 0;
+            }
+        }
+        else
+        {
+            // If we receive messages more quickly than the sending rate,
+            // we want to check at the sending rate, which is decreasing
+            self.heartbeatReceivingDelay = sendingDelay;
+            
+            self.sendingRateHeartbeatCheckFailures = 0;
+        }
+        
+        self.lastHeartbeatReceivedPacketTime = newReceivingTime;
+    });
+}
+
 
 - (void)session:(MCSession *)session didReceiveStream:(NSInputStream *)stream withName:(NSString *)streamName fromPeer:(MCPeerID *)peerID
 {

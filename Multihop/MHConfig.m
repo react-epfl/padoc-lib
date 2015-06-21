@@ -44,7 +44,7 @@ static MHConfig *params = nil;
 - (void)setDefaults
 {
     // Link layer
-    self.linkHeartbeatSendDelay = 1;
+    self.linkHeartbeatSendDelay = 1000;
     self.linkMaxHeartbeatFails = 5;
     
     self.linkDatagramSendDelay = 50;

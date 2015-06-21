@@ -15,7 +15,7 @@
 @interface MHConfig : NSObject
 
 #pragma mark - Link layer
-@property (nonatomic, readwrite) int linkHeartbeatSendDelay; // in seconds (default 1)
+@property (nonatomic, readwrite) int linkHeartbeatSendDelay; // in milliseconds (default 1000)
 @property (nonatomic, readwrite) int linkMaxHeartbeatFails; // default 5
 
 @property (nonatomic, readwrite) int linkDatagramSendDelay; // in ms (default 50)
