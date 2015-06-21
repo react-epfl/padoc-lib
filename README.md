@@ -348,7 +348,7 @@ The parameter names follow the format *layerParameterName* and are (in parenthes
 * *linkMaxHeartbeatFails* (5); number of heartbeat message check failures after which a disconnection  
 notification is triggered.
 
-* *linkDatagramSendDelay* (10): number of milliseconds after which a new bufferized datagram is sent.
+* *linkDatagramSendDelay* (50): number of milliseconds after which a new bufferized datagram is sent.
 * *linkMaxDatagramSize* (3000): max size of a datagram. Larger datagrams are cut into chunks.
 * *linkBackgroundDatagramSendDelay* (20): number of milliseconds after which a new burrerized datagram (because  
 of a background disconnection) is sent.

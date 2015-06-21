@@ -47,7 +47,7 @@ static MHConfig *params = nil;
     self.linkHeartbeatSendDelay = 1;
     self.linkMaxHeartbeatFails = 5;
     
-    self.linkDatagramSendDelay = 10;
+    self.linkDatagramSendDelay = 50;
     self.linkMaxDatagramSize = 3000;
     
     self.linkBackgroundDatagramSendDelay = 20;
