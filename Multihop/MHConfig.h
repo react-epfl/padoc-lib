@@ -18,7 +18,7 @@
 @property (nonatomic, readwrite) int linkHeartbeatSendDelay; // in milliseconds (default 1000)
 @property (nonatomic, readwrite) int linkMaxHeartbeatFails; // default 5
 
-@property (nonatomic, readwrite) int linkDatagramSendDelay; // in ms (default 50)
+@property (nonatomic, readwrite) int linkDatagramSendDelay; // in ms (default 250)
 @property (nonatomic, readwrite) int linkMaxDatagramSize; // default 3000
 
 @property (nonatomic, readwrite) int linkBackgroundDatagramSendDelay; // in ms (default 20)

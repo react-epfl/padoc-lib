@@ -53,28 +53,32 @@
         self.releaseDatagrams = ^{
             if (weakSelf)
             {
-                MHDatagram * datagram = [weakSelf popDatagram];
-                NSError *error;
-                
-                if (datagram != nil)
+                if (weakSelf.connected)
                 {
-                    if (weakSelf.connected)
-                    {
-                        NSTimeInterval newSentTime = [[NSDate date] timeIntervalSince1970];
+                    MHDatagram * datagram = [weakSelf popDatagram];
 
+                    if (datagram != nil)
+                    {
+                        
+                        NSTimeInterval newSentTime = [[NSDate date] timeIntervalSince1970];
+                        
                         // Delay in ms
                         [datagram.info setObject:[NSNumber numberWithInteger:1000*(newSentTime - weakSelf.lastSentPacketTime)] forKey:@"delay"];
                         
+                        NSError *error;
                         [weakSelf.session sendData:[datagram asNSData]
-                                       toPeers:weakSelf.session.connectedPeers
-                                      withMode:MCSessionSendDataReliable
-                                         error:&error];
+                                           toPeers:weakSelf.session.connectedPeers
+                                          withMode:MCSessionSendDataReliable
+                                             error:&error];
                         
                         weakSelf.lastSentPacketTime = newSentTime;
                         [weakSelf decreaseDelay:weakSelf];
                     }
+                    else
+                    {
+                        [weakSelf increaseDelay:weakSelf];
+                    }
                 }
-                
                 
                 dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(weakSelf.releaseDelay * NSEC_PER_MSEC)), dispatch_get_main_queue(), weakSelf.releaseDatagrams);
             }
@@ -99,9 +103,19 @@
 {
     weakSelf.releaseDelay -= MHPEERBUFFER_DECREASE_AMOUNT;
     
-    if (weakSelf.releaseDelay < [MHConfig getSingleton].linkDatagramSendDelay)
+    if (weakSelf.releaseDelay < MHPEERBUFFER_LOWEST_DELAY)
     {
-        weakSelf.releaseDelay = [MHConfig getSingleton].linkDatagramSendDelay;
+        weakSelf.releaseDelay = MHPEERBUFFER_LOWEST_DELAY;
+    }
+}
+
+- (void)increaseDelay:(MHPeerBuffer * __weak)weakSelf
+{
+    weakSelf.releaseDelay += MHPEERBUFFER_DECREASE_AMOUNT;
+    
+    if (weakSelf.releaseDelay > MHPEERBUFFER_LOWEST_DELAY)
+    {
+        weakSelf.releaseDelay = MHPEERBUFFER_LOWEST_DELAY;
     }
 }
 
@@ -110,9 +124,9 @@
     dispatch_async(dispatch_get_main_queue(), ^{
         self.releaseDelay = delay + MHPEERBUFFER_DECREASE_AMOUNT;
         
-        if (self.releaseDelay < [MHConfig getSingleton].linkDatagramSendDelay)
+        if (self.releaseDelay < MHPEERBUFFER_LOWEST_DELAY)
         {
-            self.releaseDelay = [MHConfig getSingleton].linkDatagramSendDelay;
+            self.releaseDelay = MHPEERBUFFER_LOWEST_DELAY;
         }
     });
 }

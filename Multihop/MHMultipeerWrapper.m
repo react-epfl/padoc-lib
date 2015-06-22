@@ -236,18 +236,20 @@ didReceiveInvitationFromPeer:(MCPeerID *)peerID
             {
                 MCSession *session = [self addNewNeighbourPeer:peerID withInfo:info];
                 
+                NSLog(@"invitation accepted");
                 // We accept the invitation
                 invitationHandler(YES, session);
             }
             else
             {
-                int delay = [MHConfig getSingleton].linkMaxHeartbeatFails * [MHConfig getSingleton].linkHeartbeatSendDelay + 1;
+                int delay = [MHConfig getSingleton].linkMaxHeartbeatFails * [MHConfig getSingleton].linkHeartbeatSendDelay + MHPEER_STARTHEARTBEAT_TIME * 1000;
                 
-                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delay * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delay * NSEC_PER_MSEC)), dispatch_get_main_queue(), ^{
                     if(![self peerAvailable:[info objectForKey:@"MultihopID"]]) // peer should have been disconnected
                     {
                         MCSession *session = [self addNewNeighbourPeer:peerID withInfo:info];
                         
+                                        NSLog(@"2nd invitation accepted");
                         // We accept the invitation
                         invitationHandler(YES, session);
                     }
@@ -280,6 +282,7 @@ didReceiveInvitationFromPeer:(MCPeerID *)peerID
                 // We set the peer discovery information
                 NSData *context = [NSKeyedArchiver archivedDataWithRootObject:self.dictInfo];
                 
+                                NSLog(@"invitation sent");
                 // A very long timeout is used, anyway the heartbeat
                 // mechanism ensures that if the connection has not
                 // been established, peers are disconnected
@@ -290,16 +293,16 @@ didReceiveInvitationFromPeer:(MCPeerID *)peerID
             }
             else
             {
-                int delay = [MHConfig getSingleton].linkMaxHeartbeatFails * [MHConfig getSingleton].linkHeartbeatSendDelay + 1;
+                int delay = [MHConfig getSingleton].linkMaxHeartbeatFails * [MHConfig getSingleton].linkHeartbeatSendDelay + 1000;
                 
-                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delay * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delay * NSEC_PER_MSEC)), dispatch_get_main_queue(), ^{
                     if(![self peerAvailable:[info objectForKey:@"MultihopID"]]) // peer should have been disconnected
                     {
                         MCSession *session = [self addNewNeighbourPeer:peerID withInfo:info];
                         
                         // We set the peer discovery information
                         NSData *context = [NSKeyedArchiver archivedDataWithRootObject:self.dictInfo];
-                        
+                                        NSLog(@"2nd invitation sent");
                         // A very long timeout is used, anyway the heartbeat
                         // mechanism ensures that if the connection has not
                         // been established, peers are disconnected

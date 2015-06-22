@@ -311,11 +311,13 @@
         NSTimeInterval newReceivingTime = [[NSDate date] timeIntervalSince1970];
         NSInteger receivingDelay = 1000*(newReceivingTime - self.lastHeartbeatReceivedPacketTime);
         
+        NSLog([NSString stringWithFormat:@"peer: %@ snd: %d rcv: %d", [self.displayName substringToIndex:10], sendingDelay, receivingDelay]);
+        
         if (receivingDelay > sendingDelay + MHPEER_RECEIVING_DELAY_PRECISION)
         {
             self.sendingRateHeartbeatCheckFailures++;
             
-            if (self.sendingRateHeartbeatCheckFailures >= 3)
+            if (self.sendingRateHeartbeatCheckFailures >= 2)
             {
                 MHDatagram *congestionControlDatagram = [[MHDatagram alloc] initWithData:nil];
                 [congestionControlDatagram.info setObject:@"" forKey:MHPEER_HEARTBEAT_CONGESTION_CONTROL_MSG];
