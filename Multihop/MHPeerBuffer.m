@@ -19,6 +19,7 @@
 
 @property (nonatomic) BOOL connected;
 @property (nonatomic) NSInteger releaseDelay;
+@property (nonatomic) NSInteger lowestReleaseDelay;
 
 @property (nonatomic, strong) NSMutableDictionary *chunks;
 
@@ -40,6 +41,7 @@
         self.session = session;
         self.connected = NO;
         self.releaseDelay = [MHConfig getSingleton].linkDatagramSendDelay;
+        self.lowestReleaseDelay = MHPEERBUFFER_LOWEST_DELAY;
 
         self.datagrams = [[NSMutableArray alloc] init];
 
@@ -103,9 +105,9 @@
 {
     weakSelf.releaseDelay -= MHPEERBUFFER_DECREASE_AMOUNT;
     
-    if (weakSelf.releaseDelay < MHPEERBUFFER_LOWEST_DELAY)
+    if (weakSelf.releaseDelay < self.lowestReleaseDelay)
     {
-        weakSelf.releaseDelay = MHPEERBUFFER_LOWEST_DELAY;
+        weakSelf.releaseDelay = self.lowestReleaseDelay;
     }
 }
 
@@ -113,9 +115,9 @@
 {
     weakSelf.releaseDelay += MHPEERBUFFER_DECREASE_AMOUNT;
     
-    if (weakSelf.releaseDelay > MHPEERBUFFER_LOWEST_DELAY)
+    if (weakSelf.releaseDelay > self.lowestReleaseDelay)
     {
-        weakSelf.releaseDelay = MHPEERBUFFER_LOWEST_DELAY;
+        weakSelf.releaseDelay = self.lowestReleaseDelay;
     }
 }
 
@@ -124,9 +126,9 @@
     dispatch_async(dispatch_get_main_queue(), ^{
         self.releaseDelay = delay + MHPEERBUFFER_DECREASE_AMOUNT;
         
-        if (self.releaseDelay < MHPEERBUFFER_LOWEST_DELAY)
+        if (self.releaseDelay < self.lowestReleaseDelay)
         {
-            self.releaseDelay = MHPEERBUFFER_LOWEST_DELAY;
+            self.releaseDelay = self.lowestReleaseDelay;
         }
     });
 }

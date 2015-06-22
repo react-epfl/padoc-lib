@@ -22,8 +22,8 @@
 
 @property (nonatomic, strong) NSMutableArray *processedPackets;
 
-@property (nonatomic, strong) NSMutableDictionary *discoveryPackets;
-@property (nonatomic, strong) MHPacket *ownDiscoveryPacket;
+//@property (nonatomic, strong) NSMutableDictionary *discoveryPackets;
+//@property (nonatomic, strong) MHPacket *ownDiscoveryPacket;
 
 @property (copy) void (^processedPacketsCleaning)(void);
 
@@ -39,7 +39,7 @@
     if (self)
     {
         self.displayName = displayName;
-        self.discoveryPackets = [[NSMutableDictionary alloc] init];
+        //self.discoveryPackets = [[NSMutableDictionary alloc] init];
         self.processedPackets = [[NSMutableArray alloc] init];
         self.joinedGroups = [[NSMutableArray alloc] init];
         
@@ -54,7 +54,7 @@
 - (void)dealloc
 {
     self.processedPackets = nil;
-    self.discoveryPackets = nil;
+    //self.discoveryPackets = nil;
     self.joinedGroups = nil;
 }
 
@@ -76,7 +76,7 @@
 }
 
 
-
+/*
 - (MHPacket*)ownDiscoveryPacket
 {
     if (!_ownDiscoveryPacket)
@@ -92,12 +92,12 @@
     }
     
     return _ownDiscoveryPacket;
-}
+}*/
 
 - (void)disconnect
 {
     [self.processedPackets removeAllObjects];
-    [self.discoveryPackets removeAllObjects];
+    //[self.discoveryPackets removeAllObjects];
     [self.joinedGroups removeAllObjects];
     [super disconnect];
 }
@@ -110,7 +110,7 @@
         {
             [self.joinedGroups addObject:groupName];
         }
-        
+        /*
         if([MHDiagnostics getSingleton].useNetworkLayerInfoCallbacks)
         {
             // Sending of the own discovery packet
@@ -125,7 +125,7 @@
                                     toPeers:self.neighbourPeers
                                       error:&error];
             });
-        }
+        }*/
     });
 }
 
@@ -190,7 +190,7 @@
     
     dispatch_async(dispatch_get_main_queue(), ^{
         [self.neighbourPeers addObject:peer];
-        
+        /*
         if([MHDiagnostics getSingleton].useNetworkLayerInfoCallbacks)
         {
             // Sending of the own discovery packet
@@ -228,7 +228,7 @@
                                           error:&error];
                 });
             }
-        }
+        }*/
     });
 }
 
@@ -246,7 +246,7 @@
     
     dispatch_async(dispatch_get_main_queue(), ^{
         [self.neighbourPeers removeObject:peer];
-        [self.discoveryPackets removeObjectForKey:peer];
+        //[self.discoveryPackets removeObjectForKey:peer];
     });
 }
 
@@ -260,7 +260,7 @@ didReceiveDatagram:(MHDatagram *)datagram
     // It's a discover-me request
     if ([packet.info objectForKey:MH_FLOODING_DISCOVERME_MSG] != nil)
     {
-        [self processDiscoveryPacket:packet];
+        //[self processDiscoveryPacket:packet];
     }
     else
     {
@@ -268,7 +268,7 @@ didReceiveDatagram:(MHDatagram *)datagram
     }
 }
 
-
+/*
 -(void)processDiscoveryPacket:(MHPacket*)packet
 {
     // Do not process packets whose source is this peer
@@ -321,7 +321,7 @@ didReceiveDatagram:(MHDatagram *)datagram
         
         [self forwardPacket:packet];
     }
-}
+}*/
 
 -(void)processStandardPacket:(MHPacket*)packet
 {

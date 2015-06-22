@@ -281,7 +281,7 @@
         {
             self.sendingRateCheckFailures++;
             
-            if (self.sendingRateCheckFailures >= 3)
+            if (self.sendingRateCheckFailures >= 2)
             {
                 MHDatagram *congestionControlDatagram = [[MHDatagram alloc] initWithData:nil];
                 [congestionControlDatagram.info setObject:@"" forKey:MHPEER_CONGESTION_CONTROL_MSG];
