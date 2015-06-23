@@ -260,7 +260,6 @@ didReceiveInvitationFromPeer:(MCPeerID *)peerID
         
         if ([self.mhPeer.mhPeerID compare:multihopID] == NSOrderedDescending)
         {
-                                NSLog(@"found peer advertiser");
             if([self peerAvailable:multihopID]) // peer has already been disconnected
             {
                 MHPeer *peer = [self.neighbourPeers objectForKey:multihopID];
@@ -280,8 +279,7 @@ didReceiveInvitationFromPeer:(MCPeerID *)peerID
             }
             
             MCSession *session = [self addNewNeighbourPeer:peerID withInfo:info];
-                
-            NSLog(@"invitation accepted");
+
             // We accept the invitation
             invitationHandler(YES, session);
         }
@@ -309,7 +307,6 @@ withDiscoveryInfo:(NSDictionary *)info
         
         if ([self.mhPeer.mhPeerID compare:multihopID] == NSOrderedAscending)
         {
-                    NSLog(@"found peer browser");
             if(![self peerAvailable:multihopID]) // peer has already been disconnected
             {
                 MCSession *session = [self addNewNeighbourPeer:peerID withInfo:info];
@@ -317,7 +314,6 @@ withDiscoveryInfo:(NSDictionary *)info
                 // We set the peer discovery information
                 NSData *context = [NSKeyedArchiver archivedDataWithRootObject:self.dictInfo];
                 
-                                NSLog(@"invitation sent");
                 // A very long timeout is used, anyway the heartbeat
                 // mechanism ensures that if the connection has not
                 // been established, peers are disconnected
