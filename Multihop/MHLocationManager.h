@@ -13,6 +13,7 @@
 #import <CoreLocation/CoreLocation.h>
 #import <CoreBluetooth/CoreBluetooth.h>
 #import "MHComputation.h"
+#import "MHConfig.h"
 
 
 @interface MHLocation : NSObject<NSCoding>

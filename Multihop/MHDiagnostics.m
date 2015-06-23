@@ -15,6 +15,8 @@
 @property (atomic) int receivedPackets;
 @property (atomic) int retransmittedPackets;
 
+@property (atomic, strong) NSMutableDictionary *networkMap;
+
 @end
 
 
@@ -37,6 +39,9 @@ static MHDiagnostics *diagnostics = nil;
         self.useNeighbourInfo = NO;
         self.useNetworkLayerInfoCallbacks = NO;
         self.useNetworkLayerControlInfoCallbacks = NO;
+        self.useNetworkMap = NO;
+        
+        self.networkMap = [[NSMutableDictionary alloc] init];
         
         [self reset];
     }
@@ -45,7 +50,8 @@ static MHDiagnostics *diagnostics = nil;
 
 - (void)dealloc
 {
-    
+    [self.networkMap removeAllObjects];
+    self.networkMap = nil;
 }
 
 - (void)reset
@@ -130,6 +136,36 @@ static MHDiagnostics *diagnostics = nil;
     }
 
     return -1.0;
+}
+
+
+
+
+#pragma mark - Network map
+- (BOOL)isConnectedInNetworkMap:(NSString *)localNode withNeighbourNode:(NSString *)neighbourNode
+{
+    if (self.useNetworkMap)
+    {
+        NSArray *nodes = [self.networkMap objectForKey:localNode];
+        
+        if (nodes != nil)
+        {
+            return [nodes containsObject:neighbourNode];
+        }
+    }
+
+    return YES;
+}
+
+// Callable by developer
+- (void)addNetworkMapNode:(NSString *)currentNode withConnectedNodes:(NSArray *)connectedNodes
+{
+    [self.networkMap setObject:connectedNodes forKey:currentNode];
+}
+
+- (void)clearNetworkMap
+{
+    [self.networkMap removeAllObjects];
 }
 
 @end

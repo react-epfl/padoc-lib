@@ -23,6 +23,7 @@
 @property (nonatomic, readwrite) BOOL useNeighbourInfo;
 @property (nonatomic, readwrite) BOOL useNetworkLayerInfoCallbacks;
 @property (nonatomic, readwrite) BOOL useNetworkLayerControlInfoCallbacks;
+@property (nonatomic, readwrite) BOOL useNetworkMap;
 
 
 - (instancetype)init;
@@ -43,6 +44,13 @@
 // Callable by developer
 - (double)getRetransmissionRatio;
 
+
+#pragma mark - Network map
+- (BOOL)isConnectedInNetworkMap:(NSString *)localNode withNeighbourNode:(NSString *)neighbourNode;
+   
+// Callable by developer
+- (void)addNetworkMapNode:(NSString *)currentNode withConnectedNodes:(NSArray *)connectedNodes;
+- (void)clearNetworkMap;
 
 @end
 

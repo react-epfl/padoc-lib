@@ -80,6 +80,7 @@
                     if ([MHDiagnostics getSingleton].useNetworkLayerInfoCallbacks)
                     {
                         dispatch_async(dispatch_get_main_queue(), ^{
+                            NSLog(@"Forwarding");
                             [weakSelf.delegate mhScheduler:weakSelf forwardPacket:@"Packet forwarding" withPacket:schedule.packet];
                         });
                     }
@@ -263,8 +264,11 @@
     }
     
     // From this distance, we calculate a broadcast delay
-    return [self calculateDelayForDist:d
+    NSTimeInterval delay = [self calculateDelayForDist:d
                           withSenderID:[packet.info objectForKey:@"senderID"]];
+    
+    return delay;
+    
 }
 
 - (NSTimeInterval)calculateDelayForDist:(double)dist

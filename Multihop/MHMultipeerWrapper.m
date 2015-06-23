@@ -252,36 +252,42 @@ didReceiveInvitationFromPeer:(MCPeerID *)peerID
  invitationHandler:(void(^)(BOOL accept, MCSession *session))invitationHandler
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        // Only accept invitations with IDs lower than the current host
-        // If both people accept invitations, then connections are lost
-        // However, this should always be the case since we only send invites in one direction
         NSDictionary *info = (NSDictionary*) [NSKeyedUnarchiver unarchiveObjectWithData:context];
-        NSString *multihopID = [info objectForKey:@"MultihopID"];
         
-        if ([self.mhPeer.mhPeerID compare:multihopID] == NSOrderedDescending)
+        // Diagnostics: network map
+        if([[MHDiagnostics getSingleton] isConnectedInNetworkMap:self.mhPeer.displayName
+                                               withNeighbourNode:[info objectForKey:@"MultihopDisplayName"]])
         {
-            if([self peerAvailable:multihopID]) // peer has already been disconnected
-            {
-                MHPeer *peer = [self.neighbourPeers objectForKey:multihopID];
-                [peer disconnect];
-                
-                [self.neighbourPeers removeObjectForKey:multihopID];
-                
-                
-                if ([self peerConnected:multihopID])
-                {
-                    [self.connectedPeers removeObject:multihopID];
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        [self.delegate mcWrapper:self hasDisconnected:@"Heartbeat failed" peer:multihopID];
-                    });
-                }
-
-            }
+            // Only accept invitations with IDs lower than the current host
+            // If both people accept invitations, then connections are lost
+            // However, this should always be the case since we only send invites in one direction
+            NSString *multihopID = [info objectForKey:@"MultihopID"];
             
-            MCSession *session = [self addNewNeighbourPeer:peerID withInfo:info];
-
-            // We accept the invitation
-            invitationHandler(YES, session);
+            if ([self.mhPeer.mhPeerID compare:multihopID] == NSOrderedDescending)
+            {
+                if([self peerAvailable:multihopID]) // peer has already been disconnected
+                {
+                    MHPeer *peer = [self.neighbourPeers objectForKey:multihopID];
+                    [peer disconnect];
+                    
+                    [self.neighbourPeers removeObjectForKey:multihopID];
+                    
+                    
+                    if ([self peerConnected:multihopID])
+                    {
+                        [self.connectedPeers removeObject:multihopID];
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            [self.delegate mcWrapper:self hasDisconnected:@"Heartbeat failed" peer:multihopID];
+                        });
+                    }
+                    
+                }
+                
+                MCSession *session = [self addNewNeighbourPeer:peerID withInfo:info];
+                
+                // We accept the invitation
+                invitationHandler(YES, session);
+            }
         }
     });
 }
@@ -300,27 +306,32 @@ didReceiveInvitationFromPeer:(MCPeerID *)peerID
 withDiscoveryInfo:(NSDictionary *)info
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        // Whenever we find a peer, let's just send them an invitation
-        // But only send invites one way
-        NSString *multihopID = [info objectForKey:@"MultihopID"];
-        
-        
-        if ([self.mhPeer.mhPeerID compare:multihopID] == NSOrderedAscending)
+        // Diagnostics: network map
+        if([[MHDiagnostics getSingleton] isConnectedInNetworkMap:self.mhPeer.displayName
+                                                withNeighbourNode:[info objectForKey:@"MultihopDisplayName"]])
         {
-            if(![self peerAvailable:multihopID]) // peer has already been disconnected
+            // Whenever we find a peer, let's just send them an invitation
+            // But only send invites one way
+            NSString *multihopID = [info objectForKey:@"MultihopID"];
+            
+            
+            if ([self.mhPeer.mhPeerID compare:multihopID] == NSOrderedAscending)
             {
-                MCSession *session = [self addNewNeighbourPeer:peerID withInfo:info];
-                
-                // We set the peer discovery information
-                NSData *context = [NSKeyedArchiver archivedDataWithRootObject:self.dictInfo];
-                
-                // A very long timeout is used, anyway the heartbeat
-                // mechanism ensures that if the connection has not
-                // been established, peers are disconnected
-                [browser invitePeer:peerID
-                          toSession:session
-                        withContext:context
-                            timeout:MH_INVITATION_TIMEOUT];
+                if(![self peerAvailable:multihopID]) // peer has already been disconnected
+                {
+                    MCSession *session = [self addNewNeighbourPeer:peerID withInfo:info];
+                    
+                    // We set the peer discovery information
+                    NSData *context = [NSKeyedArchiver archivedDataWithRootObject:self.dictInfo];
+                    
+                    // A very long timeout is used, anyway the heartbeat
+                    // mechanism ensures that if the connection has not
+                    // been established, peers are disconnected
+                    [browser invitePeer:peerID
+                              toSession:session
+                            withContext:context
+                                timeout:MH_INVITATION_TIMEOUT];
+                }
             }
         }
     });

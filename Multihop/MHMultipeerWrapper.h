@@ -13,6 +13,7 @@
 #import <Foundation/Foundation.h>
 #import <MultipeerConnectivity/MultipeerConnectivity.h>
 #import "MHDatagram.h"
+#import "MHDiagnostics.h"
 #import "MHPeer.h"
 
 #define MH_SERVICE_PREFIX @"mh-"

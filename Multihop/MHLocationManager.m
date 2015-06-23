@@ -246,21 +246,29 @@ static BOOL useBeacon = YES;
 {
     MHLocation *loc = [[MHLocation alloc] init];
     
-    MHLocation *origin = [[MHLocation alloc] init];
-    origin.x = 0.0;
-    origin.y = 0.0;
-    
-    MHLocation *target = [[MHLocation alloc] init];
-    
-    // Calculating x axis of GPS position in meters
-    target.x = self.position.x;
-    target.y = 0.0;
-    loc.x = [MHLocationManager getDistanceFromGPSLocation:origin toGPSLocation:target] * [MHComputation sign:self.position.x];
-    
-    // Calculating y axis of GPS position in meters
-    target.x = 0.0;
-    target.y = self.position.y;
-    loc.y = [MHLocationManager getDistanceFromGPSLocation:origin toGPSLocation:target] * [MHComputation sign:self.position.y];
+    if (self.useGPS)
+    {
+        MHLocation *origin = [[MHLocation alloc] init];
+        origin.x = 0.0;
+        origin.y = 0.0;
+        
+        MHLocation *target = [[MHLocation alloc] init];
+        
+        // Calculating x axis of GPS position in meters
+        target.x = self.position.x;
+        target.y = 0.0;
+        loc.x = [MHLocationManager getDistanceFromGPSLocation:origin toGPSLocation:target] * [MHComputation sign:self.position.x];
+        
+        // Calculating y axis of GPS position in meters
+        target.x = 0.0;
+        target.y = self.position.y;
+        loc.y = [MHLocationManager getDistanceFromGPSLocation:origin toGPSLocation:target] * [MHComputation sign:self.position.y];
+    }
+    else
+    {
+        loc.x = arc4random_uniform([MHConfig getSingleton].netDeviceTransmissionRange);
+        loc.y = arc4random_uniform([MHConfig getSingleton].netDeviceTransmissionRange);
+    }
 
     
     return loc;
