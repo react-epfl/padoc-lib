@@ -63,6 +63,8 @@ static MHConfig *params = nil;
     self.net6ShotsPacketForwardDelayBase = 30;
     
     self.net6ShotsOverlayMaintenanceDelay = 5000;
+    
+    self.netDeviceTransmissionRange = 40;
 }
 
 #pragma mark - Singleton methods

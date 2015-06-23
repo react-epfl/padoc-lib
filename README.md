@@ -344,11 +344,11 @@ singleton, just write:
 ```
 The parameter names follow the format *layerParameterName* and are (in parenthesis the default value):
 
-* *linkHeartbeatSendDelay* (1000): number of milliseconds after which a new heartbeat message is sent.
+* *linkHeartbeatSendDelay* (2000): number of milliseconds after which a new heartbeat message is sent.
 * *linkMaxHeartbeatFails* (5); number of heartbeat message check failures after which a disconnection  
 notification is triggered.
 
-* *linkDatagramSendDelay* (50): number of milliseconds after which a new bufferized datagram is sent.
+* *linkDatagramSendDelay* (250): number of milliseconds after which a new bufferized datagram is sent. This is however only the initial value, The actual value will be adjusted dynamically based on the current traffic.
 * *linkMaxDatagramSize* (3000): max size of a datagram. Larger datagrams are cut into chunks.
 * *linkBackgroundDatagramSendDelay* (20): number of milliseconds after which a new burrerized datagram (because  
 of a background disconnection) is sent.
@@ -366,4 +366,4 @@ using the 6Shots algorithm. The final delay is calculated based on the peers loc
 * *net6ShotsOverlayMaintenanceDelay* (5000): number of milliseconds after which an overlay maintenance operation  
 is performed by the node, using the 6Shots algorithm.
 
-
+* *netDeviceTransmissionRange* (40): transmission range of the device in meters.

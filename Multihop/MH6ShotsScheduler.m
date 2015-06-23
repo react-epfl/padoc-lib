@@ -274,12 +274,12 @@
     // and iBeacon parts
     
     // GPS part
-    if (dist > MH6SHOTS_RANGE) // There was a GPS problem (value not possible)
+    if (dist > [MHConfig getSingleton].netDeviceTransmissionRange) // There was a GPS problem (value not possible)
     {
-        dist = MH6SHOTS_RANGE;
+        dist = [MHConfig getSingleton].netDeviceTransmissionRange;
     }
     
-    double gpsDelay = dist / (double)MH6SHOTS_RANGE;
+    double gpsDelay = dist / (double)[MHConfig getSingleton].netDeviceTransmissionRange;
     
     
 
@@ -324,8 +324,8 @@
     for(int i = 0; i < 6; i++)
     {
         MHLocation *target = [[MHLocation alloc] init];
-        target.x = senderLoc.x + sin((M_PI/6) + i*(M_PI/3)) * MH6SHOTS_RANGE;
-        target.y = senderLoc.y + cos((M_PI/6) + i*(M_PI/3)) * MH6SHOTS_RANGE;
+        target.x = senderLoc.x + sin((M_PI/6) + i*(M_PI/3)) * [MHConfig getSingleton].netDeviceTransmissionRange;
+        target.y = senderLoc.y + cos((M_PI/6) + i*(M_PI/3)) * [MHConfig getSingleton].netDeviceTransmissionRange;
     }
     
     return targets;
