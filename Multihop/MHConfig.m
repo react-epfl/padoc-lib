@@ -56,6 +56,9 @@ static MHConfig *params = nil;
     // Network layer
     self.netFloodingPacketTTL = 100;
     
+    self.netCBSPacketForwardDelayRange = 100;
+    self.netCBSPacketForwardDelayBase = 30;
+    
     self.net6ShotsControlPacketForwardDelayRange = 50;
     self.net6ShotsControlPacketForwardDelayBase = 20;
     

@@ -31,6 +31,11 @@
                                                                     displayName:displayName];
                 break;
                 
+            case MHCBSRoutingProtocol:
+                self.mhProtocol = [[MHCBSProtocol alloc] initWithServiceType:serviceType
+                                                                 displayName:displayName];
+                break;
+                
             case MHFloodingRoutingProtocol:
                 self.mhProtocol = [[MHFloodingProtocol alloc] initWithServiceType:serviceType
                                                                       displayName:displayName];

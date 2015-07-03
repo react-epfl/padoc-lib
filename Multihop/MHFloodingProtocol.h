@@ -34,6 +34,9 @@
              error:(NSError **)error;
 
 
+- (void)processStandardPacket:(MHPacket*)packet;
+- (void)forwardPacket:(MHPacket*)packet;
+
 @end
 
 #endif

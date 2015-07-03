@@ -17,11 +17,13 @@
 // Protocols
 #import "MH6ShotsProtocol.h"
 #import "MHFloodingProtocol.h"
+#import "MHCBSProtocol.h"
 
 
 typedef enum MHRoutingProtocols
 {
     MH6ShotsRoutingProtocol,
+    MHCBSRoutingProtocol,
     MHFloodingRoutingProtocol
 }MHRoutingProtocols;
 
