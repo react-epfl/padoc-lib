@@ -202,12 +202,17 @@ didReceiveDatagram:(MHDatagram *)datagram
             [self.processedPackets addObject:packet.tag];
         });
         
+        NSMutableSet *intersect = [NSMutableSet setWithArray:packet.destinations];
+        
+        [intersect intersectSet:[NSSet setWithArray:self.joinedGroups]];
+
+        
         // Check if local peer is a destination (if the two sets intersect)
-        if ([[NSSet setWithArray:packet.destinations] intersectsSet:[NSSet setWithArray:self.joinedGroups]])
+        if (intersect.count > 0)
         {
             // Notify upper layers that a new packet is received
             dispatch_async(dispatch_get_main_queue(), ^{
-                [self.delegate mhProtocol:self didReceivePacket:packet withTraceInfo:[[MHDiagnostics getSingleton] tracePacket:packet]];
+                [self.delegate mhProtocol:self didReceivePacket:packet fromGroups:[intersect allObjects] withTraceInfo:[[MHDiagnostics getSingleton] tracePacket:packet]];
             });
         }
         

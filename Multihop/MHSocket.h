@@ -161,7 +161,7 @@
 
 - (void)mhSocket:(MHSocket *)mhSocket
 didReceiveMessage:(NSData *)data
-        fromPeer:(NSString *)peer
+      fromGroups:(NSArray *)groups
    withTraceInfo:(NSArray *)traceInfo;
 
 @optional

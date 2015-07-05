@@ -64,6 +64,7 @@
 
 - (void)mhProtocol:(MHRoutingProtocol *)mhProtocol
   didReceivePacket:(MHPacket *)packet
+        fromGroups:(NSArray *)groups
      withTraceInfo:(NSArray *)traceInfo;
 
 

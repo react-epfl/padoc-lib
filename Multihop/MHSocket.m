@@ -130,11 +130,11 @@
 
 - (void)mhController:(MHController *)mhController
    didReceiveMessage:(MHMessage *)message
-            fromPeer:(NSString *)peer
+          fromGroups:(NSArray *)groups
        withTraceInfo:(NSArray *)traceInfo
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        [self.delegate mhSocket:self didReceiveMessage:message.data fromPeer:peer withTraceInfo:traceInfo];
+        [self.delegate mhSocket:self didReceiveMessage:message.data fromGroups:groups withTraceInfo:traceInfo];
     });
 }
 

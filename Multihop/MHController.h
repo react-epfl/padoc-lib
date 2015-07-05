@@ -82,7 +82,7 @@ typedef enum MHRoutingProtocols
 
 - (void)mhController:(MHController *)mhController
    didReceiveMessage:(MHMessage *)message
-            fromPeer:(NSString *)peer
+          fromGroups:(NSArray *)groups
        withTraceInfo:(NSArray *)traceInfo;
 
 #pragma mark - Diagnostics info callbacks

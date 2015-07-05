@@ -21,6 +21,7 @@
 @property (nonatomic, strong) NSMutableDictionary *routingTable;
 @property (nonatomic, strong) MH6ShotsScheduler *scheduler;
 
+@property (nonatomic, strong) NSMutableArray *joinedGroups;
 
 @end
 
@@ -41,6 +42,8 @@
         self.joinMsgs = [[NSMutableDictionary alloc] init];
         self.shouldForward = [[NSMutableDictionary alloc] init];
         
+        self.joinedGroups = [[NSMutableArray alloc] init];
+        
         self.scheduler = [[MH6ShotsScheduler alloc] initWithRoutingTable:self.routingTable
                           withLocalhost:[self getOwnPeer]];
         self.scheduler.delegate = self;
@@ -58,6 +61,7 @@
     self.shouldForward = nil;
     self.routingTable = nil;
     self.scheduler = nil;
+    self.joinedGroups = nil;
 }
 
 
@@ -66,6 +70,7 @@
     [self.joinMsgs removeAllObjects];
     [self.shouldForward removeAllObjects];
     [self.routingTable removeAllObjects];
+    [self.joinedGroups removeAllObjects];
     [self.scheduler clear];
     
     [[MHLocationManager getSingleton] stop];
@@ -89,6 +94,8 @@
     
     
     dispatch_async(dispatch_get_main_queue(), ^{
+        [self.joinedGroups addObject:groupName];
+        
         NSString *tag = [MH6ShotsProtocol joinIDFromPacket:packet];
         [self.joinMsgs setObject:packet forKey:tag];
         [self.shouldForward setObject:[[NSNumber alloc] initWithBool:YES] forKey:tag];
@@ -113,6 +120,8 @@
     [packet.info setObject:groupName forKey:@"groupName"];
     
     dispatch_async(dispatch_get_main_queue(), ^{
+        [self.joinedGroups removeObject:groupName];
+        
         // Remove joinMsg from list
         NSString *tag = [MH6ShotsProtocol joinIDFromPacket:packet];
         [self.shouldForward removeObjectForKey:tag];
@@ -433,7 +442,10 @@ didReceiveDatagram:(MHDatagram *)datagram
             
             // Notify upper layers
             dispatch_async(dispatch_get_main_queue(), ^{
-                [self.delegate mhProtocol:self didReceivePacket:packet withTraceInfo:[[MHDiagnostics getSingleton] tracePacket:packet]];
+                NSMutableSet *intersect = [NSMutableSet setWithArray:packet.destinations];
+                [intersect intersectSet:[NSSet setWithArray:self.joinedGroups]];
+                
+                [self.delegate mhProtocol:self didReceivePacket:packet fromGroups:[intersect allObjects] withTraceInfo:[[MHDiagnostics getSingleton] tracePacket:packet]];
             });
         }
     }

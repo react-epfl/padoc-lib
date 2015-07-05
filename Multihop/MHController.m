@@ -130,13 +130,14 @@
 
 - (void)mhProtocol:(MHRoutingProtocol *)mhProtocol
   didReceivePacket:(MHPacket *)packet
+        fromGroups:(NSArray *)groups
      withTraceInfo:(NSArray *)traceInfo
 {
     dispatch_async(dispatch_get_main_queue(), ^{
         // Unarchive message data
         MHMessage *message = [MHMessage fromNSData:packet.data];
         
-        [self.delegate mhController:self didReceiveMessage:message fromPeer:packet.source withTraceInfo:traceInfo];
+        [self.delegate mhController:self didReceiveMessage:message fromGroups:groups withTraceInfo:traceInfo];
     });
 }
 
