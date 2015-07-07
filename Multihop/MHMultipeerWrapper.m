@@ -61,6 +61,7 @@
     self.advertiser = nil;
     self.mhPeer = nil;
     self.serviceType = nil;
+    
 }
 
 

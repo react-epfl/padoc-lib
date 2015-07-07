@@ -76,6 +76,7 @@
     self.messages = nil;
     
     self.peerID = nil;
+    self.mcWrapper = nil;
 }
 
 

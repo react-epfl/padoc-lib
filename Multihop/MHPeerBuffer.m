@@ -101,6 +101,8 @@
     self.chunks = nil;
     
     self.releaseDatagrams = nil;
+    
+    self.session = nil;
 }
 
 - (void)decreaseDelay:(MHPeerBuffer * __weak)weakSelf

@@ -130,6 +130,9 @@ static BOOL useBeacon = YES;
 
 - (void)dealloc
 {
+    self.position = nil;
+    self.ownBeaconRegion = nil;
+    self.beaconPeripheralData = nil;
     [self.beacons removeAllObjects];
     self.beacons = nil;
     [self.beaconsProximity removeAllObjects];

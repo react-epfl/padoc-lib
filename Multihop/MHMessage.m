@@ -52,6 +52,7 @@
 
 - (void)dealloc
 {
+    self.data = nil;
 }
 
 

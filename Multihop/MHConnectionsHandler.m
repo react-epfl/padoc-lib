@@ -85,7 +85,10 @@
 - (void)dealloc
 {
     self.mcWrapper  = nil;
+    [self.buffers removeAllObjects];
     self.buffers = nil;
+    
+    self.backgroundTaskEndHandler = nil;
 }
 
 #pragma mark - Membership
