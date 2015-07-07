@@ -51,6 +51,9 @@
 {
     self.processedPackets = nil;
     self.joinedGroups = nil;
+    
+    self.processedPacketsCleaning = nil;
+    self.displayName = nil;
 }
 
 
@@ -100,13 +103,14 @@
 
 
 - (void)sendPacket:(MHPacket *)packet
+           maxHops:(int)maxHops
              error:(NSError **)error
 {
     // Diagnostics: trace
     [[MHDiagnostics getSingleton] addTraceRoute:packet withNextPeer:[self getOwnPeer]];
     
     // Set ttl
-    [packet.info setObject:[NSNumber numberWithInt:[MHConfig getSingleton].netFloodingPacketTTL] forKey:@"ttl"];
+    [packet.info setObject:[NSNumber numberWithInt:maxHops] forKey:@"ttl"];
     
     // Broadcast
     dispatch_async(dispatch_get_main_queue(), ^{
@@ -238,13 +242,13 @@ didReceiveDatagram:(MHDatagram *)datagram
     // Decrease the ttl
     int ttl = [[packet.info objectForKey:@"ttl"] intValue];
     ttl--;
+    // Update ttl
+    [packet.info setObject:[NSNumber numberWithInt:ttl] forKey:@"ttl"];
+    
     
     // If packet is still valid
     if (ttl > 0)
     {
-        // Update ttl
-        [packet.info setObject:[NSNumber numberWithInt:ttl] forKey:@"ttl"];
-        
         dispatch_async(dispatch_get_main_queue(), ^{
             // Broadcast to neighbourhood
             NSError *error;

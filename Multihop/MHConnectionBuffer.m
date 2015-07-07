@@ -74,6 +74,8 @@
 {
     [self.messages removeAllObjects];
     self.messages = nil;
+    
+    self.peerID = nil;
 }
 
 

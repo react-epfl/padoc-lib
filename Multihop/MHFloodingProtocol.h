@@ -31,6 +31,7 @@
 - (void)leaveGroup:(NSString *)groupName;
 
 - (void)sendPacket:(MHPacket *)packet
+           maxHops:(int)maxHops
              error:(NSError **)error;
 
 

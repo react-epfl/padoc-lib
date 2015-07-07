@@ -190,6 +190,12 @@
 {
     self.schedules = nil;
     self.neighbourRoutingTables = nil;
+    self.routingTable = nil;
+    self.localhost = nil;
+    
+    self.scheduleCleaning = nil;
+    self.processSchedule = nil;
+    self.overlayMaintenance = nil;
 }
 
 - (void)clear
@@ -210,7 +216,7 @@
             
             if (schedule != nil)
             {
-                schedule.forward = NO;
+                //schedule.forward = NO;
             }
             else
             {

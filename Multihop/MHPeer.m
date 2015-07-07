@@ -110,6 +110,12 @@
     self.session = nil;
     self.mcPeerID = nil;
     self.peerBuffer = nil;
+    self.displayName = nil;
+    self.mhPeerID = nil;
+
+    self.processReceivingHeartbeat = nil;
+    self.processSendingHeartbeat = nil;
+
 }
 
 

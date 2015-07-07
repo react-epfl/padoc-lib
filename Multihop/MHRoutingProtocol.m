@@ -69,6 +69,7 @@
 
 #pragma mark - Overridable methods
 - (void)sendPacket:(MHPacket *)packet
+           maxHops:(int)maxHops
              error:(NSError **)error
 {
     // Must be overridden

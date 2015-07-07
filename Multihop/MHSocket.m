@@ -78,11 +78,19 @@
 
 - (void)sendMessage:(NSData *)data
      toDestinations:(NSArray *)destinations
-              error:(NSError **)error;
+              error:(NSError **)error
+{
+    [self sendMessage:data toDestinations:destinations maxHops:[MHConfig getSingleton].netPacketTTL error:error];
+}
+
+- (void)sendMessage:(NSData *)data
+     toDestinations:(NSArray *)destinations
+            maxHops:(int)maxHops
+              error:(NSError **)error
 {
     MHMessage *message = [[MHMessage alloc] initWithData:data];
     
-    [self.mhController sendMessage:message toDestinations:destinations error:error];
+    [self.mhController sendMessage:message toDestinations:destinations maxHops:maxHops error:error];
 }
 
 

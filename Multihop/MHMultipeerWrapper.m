@@ -54,6 +54,13 @@
     
     self.neighbourPeers = nil;
     self.connectedPeers = nil;
+    
+    self.restartService = nil;
+    self.dictInfo = nil;
+    self.browser = nil;
+    self.advertiser = nil;
+    self.mhPeer = nil;
+    self.serviceType = nil;
 }
 
 

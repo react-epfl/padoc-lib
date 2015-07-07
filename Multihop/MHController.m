@@ -68,13 +68,14 @@
 
 - (void)sendMessage:(MHMessage *)message
      toDestinations:(NSArray *)destinations
+            maxHops:(int)maxHops
               error:(NSError **)error;
 {
     MHPacket *packet = [[MHPacket alloc] initWithSource:[self getOwnPeer]
                                        withDestinations:destinations
                                                withData:[message asNSData]];
     
-    [self.mhProtocol sendPacket:packet error:error];
+    [self.mhProtocol sendPacket:packet maxHops:maxHops error:error];
 }
 
 - (void)joinGroup:(NSString *)groupName

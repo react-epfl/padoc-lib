@@ -65,8 +65,10 @@
 {
     [self.info removeAllObjects];
     self.info = nil;
-    
     self.destinations = nil;
+    self.data = nil;
+    self.tag = nil;
+    self.source = nil;
 }
 
 

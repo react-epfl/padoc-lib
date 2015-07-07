@@ -99,6 +99,8 @@
     
     [self.chunks removeAllObjects];
     self.chunks = nil;
+    
+    self.releaseDatagrams = nil;
 }
 
 - (void)decreaseDelay:(MHPeerBuffer * __weak)weakSelf

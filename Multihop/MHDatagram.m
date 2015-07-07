@@ -56,6 +56,8 @@
 {
     [self.info removeAllObjects];
     self.info = nil;
+    self.data = nil;
+    self.tag = nil;
 }
 
 

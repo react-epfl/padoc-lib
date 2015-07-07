@@ -25,7 +25,7 @@
 
 
 #pragma mark - Network layer
-@property (nonatomic, readwrite) int netFloodingPacketTTL; // default 100
+@property (nonatomic, readwrite) int netPacketTTL; // default 100
 
 @property (nonatomic, readwrite) int netCBSPacketForwardDelayRange; // in ms (default 100)
 @property (nonatomic, readwrite) int netCBSPacketForwardDelayBase; // in ms (default 30)

@@ -110,6 +110,9 @@
 /**
  Sends a message to selected groups.
  
+ Since you are not passing a maxHops argument, the standard value will be used (configurable by
+ MHConfig).
+ 
  They will receive the data with the delegate callback:
  
  - (void)mhSocket:(MHSocket *)mhSocket didReceiveMessage:(NSData *)data fromPeer:(NSString *)peer
@@ -121,6 +124,24 @@
  */
 - (void)sendMessage:(NSData *)data
      toDestinations:(NSArray *)destinations
+              error:(NSError **)error;
+
+/**
+ Sends a message to selected groups.
+ 
+ They will receive the data with the delegate callback:
+ 
+ - (void)mhSocket:(MHSocket *)mhSocket didReceiveMessage:(NSData *)data fromPeer:(NSString *)peer
+ 
+ @param data message data to send.
+ @param destinations list of multicast groups to which send the message
+ @param maxHops number of maximum hops after which the packet is lost
+ @param error The address of an NSError pointer where an error object should be stored upon error.
+ 
+ */
+- (void)sendMessage:(NSData *)data
+     toDestinations:(NSArray *)destinations
+            maxHops:(int)maxHops
               error:(NSError **)error;
 
 /**

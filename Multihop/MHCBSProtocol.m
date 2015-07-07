@@ -43,6 +43,14 @@
     return self;
 }
 
+- (void)dealloc
+{
+    self.processedPackets = nil;
+    self.forwardPackets = nil;
+    
+    self.forwardPacketsCleaning = nil;
+}
+
 - (void)setFctForwardPacketsCleaning:(MHCBSProtocol * __weak)weakSelf
 {
     self.forwardPacketsCleaning = ^{

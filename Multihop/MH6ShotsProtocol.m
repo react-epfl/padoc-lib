@@ -62,6 +62,8 @@
     self.routingTable = nil;
     self.scheduler = nil;
     self.joinedGroups = nil;
+    
+    self.displayName = nil;
 }
 
 
@@ -92,6 +94,9 @@
     [packet.info setObject:self.displayName forKey:@"displayName"];
     [packet.info setObject:[NSNumber numberWithInt:0] forKey:@"height"];
     
+    // Set ttl
+    [packet.info setObject:[NSNumber numberWithInt:[MHConfig getSingleton].netPacketTTL] forKey:@"ttl"];
+    
     
     dispatch_async(dispatch_get_main_queue(), ^{
         [self.joinedGroups addObject:groupName];
@@ -119,6 +124,9 @@
     [packet.info setObject:MH6SHOTS_LEAVE_MSG forKey:@"message-type"];
     [packet.info setObject:groupName forKey:@"groupName"];
     
+    // Set ttl
+    [packet.info setObject:[NSNumber numberWithInt:[MHConfig getSingleton].netPacketTTL] forKey:@"ttl"];
+    
     dispatch_async(dispatch_get_main_queue(), ^{
         [self.joinedGroups removeObject:groupName];
         
@@ -140,6 +148,7 @@
 
 
 - (void)sendPacket:(MHPacket *)packet
+           maxHops:(int)maxHops
              error:(NSError **)error
 {
     // Diagnostics: trace
@@ -149,6 +158,9 @@
     {
         [packet.info setObject:[[NSMutableDictionary alloc] init] forKey:@"routes"];
     }
+    
+    // Set ttl
+    [packet.info setObject:[NSNumber numberWithInt:maxHops] forKey:@"ttl"];
     
     dispatch_async(dispatch_get_main_queue(), ^{
         NSMutableDictionary *routes = [packet.info objectForKey:@"routes"];
@@ -224,20 +236,25 @@
             {
                 MHPacket *msg = [self.joinMsgs objectForKey:msgKey];
                 
-                // Diagnostics
-                if ([MHDiagnostics getSingleton].useNetworkLayerInfoCallbacks &&
-                    [MHDiagnostics getSingleton].useNetworkLayerControlInfoCallbacks)
-                {
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        [self.delegate mhProtocol:self forwardPacket:@"Group joining forwarding" withPacket:msg];
-                    });
-                }
+                int ttl = [[msg.info objectForKey:@"ttl"] intValue];
                 
-                NSError *error;
-                MHDatagram *datagram = [[MHDatagram alloc] initWithData:[msg asNSData]];
-                [self.cHandler sendDatagram:datagram
-                                    toPeers:[[NSArray alloc] initWithObjects:peer, nil]
-                                      error:&error];
+                if (ttl > 0)
+                {
+                    // Diagnostics
+                    if ([MHDiagnostics getSingleton].useNetworkLayerInfoCallbacks &&
+                        [MHDiagnostics getSingleton].useNetworkLayerControlInfoCallbacks)
+                    {
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            [self.delegate mhProtocol:self forwardPacket:@"Group joining forwarding" withPacket:msg];
+                        });
+                    }
+                    
+                    NSError *error;
+                    MHDatagram *datagram = [[MHDatagram alloc] initWithData:[msg asNSData]];
+                    [self.cHandler sendDatagram:datagram
+                                        toPeers:[[NSArray alloc] initWithObjects:peer, nil]
+                                          error:&error];
+                }
             }
         });
     });
@@ -326,27 +343,30 @@ didReceiveDatagram:(MHDatagram *)datagram
                 });
             }
             
-            // Dispatch after y seconds
-            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)((arc4random_uniform([MHConfig getSingleton].net6ShotsControlPacketForwardDelayRange) + [MHConfig getSingleton].net6ShotsControlPacketForwardDelayBase) * NSEC_PER_MSEC)), dispatch_get_main_queue(), ^{
-                // If we can still forward, we do it
-                if ([[self.shouldForward objectForKey:tag] boolValue])
-                {
-                    // Diagnostics
-                    if ([MHDiagnostics getSingleton].useNetworkLayerInfoCallbacks &&
-                        [MHDiagnostics getSingleton].useNetworkLayerControlInfoCallbacks)
+            if ([self updateTTL:packet])
+            {
+                // Dispatch after y seconds
+                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)((arc4random_uniform([MHConfig getSingleton].net6ShotsControlPacketForwardDelayRange) + [MHConfig getSingleton].net6ShotsControlPacketForwardDelayBase) * NSEC_PER_MSEC)), dispatch_get_main_queue(), ^{
+                    // If we can still forward, we do it
+                    if ([[self.shouldForward objectForKey:tag] boolValue])
                     {
-                        dispatch_async(dispatch_get_main_queue(), ^{
-                            [self.delegate mhProtocol:self forwardPacket:@"Group joining forwarding" withPacket:packet];
-                        });
+                        // Diagnostics
+                        if ([MHDiagnostics getSingleton].useNetworkLayerInfoCallbacks &&
+                            [MHDiagnostics getSingleton].useNetworkLayerControlInfoCallbacks)
+                        {
+                            dispatch_async(dispatch_get_main_queue(), ^{
+                                [self.delegate mhProtocol:self forwardPacket:@"Group joining forwarding" withPacket:packet];
+                            });
+                        }
+                        
+                        NSError *error;
+                        MHDatagram *datagram = [[MHDatagram alloc] initWithData:[packet asNSData]];
+                        [self.cHandler sendDatagram:datagram
+                                            toPeers:self.neighbourPeers
+                                              error:&error];
                     }
-                    
-                    NSError *error;
-                    MHDatagram *datagram = [[MHDatagram alloc] initWithData:[packet asNSData]];
-                    [self.cHandler sendDatagram:datagram
-                                        toPeers:self.neighbourPeers
-                                          error:&error];
-                }
-            });
+                });
+            }
         });
     }
     else
@@ -378,24 +398,27 @@ didReceiveDatagram:(MHDatagram *)datagram
             [self.joinMsgs removeObjectForKey:tag];
             [self.shouldForward removeObjectForKey:tag];
             
-            // Dispatch after y seconds
-            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)((arc4random_uniform([MHConfig getSingleton].net6ShotsControlPacketForwardDelayRange) + [MHConfig getSingleton].net6ShotsControlPacketForwardDelayBase) * NSEC_PER_MSEC)), dispatch_get_main_queue(), ^{
-                // Diagnostics
-                if ([MHDiagnostics getSingleton].useNetworkLayerInfoCallbacks &&
-                    [MHDiagnostics getSingleton].useNetworkLayerControlInfoCallbacks)
-                {
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        [self.delegate mhProtocol:self forwardPacket:@"Group leaving forwarding" withPacket:packet];
-                    });
-                }
-                
-                // Broadcast to neighbourhood
-                NSError *error;
-                MHDatagram *datagram = [[MHDatagram alloc] initWithData:[packet asNSData]];
-                [self.cHandler sendDatagram:datagram
-                                    toPeers:self.neighbourPeers
-                                      error:&error];
-            });
+            if ([self updateTTL:packet])
+            {
+                // Dispatch after y seconds
+                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)((arc4random_uniform([MHConfig getSingleton].net6ShotsControlPacketForwardDelayRange) + [MHConfig getSingleton].net6ShotsControlPacketForwardDelayBase) * NSEC_PER_MSEC)), dispatch_get_main_queue(), ^{
+                    // Diagnostics
+                    if ([MHDiagnostics getSingleton].useNetworkLayerInfoCallbacks &&
+                        [MHDiagnostics getSingleton].useNetworkLayerControlInfoCallbacks)
+                    {
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            [self.delegate mhProtocol:self forwardPacket:@"Group leaving forwarding" withPacket:packet];
+                        });
+                    }
+                    
+                    // Broadcast to neighbourhood
+                    NSError *error;
+                    MHDatagram *datagram = [[MHDatagram alloc] initWithData:[packet asNSData]];
+                    [self.cHandler sendDatagram:datagram
+                                        toPeers:self.neighbourPeers
+                                          error:&error];
+                });
+            }
         });
     }
 }
@@ -450,11 +473,33 @@ didReceiveDatagram:(MHDatagram *)datagram
         }
     }
     
-    // Set for scheduling
-    [self.scheduler setScheduleFromPacket:packet];
+    if ([self updateTTL:packet])
+    {
+        // Set for scheduling
+        [self.scheduler setScheduleFromPacket:packet];
+    }
 }
 
 
+- (BOOL)updateTTL:(MHPacket *)packet
+{
+    // Decrease the ttl
+    int ttl = [[packet.info objectForKey:@"ttl"] intValue];
+    ttl--;
+    
+    // Update ttl
+    [packet.info setObject:[NSNumber numberWithInt:ttl] forKey:@"ttl"];
+    
+    // If packet is still valid
+    if (ttl > 0)
+    {
+        return YES;
+    }
+    else
+    {
+        return NO;
+    }
+}
 
 
 #pragma mark - MH6ShotsSchedulerDelegate methods

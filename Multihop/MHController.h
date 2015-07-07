@@ -51,6 +51,7 @@ typedef enum MHRoutingProtocols
 
 - (void)sendMessage:(MHMessage *)message
      toDestinations:(NSArray *)destinations
+            maxHops:(int)maxHops
               error:(NSError **)error;
 
 
