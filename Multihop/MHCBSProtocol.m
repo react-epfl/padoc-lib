@@ -45,9 +45,7 @@
 
 - (void)dealloc
 {
-    self.processedPackets = nil;
     self.forwardPackets = nil;
-    
     self.forwardPacketsCleaning = nil;
 }
 
@@ -73,8 +71,8 @@ didReceiveDatagram:(MHDatagram *)datagram
 {
     MHPacket *packet = [MHPacket fromNSData:datagram.data];
     
-    // If packet has not yet been processed
-
+    // If packet is received for the first time, the forward boolean
+    // is set to true, otherwise to false
     dispatch_async(dispatch_get_main_queue(), ^{
         [self.forwardPackets setObject:[NSNumber numberWithBool:!([self.processedPackets containsObject:packet.tag])] forKey:packet.tag];
     });
@@ -88,6 +86,8 @@ didReceiveDatagram:(MHDatagram *)datagram
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(arc4random_uniform(([MHConfig getSingleton].netCBSPacketForwardDelayRange) + [MHConfig getSingleton].netCBSPacketForwardDelayBase) * NSEC_PER_MSEC)), dispatch_get_main_queue(), ^{
         NSNumber *forward = [self.forwardPackets objectForKey:packet.tag];
         
+        // We only forward if the same packet has not been received
+        // again during the delay
         if (!forward || (forward && [forward boolValue]))
         {
             [super forwardPacket:packet];
