@@ -151,9 +151,6 @@
            maxHops:(int)maxHops
              error:(NSError **)error
 {
-    // Diagnostics: trace
-    [[MHDiagnostics getSingleton] addTraceRoute:packet withNextPeer:[self getOwnPeer]];
-    
     if([packet.info objectForKey:@"routes"] == nil)
     {
         [packet.info setObject:[[NSMutableDictionary alloc] init] forKey:@"routes"];

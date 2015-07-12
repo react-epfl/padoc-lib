@@ -65,12 +65,12 @@
         {
             [weakSelf.processedPackets removeAllObjects];
             
-            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(MH_FLOODING_SCHEDULECLEANING_DELAY * NSEC_PER_MSEC)), dispatch_get_main_queue(), weakSelf.processedPacketsCleaning);
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)([MHConfig getSingleton].netProcessedPacketsCleaningDelay * NSEC_PER_MSEC)), dispatch_get_main_queue(), weakSelf.processedPacketsCleaning);
         }
     };
     
     // Every x seconds, we clean the processed packets list
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(MH_FLOODING_SCHEDULECLEANING_DELAY * NSEC_PER_MSEC)), dispatch_get_main_queue(), self.processedPacketsCleaning);
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)([MHConfig getSingleton].netProcessedPacketsCleaningDelay * NSEC_PER_MSEC)), dispatch_get_main_queue(), self.processedPacketsCleaning);
 }
 
 - (void)disconnect
@@ -106,9 +106,6 @@
            maxHops:(int)maxHops
              error:(NSError **)error
 {
-    // Diagnostics: trace
-    [[MHDiagnostics getSingleton] addTraceRoute:packet withNextPeer:[self getOwnPeer]];
-    
     // Set ttl
     [packet.info setObject:[NSNumber numberWithInt:maxHops] forKey:@"ttl"];
     

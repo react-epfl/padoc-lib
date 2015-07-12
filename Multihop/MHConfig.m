@@ -55,6 +55,7 @@ static MHConfig *params = nil;
     
     // Network layer
     self.netPacketTTL = 100;
+    self.netProcessedPacketsCleaningDelay = 30000;
     
     self.netCBSPacketForwardDelayRange = 100;
     self.netCBSPacketForwardDelayBase = 30;

@@ -10,7 +10,6 @@
 #define Multihop_MHFloodingProtocol_h
 
 #import "MHRoutingProtocol.h"
-#import "MHConfig.h"
 
 #define MH_FLOODING_DISCOVERME_MSG @"-[discoverme-msg]-"
 

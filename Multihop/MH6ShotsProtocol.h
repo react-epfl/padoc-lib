@@ -12,7 +12,6 @@
 #import "MHRoutingProtocol.h"
 #import "MHLocationManager.h"
 #import "MH6ShotsScheduler.h"
-#import "MHConfig.h"
 
 
 

@@ -80,7 +80,6 @@
                     if ([MHDiagnostics getSingleton].useNetworkLayerInfoCallbacks)
                     {
                         dispatch_async(dispatch_get_main_queue(), ^{
-                            NSLog(@"Forwarding");
                             [weakSelf.delegate mhScheduler:weakSelf forwardPacket:@"Packet forwarding" withPacket:schedule.packet];
                         });
                     }
@@ -172,7 +171,7 @@
                 
                 // If the scheduled packet has already been forwarded and a critical delay reached,
                 // we throw it
-                if (!schedule.forward && currTime - schedule.time >= MH6SHOTS_CLEANING_DELAY)
+                if (!schedule.forward && currTime - schedule.time >= ([MHConfig getSingleton].netProcessedPacketsCleaningDelay / 1000.0))
                 {
                     [weakSelf.schedules removeObjectForKey:scheduleKey];
                 }

@@ -12,7 +12,6 @@
 
 #import "MHRoutingProtocol.h"
 #import "MHFloodingProtocol.h"
-#import "MHConfig.h"
 
 
 @interface MHCBSProtocol : MHFloodingProtocol

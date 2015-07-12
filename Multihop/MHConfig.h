@@ -26,6 +26,7 @@
 
 #pragma mark - Network layer
 @property (nonatomic, readwrite) int netPacketTTL; // default 100
+@property (nonatomic, readwrite) int netProcessedPacketsCleaningDelay; // in ms (default 30000)
 
 @property (nonatomic, readwrite) int netCBSPacketForwardDelayRange; // in ms (default 100)
 @property (nonatomic, readwrite) int netCBSPacketForwardDelayBase; // in ms (default 30)
@@ -37,6 +38,7 @@
 @property (nonatomic, readwrite) int net6ShotsPacketForwardDelayBase; // in ms (default 30)
 
 @property (nonatomic, readwrite) int net6ShotsOverlayMaintenanceDelay; // in ms (default 5000)
+
 
 @property (nonatomic, readwrite) int netDeviceTransmissionRange; // in meters (default 40)
 

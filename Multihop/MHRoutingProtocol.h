@@ -15,6 +15,8 @@
 #import "MHPacket.h"
 #import "MHDatagram.h"
 
+#import "MHConfig.h"
+
 // Diagnostics
 #import "MHDiagnostics.h"
 
