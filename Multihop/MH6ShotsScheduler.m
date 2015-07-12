@@ -17,6 +17,8 @@
 
 @property (nonatomic, strong) NSString *localhost;
 
+@property (nonatomic, strong) NSMutableDictionary *schedules;
+
 @property (copy) void (^processSchedule)(void);
 @property (copy) void (^overlayMaintenance)(void);
 @property (copy) void (^scheduleCleaning)(void);
@@ -50,6 +52,17 @@
     return self;
 }
 
+- (void)dealloc
+{
+    self.schedules = nil;
+    self.neighbourRoutingTables = nil;
+    self.routingTable = nil;
+    self.localhost = nil;
+    
+    self.scheduleCleaning = nil;
+    self.processSchedule = nil;
+    self.overlayMaintenance = nil;
+}
 
 - (void)setFctProcessSchedule:(MH6ShotsScheduler * __weak)weakSelf
 {
@@ -185,17 +198,7 @@
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(MH6SHOTS_SCHEDULECLEANING_DELAY * NSEC_PER_MSEC)), dispatch_get_main_queue(), self.scheduleCleaning);
 }
 
-- (void)dealloc
-{
-    self.schedules = nil;
-    self.neighbourRoutingTables = nil;
-    self.routingTable = nil;
-    self.localhost = nil;
-    
-    self.scheduleCleaning = nil;
-    self.processSchedule = nil;
-    self.overlayMaintenance = nil;
-}
+
 
 - (void)clear
 {

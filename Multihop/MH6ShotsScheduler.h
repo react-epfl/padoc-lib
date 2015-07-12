@@ -21,7 +21,6 @@
 #define MH6SHOTS_PROCESSSCHEDULE_DELAY 50
 
 #define MH6SHOTS_SCHEDULECLEANING_DELAY 5000
-#define MH6SHOTS_CLEANING_DELAY 5.0
 
 #define MH6SHOTS_GPS_FRACTION 0.5
 #define MH6SHOTS_IBEACONS_FRACTION 0.5
@@ -34,8 +33,6 @@
 @interface MH6ShotsScheduler : NSObject
 
 @property (nonatomic, weak) id<MH6ShotsSchedulerDelegate> delegate;
-
-@property (nonatomic, readwrite) NSMutableDictionary *schedules;
 
 #pragma mark - Initialization
 - (instancetype)initWithRoutingTable:(NSMutableDictionary*)routingTable
