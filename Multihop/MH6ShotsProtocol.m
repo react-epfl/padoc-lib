@@ -23,6 +23,10 @@
 
 @property (nonatomic, strong) NSMutableArray *joinedGroups;
 
+@property (nonatomic, strong) NSMutableArray *receivedPackets;
+
+@property (copy) void (^receivedPacketsCleaning)(void);
+
 @end
 
 @implementation MH6ShotsProtocol
@@ -48,9 +52,14 @@
                           withLocalhost:[self getOwnPeer]];
         self.scheduler.delegate = self;
         
+        self.receivedPackets = [[NSMutableArray alloc] init];
+        
         [MHLocationManager setBeaconIDWithPeerID:[self getOwnPeer]];
         [[MHLocationManager getSingleton] start];
         [self.cHandler connectToNeighbourhood];
+        
+        MH6ShotsProtocol * __weak weakSelf = self;
+        [self setFctReceivedPacketsCleaning:weakSelf];
     }
     return self;
 }
@@ -63,7 +72,9 @@
     self.scheduler = nil;
     self.joinedGroups = nil;
     
+    self.receivedPackets = nil;
     self.displayName = nil;
+    self.receivedPacketsCleaning = nil;
 }
 
 
@@ -73,6 +84,7 @@
     [self.shouldForward removeAllObjects];
     [self.routingTable removeAllObjects];
     [self.joinedGroups removeAllObjects];
+    [self.receivedPackets removeAllObjects];
     [self.scheduler clear];
     
     [[MHLocationManager getSingleton] stop];
@@ -80,6 +92,20 @@
     [super disconnect];
 }
 
+- (void)setFctReceivedPacketsCleaning:(MH6ShotsProtocol * __weak)weakSelf
+{
+    self.receivedPacketsCleaning = ^{
+        if (weakSelf)
+        {
+            [weakSelf.receivedPackets removeAllObjects];
+            
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)([MHConfig getSingleton].netProcessedPacketsCleaningDelay * NSEC_PER_MSEC)), dispatch_get_main_queue(), weakSelf.receivedPacketsCleaning);
+        }
+    };
+    
+    // Every x seconds, we clean the processed packets list
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)([MHConfig getSingleton].netProcessedPacketsCleaningDelay * NSEC_PER_MSEC)), dispatch_get_main_queue(), self.receivedPacketsCleaning);
+}
 
 
 - (void)joinGroup:(NSString *)groupName
@@ -440,14 +466,23 @@ didReceiveDatagram:(MHDatagram *)datagram
     // Diagnostics: trace
     [[MHDiagnostics getSingleton] addTraceRoute:packet withNextPeer:[self getOwnPeer]];
     
-    // Diagnostics: retransmission
-    [[MHDiagnostics getSingleton] increaseReceivedPackets];
     
     // If the packet came from the own peer, we discard it
     if ([packet.source isEqualToString:[self getOwnPeer]])
     {
         return;
     }
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        // If packet has not yet been processed
+        if (![self.receivedPackets containsObject:packet.tag])
+        {
+            // Diagnostics: retransmission unique
+            [[MHDiagnostics getSingleton] increaseReceivedPackets];
+            
+            [self.receivedPackets addObject:packet.tag];
+        }
+    });
     
     NSMutableDictionary *routes = [packet.info objectForKey:@"routes"];
     NSArray *routeKeys = [routes allKeys];
@@ -503,6 +538,9 @@ didReceiveDatagram:(MHDatagram *)datagram
 - (void)mhScheduler:(MH6ShotsScheduler *)mhScheduler
     broadcastPacket:(MHPacket*)packet
 {
+    // Diagnostics: retransmission
+    [[MHDiagnostics getSingleton] increaseRetransmittedPackets];
+    
     dispatch_async(dispatch_get_main_queue(), ^{
         NSError *error;
         MHDatagram *datagram = [[MHDatagram alloc] initWithData:[packet asNSData]];

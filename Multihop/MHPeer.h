@@ -40,17 +40,8 @@
 /// Delegate for the PartyTime methods
 @property (nonatomic, weak) id<MHPeerDelegate> delegate;
 
-
-/// Returns the current client's MCPeerID (this ID is different for each
-/// application startup)
 @property (nonatomic, readonly, strong) MCPeerID *mcPeerID;
-
-/// Returns the current client's MHPeerID (this ID is defined by the Multihop
-/// library and remains consistent between different application startups)
 @property (nonatomic, readonly, strong) NSString *mhPeerID;
-
-/// Returns the display name which was passed in when the object was initialized.
-/// If no display name was specified, it defaults to [UIDevice currentDevice].name]
 @property (nonatomic, readonly, strong) NSString *displayName;
 
 @property (nonatomic, readonly, strong) MCSession *session;

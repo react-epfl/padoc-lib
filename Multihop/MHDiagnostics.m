@@ -117,6 +117,7 @@ static MHDiagnostics *diagnostics = nil;
     }
 }
 
+
 - (void)increaseRetransmittedPackets
 {
     if (self.useRetransmissionInfo)
@@ -137,7 +138,6 @@ static MHDiagnostics *diagnostics = nil;
 
     return -1.0;
 }
-
 
 
 

@@ -79,9 +79,6 @@
                 // If we can forward and the delay is reached
                 if(schedule.forward && schedule.time <= currTime)
                 {
-                    // Diagnostics: retransmission
-                    [[MHDiagnostics getSingleton] increaseRetransmittedPackets];
-                    
                     // Routes updating
                     [weakSelf updateRoutes:[schedule.packet.info objectForKey:@"routes"] withWeakSelf:weakSelf];
                     

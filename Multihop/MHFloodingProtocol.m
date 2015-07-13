@@ -187,9 +187,6 @@ didReceiveDatagram:(MHDatagram *)datagram
     // Diagnostics: trace
     [[MHDiagnostics getSingleton] addTraceRoute:packet withNextPeer:[self getOwnPeer]];
     
-    // Diagnostics: retransmission
-    [[MHDiagnostics getSingleton] increaseReceivedPackets];
-    
     // Do not process packets whose source is this peer
     if ([packet.source isEqualToString:[self getOwnPeer]])
     {
@@ -199,6 +196,9 @@ didReceiveDatagram:(MHDatagram *)datagram
     // If packet has not yet been processed
     if (![self.processedPackets containsObject:packet.tag])
     {
+        // Diagnostics: retransmission
+        [[MHDiagnostics getSingleton] increaseReceivedPackets];
+        
         dispatch_async(dispatch_get_main_queue(), ^{
             [self.processedPackets addObject:packet.tag];
         });
