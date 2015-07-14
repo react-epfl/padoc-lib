@@ -1,12 +1,11 @@
 # Multihop Library for IOS (v0.4)
-Multihop is an Objective-C library runnable on IOS devices whose purpose is to connect smartphones without  
-any external service. It supports a network of any size using multiple hops for message sending. It relies on the Multipeer Connectivity framework for the lower communication primitives between neighbour devices.  
+Multihop is an Objective-C library runnable on IOS devices whose purpose is to connect smartphones without any external service. It supports a network of any size using multiple hops for message sending. It relies on the Multipeer Connectivity framework for the lower communication primitives between neighbour devices.  
   
 By creating a socket object, it is possible to send and receive messages to and from any peer in the network.  
 The interface is multicast-based and provides methods for joining and leaving **multicast groups**. When a peer sends a message to a particular group, then only the peers having joint the specific group will receive the message. Indeed, the source peer has no knowledge of which peers will finally receive the message.  
   
-This library provides multihop support, meaning that message routing between two points is entirely handled by intermediate peers. Two routing strategies have been implemented so far:
-* Broadcast: we use a basic Flooding algorithm and the destination group checking is performed by each receiving peer
+This library provides multihop support, meaning that message routing between two points is entirely handled by intermediate peers. Three routing strategies have been implemented so far:
+* Broadcast: we use a basic Flooding or the CBS algorithms and the destination group checking is performed by each receiving peer
 * Multicast: we use the 6Shots algorithm, which is a real multicast algorithm using location information for route optimization
   
 So far, the library works as expected, but still misses some important features:
@@ -20,7 +19,7 @@ The major limitation comes from the fact that there no transport layer is still 
 * Direct communication between IOS devices
 * Background mode support
 * Multihop supporting for message routing throughout the network
-* Support of 2 routing strategies: broadcast (Flooding) and multicast (6Shots)
+* Support of 3 routing strategies: broadcast (Flooding and CBS) and multicast (6Shots)
 * Diagnostics tools suite
 
 
@@ -28,7 +27,7 @@ The major limitation comes from the fact that there no transport layer is still 
 
 * Device signal range too short (up to 40m)
 * No message reliability support
-* No congestion control support
+* No transport layer congestion control support
 
 
 ## Dependencies
@@ -160,6 +159,7 @@ The socket can be instantiated using the following methods:
 The currently supported routing protocols are:  
 * *MH6ShotsRoutingProtocol*
 * *MHFloodingRoutingProtocol*
+* *MHCBSRoutingAlgorithm*
   
 If unspecified, the default protocol is *MHFloodingRoutingProtocol.*.  
   
@@ -186,23 +186,26 @@ In order to send a message, the following command can be called:
 NSError *error;
 [socket sendMessage:msg
      toDestinations:destinations
+            maxHops:(int)maxHops
               error:&error];
      
 ```
 Note that *msg* is a NSData object, whereas *destinations* is an array  
-containing the target multicast groups.
+containing the target multicast groups. Finally, *maxHops* is an optional  
+argument specifying the maximum number of hops after which the message is  
+not forwarded anymore.
   
 In order to receive messages, the following callback is needed:
 ```Objective-C
 - (void)mhSocket:(MHSocket *)mhSocket
 didReceiveMessage:(NSData *)data
-        fromPeer:(NSString *)peer
+       fromGroups:(NSArray *)groups
    withTraceInfo:(NSArray *)traceInfo
 {
   ...
 }     
 ```
-Here, the *peer* argument specifies the peer id that originated the message.  
+Here, the *groups* argument specifies the groups from which originated the message.  
 The *traceInfo* argument will be discussed later.
 
 #### Group handling
@@ -233,7 +236,7 @@ Sometimes, it could be useful to know the number of hops from a particular peer:
 int hops = [socket hopsCountFromPeer:peer];
 ```  
 The function result highly depends on the underlying algorithm. 6Shots provides a reliable  
-information, but the Flooding algorithm usually gives an incorrect result. Indeed,  
+information, but the Flooding or the CBS algorithms usually give an incorrect result. Indeed,  
 only neighbour nodes receive a correct hops count (1). Finally note that the *peer* argument 
 is a peer id.
 
@@ -353,7 +356,13 @@ notification is triggered.
 * *linkBackgroundDatagramSendDelay* (20): number of milliseconds after which a new burrerized datagram (because  
 of a background disconnection) is sent.
 
-* *netFloodingPacketTTL* (100): ttl of a packet using the Flooding algorithm.
+* *netPacketTTL* (100): standard ttl of a packet (if unspecified by the user).
+* *netProcessedPacketsCleaningDelay* (30000): number of milliseconds after which the list containing the processed packets is cleaned.
+
+* *netCBSPacketForwardDelayRange* (100): number of milliseconds defining the delay range of a packet forwarding  
+using the CBS algorithm.
+* *netCBSPacketForwardDelayBase* (30): number of milliseconds defining the delay base of a packet forwarding  
+using the CBS algorithm.
 
 * *net6ShotsControlPacketForwardDelayRange* (50): number of milliseconds defining the delay range of a control  
 packet forwarding using the 6Shots algorithm. The final delay is random.
