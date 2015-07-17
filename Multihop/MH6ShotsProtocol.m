@@ -109,6 +109,7 @@
 
 
 - (void)joinGroup:(NSString *)groupName
+          maxHops:(int)maxHops
 {
     MHPacket *packet = [[MHPacket alloc] initWithSource:[self getOwnPeer]
                                        withDestinations:[[NSArray alloc] init]
@@ -121,7 +122,7 @@
     [packet.info setObject:[NSNumber numberWithInt:0] forKey:@"height"];
     
     // Set ttl
-    [packet.info setObject:[NSNumber numberWithInt:[MHConfig getSingleton].netPacketTTL] forKey:@"ttl"];
+    [packet.info setObject:[NSNumber numberWithInt:maxHops] forKey:@"ttl"];
     
     
     dispatch_async(dispatch_get_main_queue(), ^{
@@ -141,6 +142,7 @@
 }
 
 - (void)leaveGroup:(NSString *)groupName
+           maxHops:(int)maxHops
 {
     MHPacket *packet = [[MHPacket alloc] initWithSource:[self getOwnPeer]
                                        withDestinations:[[NSArray alloc] init]
@@ -151,7 +153,7 @@
     [packet.info setObject:groupName forKey:@"groupName"];
     
     // Set ttl
-    [packet.info setObject:[NSNumber numberWithInt:[MHConfig getSingleton].netPacketTTL] forKey:@"ttl"];
+    [packet.info setObject:[NSNumber numberWithInt:maxHops] forKey:@"ttl"];
     
     dispatch_async(dispatch_get_main_queue(), ^{
         [self.joinedGroups removeObject:groupName];

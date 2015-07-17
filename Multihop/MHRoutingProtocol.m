@@ -82,11 +82,13 @@
 }
 
 - (void)joinGroup:(NSString *)groupName
+          maxHops:(int)maxHops
 {
     // Must be overridden
 }
 
 - (void)leaveGroup:(NSString *)groupName
+           maxHops:(int)maxHops
 {
     // Must be overridden
 }

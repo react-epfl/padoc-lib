@@ -45,9 +45,11 @@ typedef enum MHRoutingProtocols
 
 - (void)disconnect;
 
-- (void)joinGroup:(NSString *)groupName;
+- (void)joinGroup:(NSString *)groupName
+          maxHops:(int)maxHops;
 
-- (void)leaveGroup:(NSString *)groupName;
+- (void)leaveGroup:(NSString *)groupName
+           maxHops:(int)maxHops;
 
 - (void)sendMessage:(MHMessage *)message
      toDestinations:(NSArray *)destinations

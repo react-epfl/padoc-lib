@@ -7,15 +7,15 @@
 //
 
 
-#import "MHSocket.h"
+#import "MHPaddoc.h"
 
 
-@interface MHSocket () <MHControllerDelegate>
+@interface MHPaddoc () <MHControllerDelegate>
 
 @property (nonatomic, strong) MHController *mhController;
 @end
 
-@implementation MHSocket
+@implementation MHPaddoc
 
 #pragma mark - Life Cycle
 
@@ -67,23 +67,35 @@
 
 - (void)joinGroup:(NSString *)groupName
 {
-    [self.mhController joinGroup:groupName];
+    [self joinGroup:groupName maxHops:[MHConfig getSingleton].netPacketTTL];
+}
+
+- (void)joinGroup:(NSString *)groupName
+          maxHops:(int)maxHops
+{
+    [self.mhController joinGroup:groupName maxHops:maxHops];
 }
 
 - (void)leaveGroup:(NSString *)groupName
 {
-    [self.mhController leaveGroup:groupName];
+    [self leaveGroup:groupName maxHops:[MHConfig getSingleton].netPacketTTL];
+}
+
+- (void)leaveGroup:(NSString *)groupName
+           maxHops:(int)maxHops
+{
+    [self.mhController leaveGroup:groupName maxHops:maxHops];
 }
 
 
-- (void)sendMessage:(NSData *)data
+- (void)multicastMessage:(NSData *)data
      toDestinations:(NSArray *)destinations
               error:(NSError **)error
 {
-    [self sendMessage:data toDestinations:destinations maxHops:[MHConfig getSingleton].netPacketTTL error:error];
+    [self multicastMessage:data toDestinations:destinations maxHops:[MHConfig getSingleton].netPacketTTL error:error];
 }
 
-- (void)sendMessage:(NSData *)data
+- (void)multicastMessage:(NSData *)data
      toDestinations:(NSArray *)destinations
             maxHops:(int)maxHops
               error:(NSError **)error
@@ -141,9 +153,18 @@
           fromGroups:(NSArray *)groups
        withTraceInfo:(NSArray *)traceInfo
 {
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [self.delegate mhSocket:self didReceiveMessage:message.data fromGroups:groups withTraceInfo:traceInfo];
-    });
+    if (traceInfo != nil)
+    {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.delegate mhSocket:self deliverMessage:message.data fromGroups:groups withTraceInfo:traceInfo];
+        });
+    }
+    else
+    {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.delegate mhSocket:self deliverMessage:message.data fromGroups:groups];
+        });
+    }
 }
 
 

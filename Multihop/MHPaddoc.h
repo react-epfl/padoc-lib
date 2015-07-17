@@ -14,14 +14,14 @@
 #import "MHController.h"
 
 
-@protocol MHSocketDelegate;
+@protocol MHPaddocDelegate;
 
-@interface MHSocket : NSObject
+@interface MHPaddoc : NSObject
 
 #pragma mark - Properties
 
 /// Delegate for the MHMultihop methods
-@property (nonatomic, weak) id<MHSocketDelegate> delegate;
+@property (nonatomic, weak) id<MHPaddocDelegate> delegate;
 
 
 #pragma mark - Initialization
@@ -98,6 +98,15 @@
  */
 - (void)joinGroup:(NSString *)groupName;
 
+/**
+ Call this method to join a multicast group
+ 
+ @param groupName The name of the group to join
+ @param maxHops number of maximum hops after which the packet is lost
+ */
+- (void)joinGroup:(NSString *)groupName
+          maxHops:(int)maxHops;
+
 
 /**
  Call this method to leave a multicast group
@@ -105,6 +114,15 @@
  @param groupName The name of the group to leave
  */
 - (void)leaveGroup:(NSString *)groupName;
+
+/**
+ Call this method to leave a multicast group
+ 
+ @param groupName The name of the group to leave
+ @param maxHops number of maximum hops after which the packet is lost
+ */
+- (void)leaveGroup:(NSString *)groupName
+           maxHops:(int)maxHops;
 
 
 /**
@@ -122,7 +140,7 @@
  @param error The address of an NSError pointer where an error object should be stored upon error.
  
  */
-- (void)sendMessage:(NSData *)data
+- (void)multicastMessage:(NSData *)data
      toDestinations:(NSArray *)destinations
               error:(NSError **)error;
 
@@ -139,7 +157,7 @@
  @param error The address of an NSError pointer where an error object should be stored upon error.
  
  */
-- (void)sendMessage:(NSData *)data
+- (void)multicastMessage:(NSData *)data
      toDestinations:(NSArray *)destinations
             maxHops:(int)maxHops
               error:(NSError **)error;
@@ -174,39 +192,43 @@
 /**
  The delegate for the MHSocket class.
  */
-@protocol MHSocketDelegate <NSObject>
+@protocol MHPaddocDelegate <NSObject>
 
 @required
-- (void)mhSocket:(MHSocket *)mhSocket
+- (void)mhSocket:(MHPaddoc *)mhSocket
  failedToConnect:(NSError *)error;
 
-- (void)mhSocket:(MHSocket *)mhSocket
-didReceiveMessage:(NSData *)data
-      fromGroups:(NSArray *)groups
-   withTraceInfo:(NSArray *)traceInfo;
+- (void)mhSocket:(MHPaddoc *)mhSocket
+  deliverMessage:(NSData *)data
+      fromGroups:(NSArray *)groups;
 
 @optional
 
 #pragma mark - Diagnostics info callbacks
-- (void)mhSocket:(MHSocket *)mhSocket
+- (void)mhSocket:(MHPaddoc *)mhSocket
    forwardPacket:(NSString *)info
      withMessage:(NSData *)message
       fromSource:(NSString *)peer;
 
-- (void)mhSocket:(MHSocket *)mhSocket
+- (void)mhSocket:(MHPaddoc *)mhSocket
 neighbourConnected:(NSString *)info
             peer:(NSString *)peer
      displayName:(NSString *)displayName;
 
-- (void)mhSocket:(MHSocket *)mhSocket
+- (void)mhSocket:(MHPaddoc *)mhSocket
 neighbourDisconnected:(NSString *)info
             peer:(NSString *)peer;
 
-- (void)mhSocket:(MHSocket *)mhSocket
+- (void)mhSocket:(MHPaddoc *)mhSocket
      joinedGroup:(NSString *)info
             peer:(NSString *)peer
      displayName:(NSString *)displayName
            group:(NSString *)group;
+
+- (void)mhSocket:(MHPaddoc *)mhSocket
+  deliverMessage:(NSData *)data
+      fromGroups:(NSArray *)groups
+   withTraceInfo:(NSArray *)traceInfo;
 @end
 
 #endif

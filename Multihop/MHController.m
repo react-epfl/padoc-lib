@@ -79,13 +79,15 @@
 }
 
 - (void)joinGroup:(NSString *)groupName
+          maxHops:(int)maxHops
 {
-    [(MHRoutingProtocol*)self.mhProtocol joinGroup:groupName];
+    [(MHRoutingProtocol*)self.mhProtocol joinGroup:groupName maxHops:maxHops];
 }
 
 - (void)leaveGroup:(NSString *)groupName
+           maxHops:(int)maxHops
 {
-    [(MHRoutingProtocol*)self.mhProtocol leaveGroup:groupName];
+    [(MHRoutingProtocol*)self.mhProtocol leaveGroup:groupName maxHops:maxHops];
 }
 
 - (NSString *)getOwnPeer

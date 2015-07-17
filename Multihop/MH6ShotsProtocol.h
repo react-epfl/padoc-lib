@@ -28,9 +28,11 @@
 
 - (void)disconnect;
 
-- (void)joinGroup:(NSString *)groupName;
+- (void)joinGroup:(NSString *)groupName
+          maxHops:(int)maxHops;
 
-- (void)leaveGroup:(NSString *)groupName;
+- (void)leaveGroup:(NSString *)groupName
+           maxHops:(int)maxHops;
 
 - (void)sendPacket:(MHPacket *)packet
            maxHops:(int)maxHops

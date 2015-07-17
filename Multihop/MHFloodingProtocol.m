@@ -82,6 +82,7 @@
 
 
 - (void)joinGroup:(NSString *)groupName
+          maxHops:(int)maxHops
 {
     dispatch_async(dispatch_get_main_queue(), ^{
         if(![self.joinedGroups containsObject:groupName])
@@ -92,6 +93,7 @@
 }
 
 - (void)leaveGroup:(NSString *)groupName
+           maxHops:(int)maxHops
 {
     dispatch_async(dispatch_get_main_queue(), ^{
         if([self.joinedGroups containsObject:groupName])
