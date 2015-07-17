@@ -1,8 +1,9 @@
-# Multihop Library for IOS (v0.4)
-Multihop is an Objective-C library runnable on IOS devices whose purpose is to connect smartphones without any external service. It supports a network of any size using multiple hops for message sending. It relies on the Multipeer Connectivity framework for the lower communication primitives between neighbour devices.  
+# Paddoc Library for IOS (v0.5)
+Paddoc is an Objective-C library runnable on IOS devices whose purpose is to connect smartphones without any external service. It supports a network of any size using multiple hops for message sending. It relies on the Multipeer Connectivity framework for the lower communication primitives between neighbour devices.  
   
-By creating a socket object, it is possible to send and receive messages to and from any peer in the network.  
-The interface is multicast-based and provides methods for joining and leaving **multicast groups**. When a peer sends a message to a particular group, then only the peers having joint the specific group will receive the message. Indeed, the source peer has no knowledge of which peers will finally receive the message.  
+By creating a Paddoc object, it is possible to send and receive messages to and from any peer in the network.  
+The interface is location multicast-based and provides methods for joining and leaving **multicast groups**. When a peer sends a message to a particular group, then only the peers having joint the specific group will receive the message. In addition, it is possible to specify a maximal distance after which peers are not acknowledged anymore.
+Indeed, the source peer has no knowledge of which peers will finally receive the message.  
   
 This library provides multihop support, meaning that message routing between two points is entirely handled by intermediate peers. Three routing strategies have been implemented so far:
 * Broadcast: we use a basic Flooding or the CBS algorithms and the destination group checking is performed by each receiving peer
@@ -58,101 +59,101 @@ or
 
 ## Utilization
 
-First, make sure that WIFI and Bluetooth are turned on.
+First, make sure that WiFi is turned on.
 
 ### Initialization
 
-The Multihop library uses socket objects in order to enter the ad-hoc network  
+The Paddoc library uses special objects in order to enter the ad-hoc network  
 and perform all operations. 
   
-The first step is to initialize the socket (note that the class must implement the  
-*MHSocketDelegate* protocol):
+The first step is to initialize the Paddoc object (note that the class must implement the  
+*MHPaddocDelegate* protocol):
 
 ```Objective-C
-#import "MHSocket.h"
+#import "MHPaddoc.h"
 
 ...
 
-self.socket = [[MHSocket alloc] initWithServiceType:@"serviceName"];
-self.socket.delegate = self;
+self.paddoc = [[MHPaddoc alloc] initWithServiceType:@"serviceName"];
+self.paddoc.delegate = self;
 ```
 
-In order to support the background mode, some socket methods must be called  
+In order to support the background mode, some methods must be called  
 from the *AppDelegate.m* file. Therefore, we must make sure that the *AppDelegate*  
 class contains a reference to our socket and calls certain methods:  
 
 AppDelegate.h
 ```Objective-C
-#import "MHSocket.h"
+#import "MHPaddoc.h"
 
 ...
 @interface AppDelegate : UIResponder <UIApplicationDelegate>
 ...
-- (void)setNetworkSocket:(MHSocket *)socket;
+- (void)setPaddocObject:(MHPaddoc *)paddoc;
 ```
 and AppDelegate.m
 ```Objective-C
 @interface AppDelegate ()
 ...
-@property (nonatomic, strong) MHSocket *socket;
+@property (nonatomic, strong) MHPaddoc *paddoc;
 ...
 @end
 
 @implementation AppDelegate
 
 
-- (void)setNetworkSocket:(MHSocket *)socket
+- (void)setPaddocObject:(MHPaddoc *)paddoc
 {
-    self.socket = socket;
+    self.paddoc = paddoc;
 }
 
 ...
 - (void)applicationWillResignActive:(UIApplication *)application {
     ...
-    if(self.socket != nil)
+    if(self.paddoc != nil)
     {
-        [self.socket applicationWillResignActive];
+        [self.paddoc applicationWillResignActive];
     }
 }
 
 - (void)applicationDidBecomeActive:(UIApplication *)application {
     ...
-    if(self.socket != nil)
+    if(self.paddoc != nil)
     {
-        [self.socket applicationDidBecomeActive];
+        [self.paddoc applicationDidBecomeActive];
     }
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application {
     ...
-    if(self.socket != nil)
+    if(self.paddoc != nil)
     {
-        [self.socket applicationWillTerminate];
+        [self.paddoc applicationWillTerminate];
     }
 }
 ...
 ```
 
-Finally, the class instantiating the socket object executes:
+Finally, the class instantiating the object executes:
 ```Objective-C
 AppDelegate *appDelegate = (AppDelegate*)[[UIApplication sharedApplication] delegate];
 
-[appDelegate setNetworkSocket:self.socket];
+[appDelegate setPaddocObject:self.paddoc];
 ```
 
-### Basic socket usage
+### Basic usage
 
 #### Connection and Disconnection
 
-The socket can be instantiated using the following methods:  
+The Paddoc object can be instantiated using the following methods:  
 
 ```Objective-C
-[[MHSocket alloc] initWithServiceType:@"service"];
+[[MHPaddoc alloc] initWithServiceType:@"service"];
 
-[[MHSocket alloc] initWithServiceType:@"service"
+[[MHPaddoc alloc] initWithServiceType:@"service"
                   withRoutingProtocol:protocol];
 
-[[MHSocket alloc] initWithServiceType:@"service"
+[[MHPaddoc alloc] initWithServiceType:@"service"
                           displayName:@"deviceName"
                   withRoutingProtocol:protocol];
 ```
@@ -166,13 +167,13 @@ If unspecified, the default protocol is *MHFloodingRoutingProtocol.*.
 In order to disconnect the socket from the network, write:
 
 ```Objective-C
-[socket disconnect];
+[paddoc disconnect];
 ```
 
 If an error occurred during the connection phase, the user is notified  
 by the following callback:
 ```Objective-C
-- (void)mhSocket:(MHSocket *)mhSocket failedToConnect:(NSError *)error
+- (void)mhPaddoc:(MHPaddoc *)mhPaddoc failedToConnect:(NSError *)error
 {
   ...
 }
@@ -184,10 +185,10 @@ by the following callback:
 In order to send a message, the following command can be called:
 ```Objective-C
 NSError *error;
-[socket sendMessage:msg
-     toDestinations:destinations
-            maxHops:(int)maxHops
-              error:&error];
+[paddocmulticastMessage:msg
+         toDestinations:destinations
+                maxHops:(int)maxHops
+                  error:&error];
      
 ```
 Note that *msg* is a NSData object, whereas *destinations* is an array  
@@ -197,16 +198,14 @@ not forwarded anymore.
   
 In order to receive messages, the following callback is needed:
 ```Objective-C
-- (void)mhSocket:(MHSocket *)mhSocket
-didReceiveMessage:(NSData *)data
-       fromGroups:(NSArray *)groups
-   withTraceInfo:(NSArray *)traceInfo
+- (void)mhPaddoc:(MHPaddoc *)mhPaddoc
+  deliverMessage:(NSData *)data
+      fromGroups:(NSArray *)groups
 {
   ...
 }     
 ```
-Here, the *groups* argument specifies the groups from which originated the message.  
-The *traceInfo* argument will be discussed later.
+Here, the *groups* argument specifies the groups from which originated the message.
 
 #### Group handling
 The socket does not address destinations as peer id, but rather as *multicast groups*.  
@@ -214,15 +213,15 @@ This means that if a node joined a particular group, it will receive every messa
 node having sent a message addressed to that group. Therefore, two commands for joining and  
 leaving a group are specified:
 ```Objective-C
-[socket joinGroup:@"groupName"];
+[paddoc joinGroup:@"groupName" maxHops:(int)maxHops];
 
-[socket leaveGroup:@"groupName"];
+[paddoc leaveGroup:@"groupName" maxHops:(int)maxHops];
 ```                
 
 #### Other functions
 In order to get the local peer id, one can call the following method: 
 ```Objective-C
-NSString *localPeer = [socket getOwnPeer];
+NSString *localPeer = [paddoc getOwnPeer];
 ```  
 Note that the peer id is a string that uniquely identifies a node in the network.  
 The id is permanent, meaning that if the application is restarted, the same id is  
@@ -233,7 +232,7 @@ for the same physical node.
   
 Sometimes, it could be useful to know the number of hops from a particular peer:  
 ``` Objective-C
-int hops = [socket hopsCountFromPeer:peer];
+int hops = [paddoc hopsCountFromPeer:peer];
 ```  
 The function result highly depends on the underlying algorithm. 6Shots provides a reliable  
 information, but the Flooding or the CBS algorithms usually give an incorrect result. Indeed,  
@@ -254,9 +253,19 @@ must enable the following option:
 ```Objective-C
 [MHDiagnostics getSingleton].useTraceInfo = YES;
 ```
-Now, the *traceInfo* argument of the *didReceiveMessage* callback provides an array  
-of peer ids specifying the path that a packet has taken throughout the network.
-  
+Now, the *deliverMessage* callback with a special *traceInfo* argument can be defined.  
+It provides an array of peer ids specifying the path that a packet has taken throughout  
+the network. It can be called by writing:
+```Objective-C
+- (void)mhPaddoc:(MHPaddoc *)mhPaddoc
+  deliverMessage:(NSData *)data
+      fromGroups:(NSArray *)groups
+   withTraceInfo:(NSArray*)traceInfo
+{
+  ...
+}     
+```
+
 In order to check the algorithm performance, the **retransmission ratio** can be useful.  
 It provides a quantitative measure of the number of retransmitted packets. In order to  
 enable it, just write:
@@ -302,7 +311,7 @@ network routing execution, the diagnostics suite provides the following option:
 By using this option, the socket gives additional information about which peer in the network  
 joined which group:
 ```Objective-C
-- (void)mhSocket:(MHSocket *)mhSocket
+- (void)mhPaddoc:(MHPaddoc *)mhPaddoc
      joinedGroup:(NSString *)info
             peer:(NSString *)peer
      displayName:(NSString *)displayName
@@ -318,7 +327,7 @@ This is however not the only information. In order to see in real time whether t
 is currently forwarding packets or not, and to have access to the packet content, an additional  
 callback is available. This can be executed by writing:
 ```Objective-C
-- (void)mhSocket:(MHSocket *)mhSocket
+- (void)mhPaddoc:(MHPaddoc *)mhPaddoc
    forwardPacket:(NSString *)info
      withMessage:(NSData *)message
       fromSource:(NSString *)peer
