@@ -144,7 +144,7 @@
      failedToConnect:(NSError *)error
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        [self.delegate mhSocket:self failedToConnect:error];
+        [self.delegate mhPaddoc:self failedToConnect:error];
     });
 }
 
@@ -156,13 +156,13 @@
     if (traceInfo != nil)
     {
         dispatch_async(dispatch_get_main_queue(), ^{
-            [self.delegate mhSocket:self deliverMessage:message.data fromGroups:groups withTraceInfo:traceInfo];
+            [self.delegate mhPaddoc:self deliverMessage:message.data fromGroups:groups withTraceInfo:traceInfo];
         });
     }
     else
     {
         dispatch_async(dispatch_get_main_queue(), ^{
-            [self.delegate mhSocket:self deliverMessage:message.data fromGroups:groups];
+            [self.delegate mhPaddoc:self deliverMessage:message.data fromGroups:groups];
         });
     }
 }
@@ -176,9 +176,9 @@
           fromSource:(NSString *)peer
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        if ([self.delegate respondsToSelector:@selector(mhSocket:forwardPacket:withMessage:fromSource:)])
+        if ([self.delegate respondsToSelector:@selector(mhPaddoc:forwardPacket:withMessage:fromSource:)])
         {
-            [self.delegate mhSocket:self
+            [self.delegate mhPaddoc:self
                       forwardPacket:info
                         withMessage:message.data
                          fromSource:peer];
@@ -193,9 +193,9 @@
 
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        if ([self.delegate respondsToSelector:@selector(mhSocket:neighbourConnected:peer:displayName:)])
+        if ([self.delegate respondsToSelector:@selector(mhPaddoc:neighbourConnected:peer:displayName:)])
         {
-            [self.delegate mhSocket:self neighbourConnected:info peer:peer displayName:displayName];
+            [self.delegate mhPaddoc:self neighbourConnected:info peer:peer displayName:displayName];
         }
     });
 }
@@ -206,9 +206,9 @@ neighbourDisconnected:(NSString *)info
 
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        if ([self.delegate respondsToSelector:@selector(mhSocket:neighbourDisconnected:peer:)])
+        if ([self.delegate respondsToSelector:@selector(mhPaddoc:neighbourDisconnected:peer:)])
         {
-            [self.delegate mhSocket:self neighbourDisconnected:info peer:peer];
+            [self.delegate mhPaddoc:self neighbourDisconnected:info peer:peer];
         }
     });
 }
@@ -220,9 +220,9 @@ neighbourDisconnected:(NSString *)info
                group:(NSString *)group
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        if ([self.delegate respondsToSelector:@selector(mhSocket:joinedGroup:peer:displayName:group:)])
+        if ([self.delegate respondsToSelector:@selector(mhPaddoc:joinedGroup:peer:displayName:group:)])
         {
-            [self.delegate mhSocket:self
+            [self.delegate mhPaddoc:self
                         joinedGroup:info
                                peer:peer
                         displayName:displayName

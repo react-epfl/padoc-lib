@@ -195,37 +195,37 @@
 @protocol MHPaddocDelegate <NSObject>
 
 @required
-- (void)mhSocket:(MHPaddoc *)mhSocket
+- (void)mhPaddoc:(MHPaddoc *)mhPaddoc
  failedToConnect:(NSError *)error;
 
-- (void)mhSocket:(MHPaddoc *)mhSocket
+- (void)mhPaddoc:(MHPaddoc *)mhPaddoc
   deliverMessage:(NSData *)data
       fromGroups:(NSArray *)groups;
 
 @optional
 
 #pragma mark - Diagnostics info callbacks
-- (void)mhSocket:(MHPaddoc *)mhSocket
+- (void)mhPaddoc:(MHPaddoc *)mhPaddoc
    forwardPacket:(NSString *)info
      withMessage:(NSData *)message
       fromSource:(NSString *)peer;
 
-- (void)mhSocket:(MHPaddoc *)mhSocket
+- (void)mhPaddoc:(MHPaddoc *)mhPaddoc
 neighbourConnected:(NSString *)info
             peer:(NSString *)peer
      displayName:(NSString *)displayName;
 
-- (void)mhSocket:(MHPaddoc *)mhSocket
+- (void)mhPaddoc:(MHPaddoc *)mhPaddoc
 neighbourDisconnected:(NSString *)info
             peer:(NSString *)peer;
 
-- (void)mhSocket:(MHPaddoc *)mhSocket
+- (void)mhPaddoc:(MHPaddoc *)mhPaddoc
      joinedGroup:(NSString *)info
             peer:(NSString *)peer
      displayName:(NSString *)displayName
            group:(NSString *)group;
 
-- (void)mhSocket:(MHPaddoc *)mhSocket
+- (void)mhPaddoc:(MHPaddoc *)mhPaddoc
   deliverMessage:(NSData *)data
       fromGroups:(NSArray *)groups
    withTraceInfo:(NSArray *)traceInfo;
