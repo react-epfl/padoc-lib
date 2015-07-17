@@ -185,10 +185,10 @@ by the following callback:
 In order to send a message, the following command can be called:
 ```Objective-C
 NSError *error;
-[paddocmulticastMessage:msg
-         toDestinations:destinations
-                maxHops:(int)maxHops
-                  error:&error];
+[paddoc multicastMessage:msg
+          toDestinations:destinations
+                 maxHops:(int)maxHops
+                   error:&error];
      
 ```
 Note that *msg* is a NSData object, whereas *destinations* is an array  
