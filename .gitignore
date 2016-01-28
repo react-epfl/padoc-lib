@@ -1,4 +1,4 @@
 *.DS_Store
-Multihop.xcodeproj/xcuserdata/*
-Multihop.xcodeproj/project.xcworkspace/xcuserdata/*
+Paddoc.xcodeproj/xcuserdata/*
+Paddoc.xcodeproj/project.xcworkspace/xcuserdata/*
 *.xcuserstate
