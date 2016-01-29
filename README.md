@@ -1,8 +1,8 @@
 # Paddoc Library for IOS (v0.5)
-Paddoc is an Objective-C library runnable on IOS devices whose purpose is to connect smartphones without any external service. It supports a network of any size using multiple hops for message sending. It relies on the Multipeer Connectivity framework for the lower communication primitives between neighbour devices.  
+Paddoc is an Objective-C library runnable on iOS devices whose purpose is to connect smartphones without any external service. It supports a network of any size using multiple hops for message sending. It relies on the Multipeer Connectivity framework for the lower communication primitives between neighbour devices.  
   
 By creating a Paddoc object, it is possible to send and receive messages to and from any peer in the network.  
-The interface is location multicast-based and provides methods for joining and leaving **multicast groups**. When a peer sends a message to a particular group, then only the peers having joint the specific group will receive the message. In addition, it is possible to specify a maximal distance after which peers are not acknowledged anymore.
+The interface is location multicast-based and provides methods for joining and leaving **multicast groups**. When a peer sends a message to a particular group, then only the peers having joint that specific group will receive the message. In addition, it is possible to specify a maximal distance after which peers are not acknowledged anymore.
 Indeed, the source peer has no knowledge of which peers will finally receive the message.  
   
 This library provides multihop support, meaning that message routing between two points is entirely handled by intermediate peers. Three routing strategies have been implemented so far:
@@ -13,14 +13,14 @@ So far, the library works as expected, but still misses some important features:
 * No message reliability support
 * No congestion control support
   
-The major limitation comes from the fact that there no transport layer is still implemented.
+The major limitation comes from the fact that there is no transport layer still implemented.
 
 ## Features
 
-* Direct communication between IOS devices
+* Direct communication between iOS devices
 * Background mode support
-* Multihop supporting for message routing throughout the network
-* Support of 3 routing strategies: broadcast (Flooding and CBS) and multicast (6Shots)
+* Multihop support for message routing throughout the network
+* Support of three routing strategies: broadcast (Flooding and CBS) and multicast (6Shots)
 * Diagnostics tools suite
 
 
@@ -33,20 +33,19 @@ The major limitation comes from the fact that there no transport layer is still 
 
 ## Dependencies
 
-* IOS >= 7.0, IOS SDK >= 8.0
+* iOS >= 7.0, iOS SDK >= 8.0
 * MultipeerConnectivity.framework
 * CoreLocation.framework
 * CoreBluetooth.framework
 
 
-## Compilation
+## Install
 
-In order to compile and use the library, two options are possible:
+In order to use the Paddoc library in your project, two options are possible:
 
 * Create your application project
 * Include CoreLocation.framework
-* Manually Copy the content of the ./Multihop folder
-* Compile the application as well as the library
+* Manually copy the content of the ./Paddoc folder
 
 or
 
@@ -56,10 +55,7 @@ or
 * Include CoreLocation.framework
 * Include the static library file
 
-
-## Utilization
-
-First, make sure that WiFi is turned on.
+Make sure that WiFi is turned on.
 
 ### Initialization
 
@@ -248,8 +244,8 @@ where messages transit, or even getting statistical usage results.
               
 #### Statistical results and packet tracing
 
-In order to get a complete trace information of any packet that a node receives, it  
-must enable the following option:
+In order to get a complete trace information of any packet that a node receives,  
+the following option must be enabled:
 ```Objective-C
 [MHDiagnostics getSingleton].useTraceInfo = YES;
 ```
@@ -286,7 +282,7 @@ In order to know what are the directly connected peers (neighbourhood), use:
 ```
 Now, the following callbacks are available:
 ```Objective-C
-- (void)mhSocket:(MHSocket *)mhSocket
+- (void)mhPaddoc:(MHPaddoc *)mhPaddoc
 neighbourConnected:(NSString *)info
             peer:(NSString *)peer
      displayName:(NSString *)displayName
@@ -294,7 +290,7 @@ neighbourConnected:(NSString *)info
   ...
 }
 
-- (void)mhSocket:(MHSocket *)mhSocket
+- (void)mhPaddoc:(MHPaddoc *)mhPaddoc
 neighbourDisconnected:(NSString *)info
             peer:(NSString *)peer
 {
