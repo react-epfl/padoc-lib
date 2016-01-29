@@ -1,4 +1,4 @@
-# Paddoc Library for IOS (v0.5)
+# Paddoc Library for iOS (v0.5)
 Paddoc is an Objective-C library runnable on iOS devices whose purpose is to connect smartphones without any external service. It supports a network of any size using multiple hops for message sending. It relies on the Multipeer Connectivity framework for the lower communication primitives between neighbour devices.  
   
 By creating a Paddoc object, it is possible to send and receive messages to and from any peer in the network.  
