@@ -1,13 +1,13 @@
 //
-//  MHSocket.h
+//  MHPaddoc.h
 //  Paddoc
 //
 //  Created by quarta on 02/06/15.
 //  Copyright (c) 2015 quarta. All rights reserved.
 //
 
-#ifndef Paddoc_MHSocket_h
-#define Paddoc_MHSocket_h
+#ifndef Paddoc_MHPaddoc_h
+#define Paddoc_MHPaddoc_h
 
 
 #import <Foundation/Foundation.h>
@@ -133,7 +133,7 @@
  
  They will receive the data with the delegate callback:
  
- - (void)mhSocket:(MHSocket *)mhSocket didReceiveMessage:(NSData *)data fromPeer:(NSString *)peer
+ - (void)mhPaddoc:(MHPaddoc *)mhPaddoc didReceiveMessage:(NSData *)data fromPeer:(NSString *)peer
  
  @param data message data to send.
  @param destinations list of multicast groups to which send the message
@@ -149,7 +149,7 @@
  
  They will receive the data with the delegate callback:
  
- - (void)mhSocket:(MHSocket *)mhSocket didReceiveMessage:(NSData *)data fromPeer:(NSString *)peer
+ - (void)mhPaddoc:(MHPaddoc *)mhPaddoc didReceiveMessage:(NSData *)data fromPeer:(NSString *)peer
  
  @param data message data to send.
  @param destinations list of multicast groups to which send the message
@@ -190,7 +190,7 @@
 @end
 
 /**
- The delegate for the MHSocket class.
+ The delegate for the MHPaddoc class.
  */
 @protocol MHPaddocDelegate <NSObject>
 
