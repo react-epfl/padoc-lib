@@ -12,7 +12,7 @@
 		2B2DB3871AD183A500619A12 /* MHLocationManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B2DB3861AD183A500619A12 /* MHLocationManager.m */; };
 		2B6B5AB51B2C9A9F00EB7FC6 /* MHDatagram.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B6B5AB41B2C9A9F00EB7FC6 /* MHDatagram.m */; };
 		2B6B5ABB1B2CB82400EB7FC6 /* MHPeerBuffer.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B6B5ABA1B2CB82400EB7FC6 /* MHPeerBuffer.m */; };
-		2B8092FA1AB34C7F0059F89D /* libPaddoc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B8092EE1AB34C7F0059F89D /* libPaddoc.a */; };
+		2B8092FA1AB34C7F0059F89D /* libPadoc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B8092EE1AB34C7F0059F89D /* libPadoc.a */; };
 		2B8093101AB71A750059F89D /* MHPeer.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B80930F1AB71A750059F89D /* MHPeer.m */; };
 		2B8093131AB726170059F89D /* MHMultipeerWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B8093121AB726170059F89D /* MHMultipeerWrapper.m */; };
 		2B8093361AB87CE50059F89D /* MHMultipeerWrapper.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B8093111AB725FF0059F89D /* MHMultipeerWrapper.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -67,8 +67,8 @@
 		2B6B5AB41B2C9A9F00EB7FC6 /* MHDatagram.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MHDatagram.m; sourceTree = "<group>"; };
 		2B6B5AB91B2CB80D00EB7FC6 /* MHPeerBuffer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MHPeerBuffer.h; sourceTree = "<group>"; };
 		2B6B5ABA1B2CB82400EB7FC6 /* MHPeerBuffer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MHPeerBuffer.m; sourceTree = "<group>"; };
-		2B8092EE1AB34C7F0059F89D /* libPaddoc.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPaddoc.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		2B8092F91AB34C7F0059F89D /* Paddoc.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Paddoc.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		2B8092EE1AB34C7F0059F89D /* libPadoc.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPadoc.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		2B8092F91AB34C7F0059F89D /* Padoc.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Padoc.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		2B8092FF1AB34C7F0059F89D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		2B80930E1AB71A580059F89D /* MHPeer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MHPeer.h; sourceTree = "<group>"; };
 		2B80930F1AB71A750059F89D /* MHPeer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MHPeer.m; sourceTree = "<group>"; };
@@ -117,7 +117,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2B8092FA1AB34C7F0059F89D /* libPaddoc.a in Frameworks */,
+				2B8092FA1AB34C7F0059F89D /* libPadoc.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -150,8 +150,8 @@
 			isa = PBXGroup;
 			children = (
 				2B2DB3821AD182E800619A12 /* CoreLocation.framework */,
-				2B8092F01AB34C7F0059F89D /* Paddoc */,
-				2B8092FD1AB34C7F0059F89D /* PaddocTests */,
+				2B8092F01AB34C7F0059F89D /* Padoc */,
+				2B8092FD1AB34C7F0059F89D /* PadocTests */,
 				2B8092EF1AB34C7F0059F89D /* Products */,
 			);
 			sourceTree = "<group>";
@@ -159,13 +159,13 @@
 		2B8092EF1AB34C7F0059F89D /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				2B8092EE1AB34C7F0059F89D /* libPaddoc.a */,
-				2B8092F91AB34C7F0059F89D /* Paddoc.xctest */,
+				2B8092EE1AB34C7F0059F89D /* libPadoc.a */,
+				2B8092F91AB34C7F0059F89D /* Padoc.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		2B8092F01AB34C7F0059F89D /* Paddoc */ = {
+		2B8092F01AB34C7F0059F89D /* Padoc */ = {
 			isa = PBXGroup;
 			children = (
 				2B2DB3841AD1836D00619A12 /* Utils */,
@@ -175,15 +175,15 @@
 				2B8093091AB717790059F89D /* Network */,
 				2B8093081AB7174B0059F89D /* Link */,
 			);
-			path = Paddoc;
+			path = Padoc;
 			sourceTree = "<group>";
 		};
-		2B8092FD1AB34C7F0059F89D /* PaddocTests */ = {
+		2B8092FD1AB34C7F0059F89D /* PadocTests */ = {
 			isa = PBXGroup;
 			children = (
 				2B8092FE1AB34C7F0059F89D /* Supporting Files */,
 			);
-			path = PaddocTests;
+			path = PadocTests;
 			sourceTree = "<group>";
 		};
 		2B8092FE1AB34C7F0059F89D /* Supporting Files */ = {
@@ -319,9 +319,9 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		2B8092ED1AB34C7F0059F89D /* Paddoc */ = {
+		2B8092ED1AB34C7F0059F89D /* Padoc */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 2B8093021AB34C800059F89D /* Build configuration list for PBXNativeTarget "Paddoc" */;
+			buildConfigurationList = 2B8093021AB34C800059F89D /* Build configuration list for PBXNativeTarget "Padoc" */;
 			buildPhases = (
 				2B8092EA1AB34C7F0059F89D /* Sources */,
 				2B8092EB1AB34C7F0059F89D /* Frameworks */,
@@ -332,14 +332,14 @@
 			);
 			dependencies = (
 			);
-			name = Paddoc;
+			name = Padoc;
 			productName = Multihop;
-			productReference = 2B8092EE1AB34C7F0059F89D /* libPaddoc.a */;
+			productReference = 2B8092EE1AB34C7F0059F89D /* libPadoc.a */;
 			productType = "com.apple.product-type.library.static";
 		};
-		2B8092F81AB34C7F0059F89D /* PaddocTests */ = {
+		2B8092F81AB34C7F0059F89D /* PadocTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 2B8093051AB34C800059F89D /* Build configuration list for PBXNativeTarget "PaddocTests" */;
+			buildConfigurationList = 2B8093051AB34C800059F89D /* Build configuration list for PBXNativeTarget "PadocTests" */;
 			buildPhases = (
 				2B8092F51AB34C7F0059F89D /* Sources */,
 				2B8092F61AB34C7F0059F89D /* Frameworks */,
@@ -350,9 +350,9 @@
 			dependencies = (
 				2B8092FC1AB34C7F0059F89D /* PBXTargetDependency */,
 			);
-			name = PaddocTests;
+			name = PadocTests;
 			productName = MultihopTests;
-			productReference = 2B8092F91AB34C7F0059F89D /* Paddoc.xctest */;
+			productReference = 2B8092F91AB34C7F0059F89D /* Padoc.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
@@ -373,7 +373,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 2B8092E91AB34C7F0059F89D /* Build configuration list for PBXProject "Paddoc" */;
+			buildConfigurationList = 2B8092E91AB34C7F0059F89D /* Build configuration list for PBXProject "Padoc" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
@@ -385,8 +385,8 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				2B8092ED1AB34C7F0059F89D /* Paddoc */,
-				2B8092F81AB34C7F0059F89D /* PaddocTests */,
+				2B8092ED1AB34C7F0059F89D /* Padoc */,
+				2B8092F81AB34C7F0059F89D /* PadocTests */,
 			);
 		};
 /* End PBXProject section */
@@ -441,7 +441,7 @@
 /* Begin PBXTargetDependency section */
 		2B8092FC1AB34C7F0059F89D /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 2B8092ED1AB34C7F0059F89D /* Paddoc */;
+			target = 2B8092ED1AB34C7F0059F89D /* Padoc */;
 			targetProxy = 2B8092FB1AB34C7F0059F89D /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -528,7 +528,7 @@
 			buildSettings = {
 				IPHONEOS_DEPLOYMENT_TARGET = 8.2;
 				OTHER_LDFLAGS = "-ObjC";
-				PRODUCT_NAME = Paddoc;
+				PRODUCT_NAME = Padoc;
 				SKIP_INSTALL = YES;
 			};
 			name = Debug;
@@ -538,7 +538,7 @@
 			buildSettings = {
 				IPHONEOS_DEPLOYMENT_TARGET = 8.2;
 				OTHER_LDFLAGS = "-ObjC";
-				PRODUCT_NAME = Paddoc;
+				PRODUCT_NAME = Padoc;
 				SKIP_INSTALL = YES;
 			};
 			name = Release;
@@ -559,7 +559,7 @@
 				INFOPLIST_FILE = PaddocTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.2;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_NAME = Paddoc;
+				PRODUCT_NAME = Padoc;
 				PROVISIONING_PROFILE = "";
 			};
 			name = Debug;
@@ -576,7 +576,7 @@
 				INFOPLIST_FILE = PaddocTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.2;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_NAME = Paddoc;
+				PRODUCT_NAME = Padoc;
 				PROVISIONING_PROFILE = "";
 			};
 			name = Release;
@@ -584,7 +584,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		2B8092E91AB34C7F0059F89D /* Build configuration list for PBXProject "Paddoc" */ = {
+		2B8092E91AB34C7F0059F89D /* Build configuration list for PBXProject "Padoc" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				2B8093001AB34C7F0059F89D /* Debug */,
@@ -593,7 +593,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		2B8093021AB34C800059F89D /* Build configuration list for PBXNativeTarget "Paddoc" */ = {
+		2B8093021AB34C800059F89D /* Build configuration list for PBXNativeTarget "Padoc" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				2B8093031AB34C800059F89D /* Debug */,
@@ -602,7 +602,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		2B8093051AB34C800059F89D /* Build configuration list for PBXNativeTarget "PaddocTests" */ = {
+		2B8093051AB34C800059F89D /* Build configuration list for PBXNativeTarget "PadocTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				2B8093061AB34C800059F89D /* Debug */,

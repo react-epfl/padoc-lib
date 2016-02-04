@@ -16,8 +16,8 @@
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "2B8092ED1AB34C7F0059F89D"
                BuildableName = "libPaddoc.a"
-               BlueprintName = "Paddoc"
-               ReferencedContainer = "container:Paddoc.xcodeproj">
+               BlueprintName = "Padoc"
+               ReferencedContainer = "container:Padoc.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -33,9 +33,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "2B8092F81AB34C7F0059F89D"
-               BuildableName = "Paddoc.xctest"
-               BlueprintName = "PaddocTests"
-               ReferencedContainer = "container:Paddoc.xcodeproj">
+               BuildableName = "Padoc.xctest"
+               BlueprintName = "PadocTests"
+               ReferencedContainer = "container:Padoc.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -44,8 +44,8 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "2B8092ED1AB34C7F0059F89D"
             BuildableName = "libPaddoc.a"
-            BlueprintName = "Paddoc"
-            ReferencedContainer = "container:Paddoc.xcodeproj">
+            BlueprintName = "Padoc"
+            ReferencedContainer = "container:Padoc.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <AdditionalOptions>
@@ -66,8 +66,8 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "2B8092ED1AB34C7F0059F89D"
             BuildableName = "libPaddoc.a"
-            BlueprintName = "Paddoc"
-            ReferencedContainer = "container:Paddoc.xcodeproj">
+            BlueprintName = "Padoc"
+            ReferencedContainer = "container:Padoc.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <AdditionalOptions>
@@ -84,8 +84,8 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "2B8092ED1AB34C7F0059F89D"
             BuildableName = "libPaddoc.a"
-            BlueprintName = "Paddoc"
-            ReferencedContainer = "container:Paddoc.xcodeproj">
+            BlueprintName = "Padoc"
+            ReferencedContainer = "container:Padoc.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
    </ProfileAction>
