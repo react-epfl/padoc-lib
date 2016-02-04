@@ -1,13 +1,13 @@
 //
 //  MHDiagnosticsOptions.h
-//  Paddoc
+//  Padoc
 //
 //  Created by quarta on 05/05/15.
 //  Copyright (c) 2015 quarta. All rights reserved.
 //
 
-#ifndef Paddoc_MHDiagnosticsOptions_h
-#define Paddoc_MHDiagnosticsOptions_h
+#ifndef Padoc_MHDiagnosticsOptions_h
+#define Padoc_MHDiagnosticsOptions_h
 
 
 #import <Foundation/Foundation.h>

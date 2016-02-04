@@ -1,13 +1,13 @@
 //
 //  MHMessage.h
-//  Paddoc
+//  Padoc
 //
 //  Created by quarta on 03/05/15.
 //  Copyright (c) 2015 quarta. All rights reserved.
 //
 
-#ifndef Paddoc_MHMessage_h
-#define Paddoc_MHMessage_h
+#ifndef Padoc_MHMessage_h
+#define Padoc_MHMessage_h
 
 #import <Foundation/Foundation.h>
 

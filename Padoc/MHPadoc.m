@@ -1,21 +1,21 @@
 //
-//  MHPaddoc.m
-//  Paddoc
+//  MHPadoc.m
+//  Padoc
 //
 //  Created by quarta on 02/06/15.
 //  Copyright (c) 2015 quarta. All rights reserved.
 //
 
 
-#import "MHPaddoc.h"
+#import "MHPadoc.h"
 
 
-@interface MHPaddoc () <MHControllerDelegate>
+@interface MHPadoc () <MHControllerDelegate>
 
 @property (nonatomic, strong) MHController *mhController;
 @end
 
-@implementation MHPaddoc
+@implementation MHPadoc
 
 #pragma mark - Life Cycle
 
@@ -144,7 +144,7 @@
      failedToConnect:(NSError *)error
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        [self.delegate mhPaddoc:self failedToConnect:error];
+        [self.delegate mhPadoc:self failedToConnect:error];
     });
 }
 
@@ -156,13 +156,13 @@
     if (traceInfo != nil)
     {
         dispatch_async(dispatch_get_main_queue(), ^{
-            [self.delegate mhPaddoc:self deliverMessage:message.data fromGroups:groups withTraceInfo:traceInfo];
+            [self.delegate mhPadoc:self deliverMessage:message.data fromGroups:groups withTraceInfo:traceInfo];
         });
     }
     else
     {
         dispatch_async(dispatch_get_main_queue(), ^{
-            [self.delegate mhPaddoc:self deliverMessage:message.data fromGroups:groups];
+            [self.delegate mhPadoc:self deliverMessage:message.data fromGroups:groups];
         });
     }
 }
@@ -176,9 +176,9 @@
           fromSource:(NSString *)peer
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        if ([self.delegate respondsToSelector:@selector(mhPaddoc:forwardPacket:withMessage:fromSource:)])
+        if ([self.delegate respondsToSelector:@selector(mhPadoc:forwardPacket:withMessage:fromSource:)])
         {
-            [self.delegate mhPaddoc:self
+            [self.delegate mhPadoc:self
                       forwardPacket:info
                         withMessage:message.data
                          fromSource:peer];
@@ -193,9 +193,9 @@
 
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        if ([self.delegate respondsToSelector:@selector(mhPaddoc:neighbourConnected:peer:displayName:)])
+        if ([self.delegate respondsToSelector:@selector(mhPadoc:neighbourConnected:peer:displayName:)])
         {
-            [self.delegate mhPaddoc:self neighbourConnected:info peer:peer displayName:displayName];
+            [self.delegate mhPadoc:self neighbourConnected:info peer:peer displayName:displayName];
         }
     });
 }
@@ -206,9 +206,9 @@ neighbourDisconnected:(NSString *)info
 
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        if ([self.delegate respondsToSelector:@selector(mhPaddoc:neighbourDisconnected:peer:)])
+        if ([self.delegate respondsToSelector:@selector(mhPadoc:neighbourDisconnected:peer:)])
         {
-            [self.delegate mhPaddoc:self neighbourDisconnected:info peer:peer];
+            [self.delegate mhPadoc:self neighbourDisconnected:info peer:peer];
         }
     });
 }
@@ -220,9 +220,9 @@ neighbourDisconnected:(NSString *)info
                group:(NSString *)group
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        if ([self.delegate respondsToSelector:@selector(mhPaddoc:joinedGroup:peer:displayName:group:)])
+        if ([self.delegate respondsToSelector:@selector(mhPadoc:joinedGroup:peer:displayName:group:)])
         {
-            [self.delegate mhPaddoc:self
+            [self.delegate mhPadoc:self
                         joinedGroup:info
                                peer:peer
                         displayName:displayName

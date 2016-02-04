@@ -1,13 +1,13 @@
 //
 //  MHComputation.h
-//  Paddoc
+//  Padoc
 //
 //  Created by quarta on 12/04/15.
 //  Copyright (c) 2015 quarta. All rights reserved.
 //
 
-#ifndef Paddoc_MHComputation_h
-#define Paddoc_MHComputation_h
+#ifndef Padoc_MHComputation_h
+#define Padoc_MHComputation_h
 
 #import <Foundation/Foundation.h>
 

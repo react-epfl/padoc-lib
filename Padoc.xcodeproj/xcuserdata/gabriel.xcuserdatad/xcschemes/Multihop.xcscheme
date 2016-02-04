@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "2B8092ED1AB34C7F0059F89D"
-               BuildableName = "libPaddoc.a"
+               BuildableName = "libPadoc.a"
                BlueprintName = "Padoc"
                ReferencedContainer = "container:Padoc.xcodeproj">
             </BuildableReference>
@@ -43,7 +43,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "2B8092ED1AB34C7F0059F89D"
-            BuildableName = "libPaddoc.a"
+            BuildableName = "libPadoc.a"
             BlueprintName = "Padoc"
             ReferencedContainer = "container:Padoc.xcodeproj">
          </BuildableReference>
@@ -65,7 +65,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "2B8092ED1AB34C7F0059F89D"
-            BuildableName = "libPaddoc.a"
+            BuildableName = "libPadoc.a"
             BlueprintName = "Padoc"
             ReferencedContainer = "container:Padoc.xcodeproj">
          </BuildableReference>
@@ -83,7 +83,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "2B8092ED1AB34C7F0059F89D"
-            BuildableName = "libPaddoc.a"
+            BuildableName = "libPadoc.a"
             BlueprintName = "Padoc"
             ReferencedContainer = "container:Padoc.xcodeproj">
          </BuildableReference>

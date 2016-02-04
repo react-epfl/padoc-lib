@@ -1,13 +1,13 @@
 //
 //  MHConnectionBuffer.h
-//  Paddoc
+//  Padoc
 //
 //  Created by quarta on 26/03/15.
 //  Copyright (c) 2015 quarta. All rights reserved.
 //
 
-#ifndef Paddoc_MHConnectionBuffer_h
-#define Paddoc_MHConnectionBuffer_h
+#ifndef Padoc_MHConnectionBuffer_h
+#define Padoc_MHConnectionBuffer_h
 
 #import <Foundation/Foundation.h>
 #import "MHMultipeerWrapper.h"

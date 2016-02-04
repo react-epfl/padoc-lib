@@ -1,6 +1,6 @@
 //
 //  MHMessage.m
-//  Paddoc
+//  Padoc
 //
 //  Created by quarta on 03/05/15.
 //  Copyright (c) 2015 quarta. All rights reserved.

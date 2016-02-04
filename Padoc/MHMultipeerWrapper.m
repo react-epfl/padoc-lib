@@ -1,6 +1,6 @@
 //
 //  MHNodeManager.m
-//  Paddoc
+//  Padoc
 //
 //  Created by quarta on 16/03/15.
 //  Copyright (c) 2015 quarta. All rights reserved.
@@ -173,8 +173,8 @@
         NSAssert(self.serviceType, @"No service type. You must initialize this class using the custom intializers.");
         
         _dictInfo = [[NSMutableDictionary alloc] init];
-        [_dictInfo setObject:self.mhPeer.mhPeerID forKey:@"PaddocID"];
-        [_dictInfo setObject:self.mhPeer.displayName forKey:@"PaddocDisplayName"];
+        [_dictInfo setObject:self.mhPeer.mhPeerID forKey:@"PadocID"];
+        [_dictInfo setObject:self.mhPeer.displayName forKey:@"PadocDisplayName"];
     }
     return _dictInfo;
 }
@@ -264,28 +264,28 @@ didReceiveInvitationFromPeer:(MCPeerID *)peerID
         
         // Diagnostics: network map
         if([[MHDiagnostics getSingleton] isConnectedInNetworkMap:self.mhPeer.displayName
-                                               withNeighbourNode:[info objectForKey:@"PaddocDisplayName"]])
+                                               withNeighbourNode:[info objectForKey:@"PadocDisplayName"]])
         {
             // Only accept invitations with IDs lower than the current host
             // If both people accept invitations, then connections are lost
             // However, this should always be the case since we only send invites in one direction
-            NSString *paddocID = [info objectForKey:@"PaddocID"];
+            NSString *padocID = [info objectForKey:@"PadocID"];
             
-            if ([self.mhPeer.mhPeerID compare:paddocID] == NSOrderedDescending)
+            if ([self.mhPeer.mhPeerID compare:padocID] == NSOrderedDescending)
             {
-                if([self peerAvailable:paddocID]) // peer has already been disconnected
+                if([self peerAvailable:padocID]) // peer has already been disconnected
                 {
-                    MHPeer *peer = [self.neighbourPeers objectForKey:paddocID];
+                    MHPeer *peer = [self.neighbourPeers objectForKey:padocID];
                     [peer disconnect];
                     
-                    [self.neighbourPeers removeObjectForKey:paddocID];
+                    [self.neighbourPeers removeObjectForKey:padocID];
                     
                     
-                    if ([self peerConnected:paddocID])
+                    if ([self peerConnected:padocID])
                     {
-                        [self.connectedPeers removeObject:paddocID];
+                        [self.connectedPeers removeObject:padocID];
                         dispatch_async(dispatch_get_main_queue(), ^{
-                            [self.delegate mcWrapper:self hasDisconnected:@"Heartbeat failed" peer:paddocID];
+                            [self.delegate mcWrapper:self hasDisconnected:@"Heartbeat failed" peer:padocID];
                         });
                     }
                     
@@ -316,16 +316,16 @@ withDiscoveryInfo:(NSDictionary *)info
     dispatch_async(dispatch_get_main_queue(), ^{
         // Diagnostics: network map
         if([[MHDiagnostics getSingleton] isConnectedInNetworkMap:self.mhPeer.displayName
-                                                withNeighbourNode:[info objectForKey:@"PaddocDisplayName"]])
+                                                withNeighbourNode:[info objectForKey:@"PadocDisplayName"]])
         {
             // Whenever we find a peer, let's just send them an invitation
             // But only send invites one way
-            NSString *paddocID = [info objectForKey:@"PaddocID"];
+            NSString *padocID = [info objectForKey:@"PadocID"];
             
             
-            if ([self.mhPeer.mhPeerID compare:paddocID] == NSOrderedAscending)
+            if ([self.mhPeer.mhPeerID compare:padocID] == NSOrderedAscending)
             {
-                if(![self peerAvailable:paddocID]) // peer has already been disconnected
+                if(![self peerAvailable:padocID]) // peer has already been disconnected
                 {
                     MCSession *session = [self addNewNeighbourPeer:peerID withInfo:info];
                     
@@ -347,11 +347,11 @@ withDiscoveryInfo:(NSDictionary *)info
 
 - (MCSession *)addNewNeighbourPeer:(MCPeerID *)peerID withInfo:(NSDictionary *)info
 {
-    MHPeer *peer = [[MHPeer alloc] initWithDisplayName:[info objectForKey:@"PaddocDisplayName"]
+    MHPeer *peer = [[MHPeer alloc] initWithDisplayName:[info objectForKey:@"PadocDisplayName"]
                                        withOwnMCPeerID:self.mhPeer.mcPeerID
                                        withOwnMHPeerID:self.mhPeer.mhPeerID
                                           withMCPeerID:peerID
-                                          withMHPeerID:[info objectForKey:@"PaddocID"]];
+                                          withMHPeerID:[info objectForKey:@"PadocID"]];
     peer.delegate = self;
     
     

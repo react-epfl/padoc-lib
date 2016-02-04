@@ -1,13 +1,13 @@
 //
 //  MHCBSProtocol.h
-//  Paddoc
+//  Padoc
 //
 //  Created by quarta on 23/06/15.
 //  Copyright (c) 2015 quarta. All rights reserved.
 //
 
-#ifndef Paddoc_MHCBSProtocol_h
-#define Paddoc_MHCBSProtocol_h
+#ifndef Padoc_MHCBSProtocol_h
+#define Padoc_MHCBSProtocol_h
 
 
 #import "MHRoutingProtocol.h"

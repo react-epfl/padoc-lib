@@ -8,8 +8,8 @@
 
 #import "ViewController.h"
 
-//  import the Paddoc interface as well as the App delegate.
-#import "MHPaddoc.h"
+//  import the Padoc interface as well as the App delegate.
+#import "MHPadoc.h"
 #import "AppDelegate.h"
 #import "MHPeer.h"
 #import "MHMultipeerWrapper.h"
@@ -17,11 +17,11 @@
 //  This will be the global group to join
 #define GLOBAL @"global"
 
-//  Make sure the class is implementing the MHPaddocDelegate protocol
-@interface ViewController () <MHPaddocDelegate>
+//  Make sure the class is implementing the MHPadocDelegate protocol
+@interface ViewController () <MHPadocDelegate>
 
-//  Declare the actual paddoc object
-@property (strong, nonatomic) MHPaddoc *paddoc;
+//  Declare the actual padoc object
+@property (strong, nonatomic) MHPadoc *padoc;
 @property (nonatomic) BOOL connectionIsOK;
 @property (nonatomic) NSString *peer_id;
 @property (nonatomic, strong) NSMutableArray *connectedPeers;
@@ -46,22 +46,22 @@
     // Initialize peers array
     self.connectedPeers = [[NSMutableArray alloc] init];
     
-    if (self.paddoc == nil) {
+    if (self.padoc == nil) {
         
-        //Set up the paddoc(socket) and the groups
-        self.paddoc = [[MHPaddoc alloc] initWithServiceType:@"demoService"];
-        self.paddoc.delegate = self;
+        //Set up the padoc(socket) and the groups
+        self.padoc = [[MHPadoc alloc] initWithServiceType:@"demoService"];
+        self.padoc.delegate = self;
         
         //Set the peer ID
-        self.peer_id = [self.paddoc getOwnPeer];
+        self.peer_id = [self.padoc getOwnPeer];
         
         //For background mode
         AppDelegate *appDelegate = (AppDelegate*)[[UIApplication sharedApplication] delegate];
-        [appDelegate setPaddocObject:self.paddoc];
+        [appDelegate setPadocObject:self.padoc];
         
         // Join the groups
-        [self.paddoc joinGroup:GLOBAL];
-        [self.paddoc joinGroup:self.peer_id];
+        [self.padoc joinGroup:GLOBAL];
+        [self.padoc joinGroup:self.peer_id];
     }
     
     self.connectionIsOK = YES;
@@ -91,19 +91,19 @@
     NSData *msgData = [message dataUsingEncoding:NSUTF8StringEncoding];
     
     NSError *error;
-    [self.paddoc multicastMessage:msgData
+    [self.padoc multicastMessage:msgData
                    toDestinations:[[NSArray alloc] initWithObjects:GLOBAL, nil]
                             error:&error];
 }
 
 //Implement the callback method failedToConnect in case of error during connection
-- (void)mhPaddoc:(MHPaddoc *)mhPaddoc failedToConnect:(NSError *)error
+- (void)mhPadoc:(MHPadoc *)mhPadoc failedToConnect:(NSError *)error
 {
     self.connectionIsOK = NO;
 }
 
 //  Implement the callback method deliverMessage in case of receiving a message
-- (void)mhPaddoc:(MHPaddoc *)mhPaddoc
+- (void)mhPadoc:(MHPadoc *)mhPadoc
   deliverMessage:(NSData *)data
       fromGroups:(NSArray *)groups
 {
@@ -111,14 +111,14 @@
     self.messageLabel.text = msg;
 }
 
-- (void)mhPaddoc:(MHPaddoc *)mhPaddoc neighbourConnected:(NSString *)info peer:(NSString *)peer displayName:(NSString *)displayName
+- (void)mhPadoc:(MHPadoc *)mhPadoc neighbourConnected:(NSString *)info peer:(NSString *)peer displayName:(NSString *)displayName
 {
     //NSLog(@"NEIGHBOUR CONNECTED");
     [self.connectedPeers addObject:peer];
     [self.peersTable reloadData];
 }
 
-- (void)mhPaddoc:(MHPaddoc *)mhPaddoc
+- (void)mhPadoc:(MHPadoc *)mhPadoc
 neighbourDisconnected:(NSString *)info
             peer:(NSString *)peer
 {
@@ -129,7 +129,7 @@ neighbourDisconnected:(NSString *)info
 
 
 //  Only available when using 6Shot protocol
--(void)mhPaddoc:(MHPaddoc *)mhPaddoc joinedGroup:(NSString *)info peer:(NSString *)peer displayName:(NSString *)displayName group:(NSString *)group
+-(void)mhPadoc:(MHPadoc *)mhPadoc joinedGroup:(NSString *)info peer:(NSString *)peer displayName:(NSString *)displayName group:(NSString *)group
 {
     //NSLog(@"PEER CONNECTED");
 }

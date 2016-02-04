@@ -1,6 +1,6 @@
 //
 //  MHConnectionBuffer.m
-//  Paddoc
+//  Padoc
 //
 //  Created by quarta on 26/03/15.
 //  Copyright (c) 2015 quarta. All rights reserved.

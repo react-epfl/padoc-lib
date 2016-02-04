@@ -1,13 +1,13 @@
 //
 //  MHPeer.h
-//  Paddoc
+//  Padoc
 //
 //  Created by quarta on 16/03/15.
 //  Copyright (c) 2015 quarta. All rights reserved.
 //
 
-#ifndef Paddoc_MHPeer_h
-#define Paddoc_MHPeer_h
+#ifndef Padoc_MHPeer_h
+#define Padoc_MHPeer_h
 
 #import <Foundation/Foundation.h>
 #import <MultipeerConnectivity/MultipeerConnectivity.h>

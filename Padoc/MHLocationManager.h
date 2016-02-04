@@ -1,13 +1,13 @@
 //
 //  MHLocationManager.h
-//  Paddoc
+//  Padoc
 //
 //  Created by quarta on 05/04/15.
 //  Copyright (c) 2015 quarta. All rights reserved.
 //
 
-#ifndef Paddoc_MHLocationManager_h
-#define Paddoc_MHLocationManager_h
+#ifndef Padoc_MHLocationManager_h
+#define Padoc_MHLocationManager_h
 
 #import <Foundation/Foundation.h>
 #import <CoreLocation/CoreLocation.h>

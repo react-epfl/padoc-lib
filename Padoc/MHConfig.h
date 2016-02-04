@@ -1,13 +1,13 @@
 //
 //  MHParameters.h
-//  Paddoc
+//  Padoc
 //
 //  Created by quarta on 17/06/15.
 //  Copyright (c) 2015 quarta. All rights reserved.
 //
 
-#ifndef Paddoc_MHParameters_h
-#define Paddoc_MHParameters_h
+#ifndef Padoc_MHParameters_h
+#define Padoc_MHParameters_h
 
 #import <Foundation/Foundation.h>
 

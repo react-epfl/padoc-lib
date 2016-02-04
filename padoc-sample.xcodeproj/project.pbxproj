@@ -29,7 +29,7 @@
 		C07064E51C624E5D00367F8D /* MHMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = C07064CB1C624E5D00367F8D /* MHMessage.m */; };
 		C07064E61C624E5D00367F8D /* MHMultipeerWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = C07064CD1C624E5D00367F8D /* MHMultipeerWrapper.m */; };
 		C07064E71C624E5D00367F8D /* MHPacket.m in Sources */ = {isa = PBXBuildFile; fileRef = C07064CF1C624E5D00367F8D /* MHPacket.m */; };
-		C07064E81C624E5D00367F8D /* MHPaddoc.m in Sources */ = {isa = PBXBuildFile; fileRef = C07064D11C624E5D00367F8D /* MHPaddoc.m */; };
+		C07064E81C624E5D00367F8D /* MHPadoc.m in Sources */ = {isa = PBXBuildFile; fileRef = C07064D11C624E5D00367F8D /* MHPadoc.m */; };
 		C07064E91C624E5D00367F8D /* MHPeer.m in Sources */ = {isa = PBXBuildFile; fileRef = C07064D31C624E5D00367F8D /* MHPeer.m */; };
 		C07064EA1C624E5D00367F8D /* MHPeerBuffer.m in Sources */ = {isa = PBXBuildFile; fileRef = C07064D51C624E5D00367F8D /* MHPeerBuffer.m */; };
 		C07064EB1C624E5D00367F8D /* MHRoutingProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = C07064D71C624E5D00367F8D /* MHRoutingProtocol.m */; };
@@ -78,8 +78,8 @@
 		C07064CD1C624E5D00367F8D /* MHMultipeerWrapper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MHMultipeerWrapper.m; sourceTree = "<group>"; };
 		C07064CE1C624E5D00367F8D /* MHPacket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MHPacket.h; sourceTree = "<group>"; };
 		C07064CF1C624E5D00367F8D /* MHPacket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MHPacket.m; sourceTree = "<group>"; };
-		C07064D01C624E5D00367F8D /* MHPaddoc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MHPaddoc.h; sourceTree = "<group>"; };
-		C07064D11C624E5D00367F8D /* MHPaddoc.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MHPaddoc.m; sourceTree = "<group>"; };
+		C07064D01C624E5D00367F8D /* MHPadoc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MHPadoc.h; sourceTree = "<group>"; };
+		C07064D11C624E5D00367F8D /* MHPadoc.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MHPadoc.m; sourceTree = "<group>"; };
 		C07064D21C624E5D00367F8D /* MHPeer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MHPeer.h; sourceTree = "<group>"; };
 		C07064D31C624E5D00367F8D /* MHPeer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MHPeer.m; sourceTree = "<group>"; };
 		C07064D41C624E5D00367F8D /* MHPeerBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MHPeerBuffer.h; sourceTree = "<group>"; };
@@ -201,8 +201,8 @@
 		C07064F01C62507400367F8D /* Interface */ = {
 			isa = PBXGroup;
 			children = (
-				C07064D01C624E5D00367F8D /* MHPaddoc.h */,
-				C07064D11C624E5D00367F8D /* MHPaddoc.m */,
+				C07064D01C624E5D00367F8D /* MHPadoc.h */,
+				C07064D11C624E5D00367F8D /* MHPadoc.m */,
 			);
 			name = Interface;
 			sourceTree = "<group>";
@@ -359,7 +359,7 @@
 				C07064E01C624E5D00367F8D /* MHController.m in Sources */,
 				C070649D1C624E2A00367F8D /* AppDelegate.m in Sources */,
 				C07064DC1C624E5D00367F8D /* MHComputation.m in Sources */,
-				C07064E81C624E5D00367F8D /* MHPaddoc.m in Sources */,
+				C07064E81C624E5D00367F8D /* MHPadoc.m in Sources */,
 				C07064DB1C624E5D00367F8D /* MHCBSProtocol.m in Sources */,
 				C070649A1C624E2A00367F8D /* main.m in Sources */,
 				C07064E41C624E5D00367F8D /* MHLocationManager.m in Sources */,

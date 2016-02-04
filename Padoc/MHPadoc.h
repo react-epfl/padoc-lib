@@ -1,27 +1,27 @@
 //
-//  MHPaddoc.h
-//  Paddoc
+//  MHPadoc.h
+//  Padoc
 //
 //  Created by quarta on 02/06/15.
 //  Copyright (c) 2015 quarta. All rights reserved.
 //
 
-#ifndef Paddoc_MHPaddoc_h
-#define Paddoc_MHPaddoc_h
+#ifndef Padoc_MHPadoc_h
+#define Padoc_MHPadoc_h
 
 
 #import <Foundation/Foundation.h>
 #import "MHController.h"
 
 
-@protocol MHPaddocDelegate;
+@protocol MHPadocDelegate;
 
-@interface MHPaddoc : NSObject
+@interface MHPadoc : NSObject
 
 #pragma mark - Properties
 
-/// Delegate for the MHPaddoc methods
-@property (nonatomic, weak) id<MHPaddocDelegate> delegate;
+/// Delegate for the MHPadoc methods
+@property (nonatomic, weak) id<MHPadocDelegate> delegate;
 
 
 #pragma mark - Initialization
@@ -86,7 +86,7 @@
 
 
 /**
- Call this method to disconnect from everyone. In order to restart the system, a new Paddoc object
+ Call this method to disconnect from everyone. In order to restart the system, a new Padoc object
  should be reinstantiated.
  */
 - (void)disconnect;
@@ -133,7 +133,7 @@
  
  They will receive the data with the delegate callback:
  
- - (void)mhPaddoc:(MHPaddoc *)mhPaddoc didReceiveMessage:(NSData *)data fromPeer:(NSString *)peer
+ - (void)mhPadoc:(MHPadoc *)mhPadoc didReceiveMessage:(NSData *)data fromPeer:(NSString *)peer
  
  @param data message data to send.
  @param destinations list of multicast groups to which send the message
@@ -149,7 +149,7 @@
  
  They will receive the data with the delegate callback:
  
- - (void)mhPaddoc:(MHPaddoc *)mhPaddoc didReceiveMessage:(NSData *)data fromPeer:(NSString *)peer
+ - (void)mhPadoc:(MHPadoc *)mhPadoc didReceiveMessage:(NSData *)data fromPeer:(NSString *)peer
  
  @param data message data to send.
  @param destinations list of multicast groups to which send the message
@@ -190,42 +190,42 @@
 @end
 
 /**
- The delegate for the MHPaddoc class.
+ The delegate for the MHPadoc class.
  */
-@protocol MHPaddocDelegate <NSObject>
+@protocol MHPadocDelegate <NSObject>
 
 @required
-- (void)mhPaddoc:(MHPaddoc *)mhPaddoc
+- (void)mhPadoc:(MHPadoc *)mhPadoc
  failedToConnect:(NSError *)error;
 
-- (void)mhPaddoc:(MHPaddoc *)mhPaddoc
+- (void)mhPadoc:(MHPadoc *)mhPadoc
   deliverMessage:(NSData *)data
       fromGroups:(NSArray *)groups;
 
 @optional
 
 #pragma mark - Diagnostics info callbacks
-- (void)mhPaddoc:(MHPaddoc *)mhPaddoc
+- (void)mhPadoc:(MHPadoc *)mhPadoc
    forwardPacket:(NSString *)info
      withMessage:(NSData *)message
       fromSource:(NSString *)peer;
 
-- (void)mhPaddoc:(MHPaddoc *)mhPaddoc
+- (void)mhPadoc:(MHPadoc *)mhPadoc
 neighbourConnected:(NSString *)info
             peer:(NSString *)peer
      displayName:(NSString *)displayName;
 
-- (void)mhPaddoc:(MHPaddoc *)mhPaddoc
+- (void)mhPadoc:(MHPadoc *)mhPadoc
 neighbourDisconnected:(NSString *)info
             peer:(NSString *)peer;
 
-- (void)mhPaddoc:(MHPaddoc *)mhPaddoc
+- (void)mhPadoc:(MHPadoc *)mhPadoc
      joinedGroup:(NSString *)info
             peer:(NSString *)peer
      displayName:(NSString *)displayName
            group:(NSString *)group;
 
-- (void)mhPaddoc:(MHPaddoc *)mhPaddoc
+- (void)mhPadoc:(MHPadoc *)mhPadoc
   deliverMessage:(NSData *)data
       fromGroups:(NSArray *)groups
    withTraceInfo:(NSArray *)traceInfo;

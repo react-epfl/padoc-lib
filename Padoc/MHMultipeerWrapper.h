@@ -1,13 +1,13 @@
 //
 //  MHNodeManager.h
-//  Paddoc
+//  Padoc
 //
 //  Created by quarta on 16/03/15.
 //  Copyright (c) 2015 quarta. All rights reserved.
 //
 
-#ifndef Paddoc_MHMultipeerWrapper_h
-#define Paddoc_MHMultipeerWrapper_h
+#ifndef Padoc_MHMultipeerWrapper_h
+#define Padoc_MHMultipeerWrapper_h
 
 
 #import <Foundation/Foundation.h>

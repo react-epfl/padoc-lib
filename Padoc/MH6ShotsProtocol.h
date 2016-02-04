@@ -1,13 +1,13 @@
 //
 //  MH6ShotsProtocol.h
-//  Paddoc
+//  Padoc
 //
 //  Created by quarta on 04/04/15.
 //  Copyright (c) 2015 quarta. All rights reserved.
 //
 
-#ifndef Paddoc_MH6ShotsProtocol_h
-#define Paddoc_MH6ShotsProtocol_h
+#ifndef Padoc_MH6ShotsProtocol_h
+#define Padoc_MH6ShotsProtocol_h
 
 #import "MHRoutingProtocol.h"
 #import "MHLocationManager.h"

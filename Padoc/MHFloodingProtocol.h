@@ -1,13 +1,13 @@
 //
 //  MHFloodingProtocol.h
-//  Paddoc
+//  Padoc
 //
 //  Created by quarta on 03/04/15.
 //  Copyright (c) 2015 quarta. All rights reserved.
 //
 
-#ifndef Paddoc_MHFloodingProtocol_h
-#define Paddoc_MHFloodingProtocol_h
+#ifndef Padoc_MHFloodingProtocol_h
+#define Padoc_MHFloodingProtocol_h
 
 #import "MHRoutingProtocol.h"
 

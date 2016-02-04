@@ -1,6 +1,6 @@
 //
 //  MCPeer.m
-//  Paddoc
+//  Padoc
 //
 //  Created by quarta on 16/03/15.
 //  Copyright (c) 2015 quarta. All rights reserved.
@@ -411,13 +411,13 @@
 
 + (MHPeer *)getOwnMHPeerWithDisplayName:(NSString *)displayName
 {
-    NSString *mhPeerID = [[NSUserDefaults standardUserDefaults] valueForKey:@"PaddocID"];
+    NSString *mhPeerID = [[NSUserDefaults standardUserDefaults] valueForKey:@"PadocID"];
     
     if(mhPeerID == nil)
     {
         // Generation of a new PeerID
         mhPeerID = [[NSUUID UUID] UUIDString];
-        [[NSUserDefaults standardUserDefaults] setValue:mhPeerID forKey:@"PaddocID"];
+        [[NSUserDefaults standardUserDefaults] setValue:mhPeerID forKey:@"PadocID"];
         [[NSUserDefaults standardUserDefaults] synchronize];
     }
     

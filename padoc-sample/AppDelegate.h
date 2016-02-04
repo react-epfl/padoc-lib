@@ -9,14 +9,14 @@
 #import <UIKit/UIKit.h>
 
 //  Import the Padoc interface
-#import "MHPaddoc.h"
+#import "MHPadoc.h"
 
 @interface AppDelegate : UIResponder <UIApplicationDelegate>
 
 @property (strong, nonatomic) UIWindow *window;
 
-//  Set the paddoc object
-- (void)setPaddocObject:(MHPaddoc *)paddoc;
+//  Set the padoc object
+- (void)setPadocObject:(MHPadoc *)padoc;
 
 
 @end
