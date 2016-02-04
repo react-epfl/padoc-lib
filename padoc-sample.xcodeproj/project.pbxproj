@@ -1,0 +1,532 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		C070649A1C624E2A00367F8D /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = C07064991C624E2A00367F8D /* main.m */; };
+		C070649D1C624E2A00367F8D /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = C070649C1C624E2A00367F8D /* AppDelegate.m */; };
+		C07064A01C624E2A00367F8D /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = C070649F1C624E2A00367F8D /* ViewController.m */; };
+		C07064A31C624E2A00367F8D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C07064A11C624E2A00367F8D /* Main.storyboard */; };
+		C07064A51C624E2A00367F8D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C07064A41C624E2A00367F8D /* Assets.xcassets */; };
+		C07064A81C624E2A00367F8D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C07064A61C624E2A00367F8D /* LaunchScreen.storyboard */; };
+		C07064D81C624E5D00367F8D /* MH6ShotsProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = C07064B11C624E5D00367F8D /* MH6ShotsProtocol.m */; };
+		C07064D91C624E5D00367F8D /* MH6ShotsSchedule.m in Sources */ = {isa = PBXBuildFile; fileRef = C07064B31C624E5D00367F8D /* MH6ShotsSchedule.m */; };
+		C07064DA1C624E5D00367F8D /* MH6ShotsScheduler.m in Sources */ = {isa = PBXBuildFile; fileRef = C07064B51C624E5D00367F8D /* MH6ShotsScheduler.m */; };
+		C07064DB1C624E5D00367F8D /* MHCBSProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = C07064B71C624E5D00367F8D /* MHCBSProtocol.m */; };
+		C07064DC1C624E5D00367F8D /* MHComputation.m in Sources */ = {isa = PBXBuildFile; fileRef = C07064B91C624E5D00367F8D /* MHComputation.m */; };
+		C07064DD1C624E5D00367F8D /* MHConfig.m in Sources */ = {isa = PBXBuildFile; fileRef = C07064BB1C624E5D00367F8D /* MHConfig.m */; };
+		C07064DE1C624E5D00367F8D /* MHConnectionBuffer.m in Sources */ = {isa = PBXBuildFile; fileRef = C07064BD1C624E5D00367F8D /* MHConnectionBuffer.m */; };
+		C07064DF1C624E5D00367F8D /* MHConnectionsHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = C07064BF1C624E5D00367F8D /* MHConnectionsHandler.m */; };
+		C07064E01C624E5D00367F8D /* MHController.m in Sources */ = {isa = PBXBuildFile; fileRef = C07064C11C624E5D00367F8D /* MHController.m */; };
+		C07064E11C624E5D00367F8D /* MHDatagram.m in Sources */ = {isa = PBXBuildFile; fileRef = C07064C31C624E5D00367F8D /* MHDatagram.m */; };
+		C07064E21C624E5D00367F8D /* MHDiagnostics.m in Sources */ = {isa = PBXBuildFile; fileRef = C07064C51C624E5D00367F8D /* MHDiagnostics.m */; };
+		C07064E31C624E5D00367F8D /* MHFloodingProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = C07064C71C624E5D00367F8D /* MHFloodingProtocol.m */; };
+		C07064E41C624E5D00367F8D /* MHLocationManager.m in Sources */ = {isa = PBXBuildFile; fileRef = C07064C91C624E5D00367F8D /* MHLocationManager.m */; };
+		C07064E51C624E5D00367F8D /* MHMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = C07064CB1C624E5D00367F8D /* MHMessage.m */; };
+		C07064E61C624E5D00367F8D /* MHMultipeerWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = C07064CD1C624E5D00367F8D /* MHMultipeerWrapper.m */; };
+		C07064E71C624E5D00367F8D /* MHPacket.m in Sources */ = {isa = PBXBuildFile; fileRef = C07064CF1C624E5D00367F8D /* MHPacket.m */; };
+		C07064E81C624E5D00367F8D /* MHPaddoc.m in Sources */ = {isa = PBXBuildFile; fileRef = C07064D11C624E5D00367F8D /* MHPaddoc.m */; };
+		C07064E91C624E5D00367F8D /* MHPeer.m in Sources */ = {isa = PBXBuildFile; fileRef = C07064D31C624E5D00367F8D /* MHPeer.m */; };
+		C07064EA1C624E5D00367F8D /* MHPeerBuffer.m in Sources */ = {isa = PBXBuildFile; fileRef = C07064D51C624E5D00367F8D /* MHPeerBuffer.m */; };
+		C07064EB1C624E5D00367F8D /* MHRoutingProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = C07064D71C624E5D00367F8D /* MHRoutingProtocol.m */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		C07064951C624E2A00367F8D /* padoc-sample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "padoc-sample.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		C07064991C624E2A00367F8D /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		C070649B1C624E2A00367F8D /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		C070649C1C624E2A00367F8D /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		C070649E1C624E2A00367F8D /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
+		C070649F1C624E2A00367F8D /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
+		C07064A21C624E2A00367F8D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		C07064A41C624E2A00367F8D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		C07064A71C624E2A00367F8D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		C07064A91C624E2A00367F8D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		C07064B01C624E5D00367F8D /* MH6ShotsProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MH6ShotsProtocol.h; sourceTree = "<group>"; };
+		C07064B11C624E5D00367F8D /* MH6ShotsProtocol.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MH6ShotsProtocol.m; sourceTree = "<group>"; };
+		C07064B21C624E5D00367F8D /* MH6ShotsSchedule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MH6ShotsSchedule.h; sourceTree = "<group>"; };
+		C07064B31C624E5D00367F8D /* MH6ShotsSchedule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MH6ShotsSchedule.m; sourceTree = "<group>"; };
+		C07064B41C624E5D00367F8D /* MH6ShotsScheduler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MH6ShotsScheduler.h; sourceTree = "<group>"; };
+		C07064B51C624E5D00367F8D /* MH6ShotsScheduler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MH6ShotsScheduler.m; sourceTree = "<group>"; };
+		C07064B61C624E5D00367F8D /* MHCBSProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MHCBSProtocol.h; sourceTree = "<group>"; };
+		C07064B71C624E5D00367F8D /* MHCBSProtocol.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MHCBSProtocol.m; sourceTree = "<group>"; };
+		C07064B81C624E5D00367F8D /* MHComputation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MHComputation.h; sourceTree = "<group>"; };
+		C07064B91C624E5D00367F8D /* MHComputation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MHComputation.m; sourceTree = "<group>"; };
+		C07064BA1C624E5D00367F8D /* MHConfig.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MHConfig.h; sourceTree = "<group>"; };
+		C07064BB1C624E5D00367F8D /* MHConfig.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MHConfig.m; sourceTree = "<group>"; };
+		C07064BC1C624E5D00367F8D /* MHConnectionBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MHConnectionBuffer.h; sourceTree = "<group>"; };
+		C07064BD1C624E5D00367F8D /* MHConnectionBuffer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MHConnectionBuffer.m; sourceTree = "<group>"; };
+		C07064BE1C624E5D00367F8D /* MHConnectionsHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MHConnectionsHandler.h; sourceTree = "<group>"; };
+		C07064BF1C624E5D00367F8D /* MHConnectionsHandler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MHConnectionsHandler.m; sourceTree = "<group>"; };
+		C07064C01C624E5D00367F8D /* MHController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MHController.h; sourceTree = "<group>"; };
+		C07064C11C624E5D00367F8D /* MHController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MHController.m; sourceTree = "<group>"; };
+		C07064C21C624E5D00367F8D /* MHDatagram.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MHDatagram.h; sourceTree = "<group>"; };
+		C07064C31C624E5D00367F8D /* MHDatagram.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MHDatagram.m; sourceTree = "<group>"; };
+		C07064C41C624E5D00367F8D /* MHDiagnostics.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MHDiagnostics.h; sourceTree = "<group>"; };
+		C07064C51C624E5D00367F8D /* MHDiagnostics.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MHDiagnostics.m; sourceTree = "<group>"; };
+		C07064C61C624E5D00367F8D /* MHFloodingProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MHFloodingProtocol.h; sourceTree = "<group>"; };
+		C07064C71C624E5D00367F8D /* MHFloodingProtocol.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MHFloodingProtocol.m; sourceTree = "<group>"; };
+		C07064C81C624E5D00367F8D /* MHLocationManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MHLocationManager.h; sourceTree = "<group>"; };
+		C07064C91C624E5D00367F8D /* MHLocationManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MHLocationManager.m; sourceTree = "<group>"; };
+		C07064CA1C624E5D00367F8D /* MHMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MHMessage.h; sourceTree = "<group>"; };
+		C07064CB1C624E5D00367F8D /* MHMessage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MHMessage.m; sourceTree = "<group>"; };
+		C07064CC1C624E5D00367F8D /* MHMultipeerWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MHMultipeerWrapper.h; sourceTree = "<group>"; };
+		C07064CD1C624E5D00367F8D /* MHMultipeerWrapper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MHMultipeerWrapper.m; sourceTree = "<group>"; };
+		C07064CE1C624E5D00367F8D /* MHPacket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MHPacket.h; sourceTree = "<group>"; };
+		C07064CF1C624E5D00367F8D /* MHPacket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MHPacket.m; sourceTree = "<group>"; };
+		C07064D01C624E5D00367F8D /* MHPaddoc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MHPaddoc.h; sourceTree = "<group>"; };
+		C07064D11C624E5D00367F8D /* MHPaddoc.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MHPaddoc.m; sourceTree = "<group>"; };
+		C07064D21C624E5D00367F8D /* MHPeer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MHPeer.h; sourceTree = "<group>"; };
+		C07064D31C624E5D00367F8D /* MHPeer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MHPeer.m; sourceTree = "<group>"; };
+		C07064D41C624E5D00367F8D /* MHPeerBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MHPeerBuffer.h; sourceTree = "<group>"; };
+		C07064D51C624E5D00367F8D /* MHPeerBuffer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MHPeerBuffer.m; sourceTree = "<group>"; };
+		C07064D61C624E5D00367F8D /* MHRoutingProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MHRoutingProtocol.h; sourceTree = "<group>"; };
+		C07064D71C624E5D00367F8D /* MHRoutingProtocol.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MHRoutingProtocol.m; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		C07064921C624E2A00367F8D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		C070648C1C624E2A00367F8D = {
+			isa = PBXGroup;
+			children = (
+				C07064971C624E2A00367F8D /* padoc-sample */,
+				C07064961C624E2A00367F8D /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		C07064961C624E2A00367F8D /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				C07064951C624E2A00367F8D /* padoc-sample.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		C07064971C624E2A00367F8D /* padoc-sample */ = {
+			isa = PBXGroup;
+			children = (
+				C07064AF1C624E5D00367F8D /* Padoc */,
+				C070649B1C624E2A00367F8D /* AppDelegate.h */,
+				C070649C1C624E2A00367F8D /* AppDelegate.m */,
+				C070649E1C624E2A00367F8D /* ViewController.h */,
+				C070649F1C624E2A00367F8D /* ViewController.m */,
+				C07064A11C624E2A00367F8D /* Main.storyboard */,
+				C07064A41C624E2A00367F8D /* Assets.xcassets */,
+				C07064A61C624E2A00367F8D /* LaunchScreen.storyboard */,
+				C07064A91C624E2A00367F8D /* Info.plist */,
+				C07064981C624E2A00367F8D /* Supporting Files */,
+			);
+			path = "padoc-sample";
+			sourceTree = "<group>";
+		};
+		C07064981C624E2A00367F8D /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				C07064991C624E2A00367F8D /* main.m */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		C07064AF1C624E5D00367F8D /* Padoc */ = {
+			isa = PBXGroup;
+			children = (
+				C07064EC1C62504300367F8D /* Utils */,
+				C07064F11C6250AC00367F8D /* Diagnostics */,
+				C07064F01C62507400367F8D /* Interface */,
+				C07064EF1C62506700367F8D /* Transport */,
+				C07064EE1C62506000367F8D /* Network */,
+				C07064ED1C62505100367F8D /* Link */,
+			);
+			path = Padoc;
+			sourceTree = SOURCE_ROOT;
+		};
+		C07064EC1C62504300367F8D /* Utils */ = {
+			isa = PBXGroup;
+			children = (
+				C07064BA1C624E5D00367F8D /* MHConfig.h */,
+				C07064BB1C624E5D00367F8D /* MHConfig.m */,
+				C07064B81C624E5D00367F8D /* MHComputation.h */,
+				C07064B91C624E5D00367F8D /* MHComputation.m */,
+				C07064C81C624E5D00367F8D /* MHLocationManager.h */,
+				C07064C91C624E5D00367F8D /* MHLocationManager.m */,
+			);
+			name = Utils;
+			sourceTree = "<group>";
+		};
+		C07064ED1C62505100367F8D /* Link */ = {
+			isa = PBXGroup;
+			children = (
+				C07064F31C6250FA00367F8D /* MultipeerConnectivity */,
+				C07064F21C6250E300367F8D /* Connections */,
+			);
+			name = Link;
+			sourceTree = "<group>";
+		};
+		C07064EE1C62506000367F8D /* Network */ = {
+			isa = PBXGroup;
+			children = (
+				C07064F41C62514000367F8D /* Protocols */,
+				C07064D61C624E5D00367F8D /* MHRoutingProtocol.h */,
+				C07064D71C624E5D00367F8D /* MHRoutingProtocol.m */,
+				C07064CE1C624E5D00367F8D /* MHPacket.h */,
+				C07064CF1C624E5D00367F8D /* MHPacket.m */,
+			);
+			name = Network;
+			sourceTree = "<group>";
+		};
+		C07064EF1C62506700367F8D /* Transport */ = {
+			isa = PBXGroup;
+			children = (
+				C07064C01C624E5D00367F8D /* MHController.h */,
+				C07064C11C624E5D00367F8D /* MHController.m */,
+				C07064CA1C624E5D00367F8D /* MHMessage.h */,
+				C07064CB1C624E5D00367F8D /* MHMessage.m */,
+			);
+			name = Transport;
+			sourceTree = "<group>";
+		};
+		C07064F01C62507400367F8D /* Interface */ = {
+			isa = PBXGroup;
+			children = (
+				C07064D01C624E5D00367F8D /* MHPaddoc.h */,
+				C07064D11C624E5D00367F8D /* MHPaddoc.m */,
+			);
+			name = Interface;
+			sourceTree = "<group>";
+		};
+		C07064F11C6250AC00367F8D /* Diagnostics */ = {
+			isa = PBXGroup;
+			children = (
+				C07064C41C624E5D00367F8D /* MHDiagnostics.h */,
+				C07064C51C624E5D00367F8D /* MHDiagnostics.m */,
+			);
+			name = Diagnostics;
+			sourceTree = "<group>";
+		};
+		C07064F21C6250E300367F8D /* Connections */ = {
+			isa = PBXGroup;
+			children = (
+				C07064BC1C624E5D00367F8D /* MHConnectionBuffer.h */,
+				C07064BD1C624E5D00367F8D /* MHConnectionBuffer.m */,
+				C07064BE1C624E5D00367F8D /* MHConnectionsHandler.h */,
+				C07064BF1C624E5D00367F8D /* MHConnectionsHandler.m */,
+			);
+			name = Connections;
+			sourceTree = "<group>";
+		};
+		C07064F31C6250FA00367F8D /* MultipeerConnectivity */ = {
+			isa = PBXGroup;
+			children = (
+				C07064C21C624E5D00367F8D /* MHDatagram.h */,
+				C07064C31C624E5D00367F8D /* MHDatagram.m */,
+				C07064CC1C624E5D00367F8D /* MHMultipeerWrapper.h */,
+				C07064CD1C624E5D00367F8D /* MHMultipeerWrapper.m */,
+				C07064D21C624E5D00367F8D /* MHPeer.h */,
+				C07064D31C624E5D00367F8D /* MHPeer.m */,
+				C07064D41C624E5D00367F8D /* MHPeerBuffer.h */,
+				C07064D51C624E5D00367F8D /* MHPeerBuffer.m */,
+			);
+			name = MultipeerConnectivity;
+			sourceTree = "<group>";
+		};
+		C07064F41C62514000367F8D /* Protocols */ = {
+			isa = PBXGroup;
+			children = (
+				C07064F71C62518000367F8D /* 6Shots */,
+				C07064F61C62517A00367F8D /* Flooding */,
+				C07064F51C62517000367F8D /* CBS */,
+			);
+			name = Protocols;
+			sourceTree = "<group>";
+		};
+		C07064F51C62517000367F8D /* CBS */ = {
+			isa = PBXGroup;
+			children = (
+				C07064B61C624E5D00367F8D /* MHCBSProtocol.h */,
+				C07064B71C624E5D00367F8D /* MHCBSProtocol.m */,
+			);
+			name = CBS;
+			sourceTree = "<group>";
+		};
+		C07064F61C62517A00367F8D /* Flooding */ = {
+			isa = PBXGroup;
+			children = (
+				C07064C61C624E5D00367F8D /* MHFloodingProtocol.h */,
+				C07064C71C624E5D00367F8D /* MHFloodingProtocol.m */,
+			);
+			name = Flooding;
+			sourceTree = "<group>";
+		};
+		C07064F71C62518000367F8D /* 6Shots */ = {
+			isa = PBXGroup;
+			children = (
+				C07064B01C624E5D00367F8D /* MH6ShotsProtocol.h */,
+				C07064B11C624E5D00367F8D /* MH6ShotsProtocol.m */,
+				C07064B21C624E5D00367F8D /* MH6ShotsSchedule.h */,
+				C07064B31C624E5D00367F8D /* MH6ShotsSchedule.m */,
+				C07064B41C624E5D00367F8D /* MH6ShotsScheduler.h */,
+				C07064B51C624E5D00367F8D /* MH6ShotsScheduler.m */,
+			);
+			name = 6Shots;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		C07064941C624E2A00367F8D /* padoc-sample */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C07064AC1C624E2A00367F8D /* Build configuration list for PBXNativeTarget "padoc-sample" */;
+			buildPhases = (
+				C07064911C624E2A00367F8D /* Sources */,
+				C07064921C624E2A00367F8D /* Frameworks */,
+				C07064931C624E2A00367F8D /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "padoc-sample";
+			productName = "padoc-lib";
+			productReference = C07064951C624E2A00367F8D /* padoc-sample.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		C070648D1C624E2A00367F8D /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0720;
+				ORGANIZATIONNAME = REACT;
+				TargetAttributes = {
+					C07064941C624E2A00367F8D = {
+						CreatedOnToolsVersion = 7.2;
+					};
+				};
+			};
+			buildConfigurationList = C07064901C624E2A00367F8D /* Build configuration list for PBXProject "padoc-sample" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = C070648C1C624E2A00367F8D;
+			productRefGroup = C07064961C624E2A00367F8D /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				C07064941C624E2A00367F8D /* padoc-sample */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		C07064931C624E2A00367F8D /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C07064A81C624E2A00367F8D /* LaunchScreen.storyboard in Resources */,
+				C07064A51C624E2A00367F8D /* Assets.xcassets in Resources */,
+				C07064A31C624E2A00367F8D /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		C07064911C624E2A00367F8D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C07064A01C624E2A00367F8D /* ViewController.m in Sources */,
+				C07064E91C624E5D00367F8D /* MHPeer.m in Sources */,
+				C07064DD1C624E5D00367F8D /* MHConfig.m in Sources */,
+				C07064E01C624E5D00367F8D /* MHController.m in Sources */,
+				C070649D1C624E2A00367F8D /* AppDelegate.m in Sources */,
+				C07064DC1C624E5D00367F8D /* MHComputation.m in Sources */,
+				C07064E81C624E5D00367F8D /* MHPaddoc.m in Sources */,
+				C07064DB1C624E5D00367F8D /* MHCBSProtocol.m in Sources */,
+				C070649A1C624E2A00367F8D /* main.m in Sources */,
+				C07064E41C624E5D00367F8D /* MHLocationManager.m in Sources */,
+				C07064DF1C624E5D00367F8D /* MHConnectionsHandler.m in Sources */,
+				C07064E31C624E5D00367F8D /* MHFloodingProtocol.m in Sources */,
+				C07064E61C624E5D00367F8D /* MHMultipeerWrapper.m in Sources */,
+				C07064DE1C624E5D00367F8D /* MHConnectionBuffer.m in Sources */,
+				C07064E51C624E5D00367F8D /* MHMessage.m in Sources */,
+				C07064E21C624E5D00367F8D /* MHDiagnostics.m in Sources */,
+				C07064EB1C624E5D00367F8D /* MHRoutingProtocol.m in Sources */,
+				C07064EA1C624E5D00367F8D /* MHPeerBuffer.m in Sources */,
+				C07064E11C624E5D00367F8D /* MHDatagram.m in Sources */,
+				C07064D81C624E5D00367F8D /* MH6ShotsProtocol.m in Sources */,
+				C07064D91C624E5D00367F8D /* MH6ShotsSchedule.m in Sources */,
+				C07064DA1C624E5D00367F8D /* MH6ShotsScheduler.m in Sources */,
+				C07064E71C624E5D00367F8D /* MHPacket.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		C07064A11C624E2A00367F8D /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				C07064A21C624E2A00367F8D /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		C07064A61C624E2A00367F8D /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				C07064A71C624E2A00367F8D /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		C07064AA1C624E2A00367F8D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		C07064AB1C624E2A00367F8D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		C07064AD1C624E2A00367F8D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				INFOPLIST_FILE = "padoc-sample/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "react.padoc-sample";
+				PRODUCT_NAME = "padoc-sample";
+			};
+			name = Debug;
+		};
+		C07064AE1C624E2A00367F8D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				INFOPLIST_FILE = "padoc-sample/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "react.padoc-sample";
+				PRODUCT_NAME = "padoc-sample";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		C07064901C624E2A00367F8D /* Build configuration list for PBXProject "padoc-sample" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C07064AA1C624E2A00367F8D /* Debug */,
+				C07064AB1C624E2A00367F8D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C07064AC1C624E2A00367F8D /* Build configuration list for PBXNativeTarget "padoc-sample" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C07064AD1C624E2A00367F8D /* Debug */,
+				C07064AE1C624E2A00367F8D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = C070648D1C624E2A00367F8D /* Project object */;
+}

@@ -1,0 +1,23 @@
+//
+//  AppDelegate.h
+//  padoc-lib
+//
+//  Created by Gabriel on 03/02/16.
+//  Copyright © 2016 REACT. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+//  Import the Padoc interface
+#import "MHPaddoc.h"
+
+@interface AppDelegate : UIResponder <UIApplicationDelegate>
+
+@property (strong, nonatomic) UIWindow *window;
+
+//  Set the paddoc object
+- (void)setPaddocObject:(MHPaddoc *)paddoc;
+
+
+@end
+
