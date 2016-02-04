@@ -41,11 +41,11 @@ The major limitation comes from the fact that there is no transport layer still 
 
 ## Install
 
-In order to use the Paddoc library in your project, two options are possible:
+In order to use the Padoc library in your project, two options are possible:
 
 * Create your application project
 * Include CoreLocation.framework
-* Manually copy the content of the ./Paddoc folder
+* Manually copy the content of the ./Padoc folder
 
 or
 
@@ -65,10 +65,10 @@ The Padoc library uses special objects in order to enter the ad-hoc network
 and perform all operations. 
   
 The first step is to initialize the Padoc object (note that the class must implement the  
-*MHPaddocDelegate* protocol):
+*MHPadocDelegate* protocol):
 
 ```Objective-C
-#import "MHPaddoc.h"
+#import "MHPadoc.h"
 
 ...
 
@@ -196,7 +196,7 @@ not forwarded anymore.
   
 In order to receive messages, the following callback is needed:
 ```Objective-C
-- (void)mhPadoc:(MHPaddoc *)mhPadoc
+- (void)mhPadoc:(MHPadoc *)mhPadoc
   deliverMessage:(NSData *)data
       fromGroups:(NSArray *)groups
 {
@@ -255,7 +255,7 @@ Now, the *deliverMessage* callback with a special *traceInfo* argument can be de
 It provides an array of peer ids specifying the path that a packet has taken throughout  
 the network. It can be called by writing:
 ```Objective-C
-- (void)mhPadoc:(MHPaddoc *)mhPadoc
+- (void)mhPadoc:(MHPadoc *)mhPadoc
   deliverMessage:(NSData *)data
       fromGroups:(NSArray *)groups
    withTraceInfo:(NSArray*)traceInfo
@@ -309,7 +309,7 @@ network routing execution, the diagnostics suite provides the following option:
 By using this option, the socket gives additional information about which peer in the network  
 joined which group:
 ```Objective-C
-- (void)mhPaddoc:(MHPaddoc *)mhPadoc
+- (void)mhPadoc:(MHPadoc *)mhPadoc
      joinedGroup:(NSString *)info
             peer:(NSString *)peer
      displayName:(NSString *)displayName
@@ -325,7 +325,7 @@ In order to see in real time whether the local peer is currently forwarding pack
 and to have access to the packet content, an additional callback is available.
 This can be executed by writing:
 ```Objective-C
-- (void)mhPadoc:(MHPaddoc *)mhPadoc
+- (void)mhPadoc:(MHPadoc *)mhPadoc
    forwardPacket:(NSString *)info
      withMessage:(NSData *)message
       fromSource:(NSString *)peer
