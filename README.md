@@ -1,7 +1,7 @@
-# Paddoc Library for iOS (v0.5)
-Paddoc is an Objective-C library runnable on iOS devices whose purpose is to connect smartphones without any external service. It supports a network of any size using multiple hops for message sending. It relies on the Multipeer Connectivity framework for the lower communication primitives between neighbour devices.  
+# Padoc Library for iOS (v1.0)
+Padoc is an Objective-C library runnable on iOS devices whose purpose is to connect smartphones without any external service. It supports a network of any size using multiple hops for message sending. It relies on the Multipeer Connectivity framework for the lower communication primitives between neighbour devices.  
   
-By creating a Paddoc object, it is possible to send and receive messages to and from any peer in the network.  
+By creating a Padoc object, it is possible to send and receive messages to and from any peer in the network.  
 The interface is location multicast-based and provides methods for joining and leaving **multicast groups**. When a peer sends a message to a particular group, then only the peers having joint that specific group will receive the message. In addition, it is possible to specify a maximal distance after which peers are not acknowledged anymore.
 Indeed, the source peer has no knowledge of which peers will finally receive the message.  
   
@@ -59,10 +59,12 @@ Make sure that WiFi is turned on.
 
 ### Initialization
 
-The Paddoc library uses special objects in order to enter the ad-hoc network  
+To illustrate the instructions given bellow, a sample app (padoc-sample) showing basic functionality has been included.
+
+The Padoc library uses special objects in order to enter the ad-hoc network  
 and perform all operations. 
   
-The first step is to initialize the Paddoc object (note that the class must implement the  
+The first step is to initialize the Padoc object (note that the class must implement the  
 *MHPaddocDelegate* protocol):
 
 ```Objective-C
@@ -70,8 +72,8 @@ The first step is to initialize the Paddoc object (note that the class must impl
 
 ...
 
-self.paddoc = [[MHPaddoc alloc] initWithServiceType:@"serviceName"];
-self.paddoc.delegate = self;
+self.padoc = [[MHPadoc alloc] initWithServiceType:@"serviceName"];
+self.padoc.delegate = self;
 ```
 
 In order to support the background mode, some methods must be called  
@@ -80,51 +82,51 @@ class contains a reference to our socket and calls certain methods:
 
 AppDelegate.h
 ```Objective-C
-#import "MHPaddoc.h"
+#import "MHPadoc.h"
 
 ...
 @interface AppDelegate : UIResponder <UIApplicationDelegate>
 ...
-- (void)setPaddocObject:(MHPaddoc *)paddoc;
+- (void)setPadocObject:(MHPadoc *)padoc;
 ```
 and AppDelegate.m
 ```Objective-C
 @interface AppDelegate ()
 ...
-@property (nonatomic, strong) MHPaddoc *paddoc;
+@property (nonatomic, strong) MHPadoc *padoc;
 ...
 @end
 
 @implementation AppDelegate
 
 
-- (void)setPaddocObject:(MHPaddoc *)paddoc
+- (void)setPadocObject:(MHPadoc *)padoc
 {
-    self.paddoc = paddoc;
+    self.padoc = padoc;
 }
 
 ...
 - (void)applicationWillResignActive:(UIApplication *)application {
     ...
-    if(self.paddoc != nil)
+    if(self.padoc != nil)
     {
-        [self.paddoc applicationWillResignActive];
+        [self.padoc applicationWillResignActive];
     }
 }
 
 - (void)applicationDidBecomeActive:(UIApplication *)application {
     ...
-    if(self.paddoc != nil)
+    if(self.padoc != nil)
     {
-        [self.paddoc applicationDidBecomeActive];
+        [self.padoc applicationDidBecomeActive];
     }
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application {
     ...
-    if(self.paddoc != nil)
+    if(self.padoc != nil)
     {
-        [self.paddoc applicationWillTerminate];
+        [self.padoc applicationWillTerminate];
     }
 }
 ...
@@ -134,22 +136,22 @@ Finally, the class instantiating the object executes:
 ```Objective-C
 AppDelegate *appDelegate = (AppDelegate*)[[UIApplication sharedApplication] delegate];
 
-[appDelegate setPaddocObject:self.paddoc];
+[appDelegate setPadocObject:self.padoc];
 ```
 
 ### Basic usage
 
 #### Connection and Disconnection
 
-The Paddoc object can be instantiated using the following methods:  
+The Padoc object can be instantiated using the following methods:  
 
 ```Objective-C
-[[MHPaddoc alloc] initWithServiceType:@"service"];
+[[MHPadoc alloc] initWithServiceType:@"service"];
 
-[[MHPaddoc alloc] initWithServiceType:@"service"
+[[MHPadoc alloc] initWithServiceType:@"service"
                   withRoutingProtocol:protocol];
 
-[[MHPaddoc alloc] initWithServiceType:@"service"
+[[MHPadoc alloc] initWithServiceType:@"service"
                           displayName:@"deviceName"
                   withRoutingProtocol:protocol];
 ```
@@ -163,13 +165,13 @@ If unspecified, the default protocol is *MHFloodingRoutingProtocol.*.
 In order to disconnect the socket from the network, write:
 
 ```Objective-C
-[paddoc disconnect];
+[padoc disconnect];
 ```
 
 If an error occurred during the connection phase, the user is notified  
 by the following callback:
 ```Objective-C
-- (void)mhPaddoc:(MHPaddoc *)mhPaddoc failedToConnect:(NSError *)error
+- (void)mhPadoc:(MHPadoc *)mhPadoc failedToConnect:(NSError *)error
 {
   ...
 }
@@ -181,7 +183,7 @@ by the following callback:
 In order to send a message, the following command can be called:
 ```Objective-C
 NSError *error;
-[paddoc multicastMessage:msg
+[padoc multicastMessage:msg
           toDestinations:destinations
                  maxHops:(int)maxHops
                    error:&error];
@@ -194,7 +196,7 @@ not forwarded anymore.
   
 In order to receive messages, the following callback is needed:
 ```Objective-C
-- (void)mhPaddoc:(MHPaddoc *)mhPaddoc
+- (void)mhPadoc:(MHPaddoc *)mhPadoc
   deliverMessage:(NSData *)data
       fromGroups:(NSArray *)groups
 {
@@ -209,15 +211,15 @@ This means that if a node joined a particular group, it will receive every messa
 node having sent a message addressed to that group. Therefore, two commands for joining and  
 leaving a group are specified:
 ```Objective-C
-[paddoc joinGroup:@"groupName" maxHops:(int)maxHops];
+[padoc joinGroup:@"groupName" maxHops:(int)maxHops];
 
-[paddoc leaveGroup:@"groupName" maxHops:(int)maxHops];
+[padoc leaveGroup:@"groupName" maxHops:(int)maxHops];
 ```                
 
 #### Other functions
 In order to get the local peer id, one can call the following method: 
 ```Objective-C
-NSString *localPeer = [paddoc getOwnPeer];
+NSString *localPeer = [padoc getOwnPeer];
 ```  
 Note that the peer id is a string that uniquely identifies a node in the network.  
 The id is permanent, meaning that if the application is restarted, the same id is  
@@ -228,7 +230,7 @@ for the same physical node.
   
 Sometimes, it could be useful to know the number of hops from a particular peer:  
 ``` Objective-C
-int hops = [paddoc hopsCountFromPeer:peer];
+int hops = [padoc hopsCountFromPeer:peer];
 ```  
 The function result highly depends on the underlying algorithm. 6Shots provides a reliable  
 information, but the Flooding or the CBS algorithms usually give an incorrect result. Indeed,  
@@ -253,7 +255,7 @@ Now, the *deliverMessage* callback with a special *traceInfo* argument can be de
 It provides an array of peer ids specifying the path that a packet has taken throughout  
 the network. It can be called by writing:
 ```Objective-C
-- (void)mhPaddoc:(MHPaddoc *)mhPaddoc
+- (void)mhPadoc:(MHPaddoc *)mhPadoc
   deliverMessage:(NSData *)data
       fromGroups:(NSArray *)groups
    withTraceInfo:(NSArray*)traceInfo
@@ -282,7 +284,7 @@ In order to know what are the directly connected peers (neighbourhood), use:
 ```
 Now, the following callbacks are available:
 ```Objective-C
-- (void)mhPaddoc:(MHPaddoc *)mhPaddoc
+- (void)mhPadoc:(MHPadoc *)mhPadoc
 neighbourConnected:(NSString *)info
             peer:(NSString *)peer
      displayName:(NSString *)displayName
@@ -290,7 +292,7 @@ neighbourConnected:(NSString *)info
   ...
 }
 
-- (void)mhPaddoc:(MHPaddoc *)mhPaddoc
+- (void)mhPadoc:(MHPadoc *)mhPadoc
 neighbourDisconnected:(NSString *)info
             peer:(NSString *)peer
 {
@@ -307,7 +309,7 @@ network routing execution, the diagnostics suite provides the following option:
 By using this option, the socket gives additional information about which peer in the network  
 joined which group:
 ```Objective-C
-- (void)mhPaddoc:(MHPaddoc *)mhPaddoc
+- (void)mhPaddoc:(MHPaddoc *)mhPadoc
      joinedGroup:(NSString *)info
             peer:(NSString *)peer
      displayName:(NSString *)displayName
@@ -316,14 +318,14 @@ joined which group:
   ...
 }
 ```
-No information is however given about who leaved a group.  
+No information is however given about who left a group.  
   
   
-This is however not the only information. In order to see in real time whether the local peer  
-is currently forwarding packets or not, and to have access to the packet content, an additional  
-callback is available. This can be executed by writing:
+In order to see in real time whether the local peer is currently forwarding packets or not,
+and to have access to the packet content, an additional callback is available.
+This can be executed by writing:
 ```Objective-C
-- (void)mhPaddoc:(MHPaddoc *)mhPaddoc
+- (void)mhPadoc:(MHPaddoc *)mhPadoc
    forwardPacket:(NSString *)info
      withMessage:(NSData *)message
       fromSource:(NSString *)peer
@@ -332,8 +334,8 @@ callback is available. This can be executed by writing:
 }
 ```
 This callback is however valid only for regular packets. Sometimes, it could be useful to follow  
-the distribution of some algorithm control packets (like discovery or group joining ones). This can  
-be enabled by the following code:
+the distribution of some algorithm control packets (like discovery or group joining ones).
+This can be enabled by the following code:
 ```Objective-C
 [MHDiagnostics getSingleton].useNetworkLayerControlInfoCallbacks = YES;
 ```
