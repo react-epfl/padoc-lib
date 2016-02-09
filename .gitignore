@@ -1,4 +1,4 @@
 *.DS_Store
-Paddoc.xcodeproj/xcuserdata/*
-Paddoc.xcodeproj/project.xcworkspace/xcuserdata/*
+Padoc.xcodeproj/xcuserdata/*
+Padoc.xcodeproj/project.xcworkspace/xcuserdata/*
 *.xcuserstate
